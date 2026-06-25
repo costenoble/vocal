@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Message {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  fromName        String
+  toName          String
+  date            String
+  audioUrl        String
+  duration        Int?
+  plan            String    @default("precieux")
+  paid            Boolean   @default(false)
+  stripeSessionId String?   @unique
+  buyerEmail      String?
+  viewCount       Int       @default(0)
+  createdAt       DateTime  @default(now())
+  expiresAt       DateTime?
+}
