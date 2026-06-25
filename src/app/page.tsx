@@ -179,13 +179,13 @@ export default function LandingPage() {
                 transition={{ delay: 0.82, duration: 0.4 }}
                 className="flex flex-col gap-3 w-full max-w-[300px]"
               >
-                <a
-                  href="#tarifs"
+                <Link
+                  href="/composer"
                   className="w-full py-4 rounded-2xl font-bold text-white text-[14px] tracking-wide text-center block transition-all active:scale-[0.98]"
                   style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 6px 28px rgba(184,134,26,0.32)" }}
                 >
                   Commander ma carte
-                </a>
+                </Link>
                 <Link href="/listen/demo" className="text-[13px] font-medium flex items-center gap-1.5" style={{ color: "var(--gold)" }}>
                   <svg viewBox="0 0 24 24" fill="currentColor" width={14} height={14}><path d="M8 5v14l11-7z"/></svg>
                   Écouter un exemple
@@ -439,10 +439,9 @@ export default function LandingPage() {
                   ))}
                 </ul>
 
-                <button
-                  onClick={() => handleCheckout(plan.id)}
-                  disabled={loadingPlan === plan.id}
-                  className="w-full py-4 rounded-2xl font-bold text-[14px] tracking-wide transition-all active:scale-[0.98] disabled:opacity-60 mt-auto"
+                <Link
+                  href="/composer"
+                  className="w-full py-4 rounded-2xl font-bold text-[14px] tracking-wide transition-all active:scale-[0.98] mt-auto text-center block"
                   style={{
                     background: plan.highlight ? "linear-gradient(135deg, var(--gold-light), var(--gold-dark))" : "transparent",
                     color: plan.highlight ? "white" : "var(--gold)",
@@ -450,10 +449,8 @@ export default function LandingPage() {
                     boxShadow: plan.highlight ? "0 4px 20px rgba(184,134,26,0.28)" : "none",
                   }}
                 >
-                  {loadingPlan === plan.id
-                    ? <span className="flex items-center justify-center gap-2"><span className="w-4 h-4 border-2 rounded-full animate-spin inline-block" style={{ borderColor: plan.highlight ? "rgba(255,255,255,0.4)" : "var(--gold)", borderTopColor: "transparent" }} />Redirection…</span>
-                    : "Commander"}
-                </button>
+                  Composer ma carte
+                </Link>
               </div>
             </motion.div>
           ))}
@@ -608,13 +605,13 @@ export default function LandingPage() {
           <p className="text-[13px] leading-relaxed" style={{ color: "var(--ink-muted)", maxWidth: 270 }}>
             En moins de 10 minutes. Un message qui sera écouté pour toujours.
           </p>
-          <a
-            href="#tarifs"
+          <Link
+            href="/composer"
             className="mt-2 w-full max-w-[280px] py-4 rounded-2xl font-bold text-white text-[14px] tracking-wide text-center block transition-all active:scale-[0.98]"
             style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 6px 24px rgba(184,134,26,0.28)" }}
           >
-            Voir les formules
-          </a>
+            Créer ma carte maintenant
+          </Link>
         </div>
       </section>
 

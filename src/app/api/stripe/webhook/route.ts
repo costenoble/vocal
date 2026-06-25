@@ -24,9 +24,31 @@ export async function POST(req: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
+    const meta = session.metadata ?? {};
 
-    // Mark message as paid if it was created before webhook (e.g. optimistic)
-    if (session.id) {
+    if (meta.slug && meta.fromName && meta.toName && meta.audioUrl) {
+      // Composer flow — create Message record directly from metadata
+      await prisma.message.upsert({
+        where: { slug: meta.slug },
+        create: {
+          slug: meta.slug,
+          fromName: meta.fromName,
+          toName: meta.toName,
+          date: meta.date || "",
+          audioUrl: meta.audioUrl,
+          plan: meta.planId || "carte",
+          paid: true,
+          stripeSessionId: session.id,
+          buyerEmail:
+            session.customer_email ??
+            (session.customer_details as { email?: string } | null)?.email ??
+            null,
+          viewCount: 0,
+        },
+        update: { paid: true },
+      });
+    } else if (session.id) {
+      // Legacy flow — mark existing pre-created record as paid
       await prisma.message.updateMany({
         where: { stripeSessionId: session.id },
         data: { paid: true },

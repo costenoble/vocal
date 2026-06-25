@@ -149,7 +149,7 @@ export default function SiteHeader() {
                   className="mt-8"
                 >
                   <a
-                    href="#tarifs"
+                    href="/composer"
                     onClick={close}
                     className="block w-full py-4 rounded-2xl font-bold text-white text-center text-[14px] tracking-wide"
                     style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 4px 20px rgba(184,134,26,0.25)" }}
