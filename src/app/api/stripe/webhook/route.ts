@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
+import { sendOrderConfirmation } from "@/lib/email";
 import Stripe from "stripe";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +26,12 @@ export async function POST(req: NextRequest) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const meta = session.metadata ?? {};
+    const origin = process.env.NEXT_PUBLIC_APP_URL ?? "https://noubliejamais.fr";
+
+    const buyerEmail =
+      session.customer_email ??
+      (session.customer_details as { email?: string } | null)?.email ??
+      null;
 
     if (meta.slug && meta.fromName && meta.toName && meta.audioUrl) {
       // Composer flow — create Message record directly from metadata
@@ -39,14 +46,27 @@ export async function POST(req: NextRequest) {
           plan: meta.planId || "carte",
           paid: true,
           stripeSessionId: session.id,
-          buyerEmail:
-            session.customer_email ??
-            (session.customer_details as { email?: string } | null)?.email ??
-            null,
+          buyerEmail,
           viewCount: 0,
         },
         update: { paid: true },
       });
+
+      // Send confirmation email
+      if (buyerEmail) {
+        try {
+          await sendOrderConfirmation({
+            to: buyerEmail,
+            fromName: meta.fromName,
+            toName: meta.toName,
+            listenUrl: `${origin}/listen/${meta.slug}`,
+            pdfUrl: `${origin}/api/pdf/${meta.slug}`,
+            plan: meta.planId || "carte",
+          });
+        } catch (err) {
+          console.error("[webhook] Email send failed", err);
+        }
+      }
     } else if (session.id) {
       // Legacy flow — mark existing pre-created record as paid
       await prisma.message.updateMany({
