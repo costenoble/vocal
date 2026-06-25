@@ -103,7 +103,7 @@ export default function LandingPage() {
         <div className="absolute top-0 right-0 pointer-events-none" style={{ width: 500, height: 500, background: "radial-gradient(ellipse, rgba(184,134,26,0.10) 0%, transparent 65%)", filter: "blur(50px)" }} />
         <div className="absolute bottom-0 left-0 pointer-events-none" style={{ width: 300, height: 300, background: "radial-gradient(ellipse, rgba(184,134,26,0.07) 0%, transparent 70%)", filter: "blur(40px)" }} />
 
-        <div className="relative max-w-5xl mx-auto px-6 pt-14 pb-0">
+        <div className="relative max-w-5xl mx-auto px-6 pt-14 pb-6">
           <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
 
             {/* ── LEFT : texte ── */}
@@ -298,8 +298,8 @@ export default function LandingPage() {
 
       </section>
 
-      <div aria-hidden style={{ background: "#F5EEE3", height: 56, lineHeight: 0, overflow: "hidden" }}>
-        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56"><path d="M0 42 C360 0 1080 56 1440 24 L1440 56 L0 56 Z" fill="white" /></svg>
+      <div aria-hidden style={{ background: "#F5EEE3", height: 90, lineHeight: 0, overflow: "hidden" }}>
+        <svg viewBox="0 0 1440 90" preserveAspectRatio="none" width="100%" height="90"><path d="M0 70 C480 10 960 90 1440 40 L1440 90 L0 90 Z" fill="white" /></svg>
       </div>
 
       {/* ═══════════════════════════════ OCCASIONS ═══════════════════════════════ */}
