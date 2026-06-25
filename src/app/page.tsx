@@ -535,7 +535,7 @@ export default function LandingPage() {
             {/* Left: title sticky */}
             <div className="md:w-56 shrink-0 mb-8 md:mb-0 md:sticky md:top-28">
               <Label>Questions fréquentes</Label>
-              <h2 className="mt-2 text-[22px] font-black leading-tight" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
+              <h2 className="mt-3 font-black leading-tight" style={{ fontSize: "clamp(28px, 4vw, 38px)", color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
                 Tout ce que vous devez savoir.
               </h2>
               <div className="mt-4 w-8 h-0.5 rounded-full" style={{ background: "var(--gold)" }} />
@@ -618,8 +618,15 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Wave cta → footer */}
+      <div aria-hidden style={{ background: "var(--cream)", height: 56, lineHeight: 0, overflow: "hidden", margin: "0 8px", borderRadius: "0 0 0 0" }}>
+        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56">
+          <path d="M0 20 C400 56 1000 0 1440 36 L1440 56 L0 56 Z" fill="var(--ink)" />
+        </svg>
+      </div>
+
       {/* ═══════════════════════════════ FOOTER ═══════════════════════════════ */}
-      <footer style={{ background: "var(--ink)", color: "var(--cream)", borderRadius: 12, overflow: "hidden", margin: "0 8px 8px" }}>
+      <footer style={{ background: "var(--ink)", color: "var(--cream)", borderRadius: "0 0 12px 12px", overflow: "hidden", margin: "0 8px 8px" }}>
 
         <div className="px-5 pt-12 pb-8 max-w-5xl mx-auto">
           {/* Main footer grid */}
