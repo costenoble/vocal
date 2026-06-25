@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Logo from "@/components/Logo";
 import { LiveAudioWaveform } from "@/components/ui/live-audio-waveform";
 import Link from "next/link";
+import { THEMES, getTheme, type ThemeId } from "@/lib/themes";
 
 type WizardStep = 1 | 2 | 3 | 4;
 type RecordState = "idle" | "requesting" | "recording" | "uploading" | "done";
@@ -14,6 +15,7 @@ interface CardData {
   toName: string;
   date: string;
   occasion: string;
+  theme: ThemeId;
 }
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -128,55 +130,123 @@ function CardPreview({ card }: { card: CardData }) {
   );
 }
 
+// ── Theme Selector Component ──────────────────────────────────────────────────
+function ThemeSelector({ selected, onChange }: { selected: ThemeId; onChange: (id: ThemeId) => void }) {
+  return (
+    <div className="flex flex-col gap-2.5">
+      <span className="text-[10px] font-bold tracking-[0.14em] uppercase" style={{ color: "var(--ink-muted)" }}>
+        Design de la page d&apos;écoute
+      </span>
+      <div className="grid grid-cols-4 gap-2.5">
+        {THEMES.map((th) => {
+          const active = selected === th.id;
+          return (
+            <button
+              key={th.id}
+              type="button"
+              onClick={() => onChange(th.id as ThemeId)}
+              className="relative flex flex-col items-center rounded-2xl overflow-hidden transition-all"
+              style={{
+                border: active ? `2px solid ${th.accent}` : "2px solid rgba(28,20,16,0.08)",
+                boxShadow: active ? `0 0 0 3px ${th.accent}28, 0 6px 20px ${th.accent}22` : "none",
+                transform: active ? "scale(1.04)" : "scale(1)",
+                transition: "all 0.22s cubic-bezier(0.22,1,0.36,1)",
+              }}
+            >
+              {/* Card preview fill */}
+              <div className="w-full relative" style={{ paddingBottom: "72%", background: th.pageBg }}>
+                {/* Top accent line */}
+                <div className="absolute top-0 left-0 right-0" style={{ height: 3, background: th.topBarGrad }} />
+                {/* Mini card */}
+                <div
+                  className="absolute rounded-lg"
+                  style={{
+                    top: "22%", left: "12%", right: "12%", bottom: "14%",
+                    background: th.cardBg,
+                    border: `1px solid ${th.cardBorder}`,
+                    boxShadow: th.cardShadow,
+                  }}
+                >
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 p-1">
+                    <div className="w-4/5 h-1 rounded-full" style={{ background: th.accent, opacity: 0.35 }} />
+                    <div className="w-3/5 h-0.5 rounded-full" style={{ background: th.accent, opacity: 0.2 }} />
+                  </div>
+                </div>
+                {/* Selected check */}
+                {active && (
+                  <div
+                    className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center"
+                    style={{ background: th.accent }}
+                  >
+                    <svg viewBox="0 0 10 10" fill="none" width={8} height={8}>
+                      <path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+              {/* Label */}
+              <div className="px-1 py-1.5 text-center" style={{ background: "white" }}>
+                <p className="text-[9px] font-bold leading-none" style={{ color: active ? th.accent : "var(--ink-muted)" }}>
+                  {th.emoji} {th.name}
+                </p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ── Listen Preview Component ──────────────────────────────────────────────────
 function ListenPreview({ card, audioUrl }: { card: CardData; audioUrl: string }) {
+  const t = getTheme(card.theme);
   return (
     <motion.div
+      key={card.theme}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: EASE }}
+      transition={{ duration: 0.4, ease: EASE }}
       className="w-full max-w-sm mx-auto rounded-3xl overflow-hidden"
-      style={{ boxShadow: "0 24px 64px rgba(28,20,16,0.14), 0 4px 16px rgba(28,20,16,0.06)", background: "white" }}
+      style={{ boxShadow: t.cardShadow, background: t.cardBg, border: `1px solid ${t.cardBorder}` }}
     >
-      {/* Top gold bar */}
-      <div className="h-1" style={{ background: "linear-gradient(90deg, var(--gold-light), var(--gold-dark))" }} />
+      {/* Top accent bar */}
+      <div className="h-1" style={{ background: t.topBarGrad }} />
 
-      <div className="flex flex-col items-center gap-5 px-7 py-8">
+      <div className="flex flex-col items-center gap-5 px-7 py-8" style={{ background: t.pageBg }}>
         {/* Brand */}
         <div className="flex flex-col items-center gap-2">
           <Logo size={56} />
           <div className="text-center">
-            <p className="text-[8px] font-black tracking-[0.24em] uppercase" style={{ color: "var(--ink)" }}>N&apos;OUBLIE JAMAIS</p>
-            <p className="text-[7px] tracking-[0.18em] mt-0.5" style={{ color: "var(--gold)" }}>La carte vocale</p>
+            <p className="text-[8px] font-black tracking-[0.24em] uppercase" style={{ color: t.text }}>N&apos;OUBLIE JAMAIS</p>
+            <p className="text-[7px] tracking-[0.18em] mt-0.5" style={{ color: t.accent }}>La carte vocale</p>
           </div>
         </div>
 
         {/* Sender */}
         {card.fromName && (
-          <div className="px-4 py-1.5 rounded-full text-[11px] font-semibold" style={{ background: "var(--cream)", color: "var(--gold)" }}>
+          <div className="px-4 py-1.5 rounded-full text-[11px] font-semibold" style={{ background: t.accentBg, color: t.accent, border: `1px solid ${t.accentBorder}` }}>
             Un message de {card.fromName}
           </div>
         )}
 
         {/* Names */}
         <div className="text-center">
-          <h2 className="text-[28px] font-black leading-tight" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
+          <h2 className="text-[28px] font-black leading-tight" style={{ color: t.text, fontFamily: t.font }}>
             Pour {card.toName || "…"}
           </h2>
-          {card.date && <p className="text-[12px] mt-1.5" style={{ color: "var(--ink-muted)" }}>{card.date}</p>}
-          {card.occasion && <p className="text-[11px] font-semibold mt-0.5" style={{ color: "var(--gold)" }}>{card.occasion}</p>}
+          {card.date && <p className="text-[12px] mt-1.5" style={{ color: t.textMuted }}>{card.date}</p>}
+          {card.occasion && <p className="text-[11px] font-semibold mt-0.5" style={{ color: t.accent }}>{card.occasion}</p>}
         </div>
 
         {/* Player */}
-        {audioUrl && (
-          <div className="w-full rounded-2xl overflow-hidden" style={{ background: "var(--cream)", border: "1px solid rgba(184,134,26,0.12)" }}>
-            <div className="p-4">
-              <LiveAudioWaveform src={audioUrl} />
-            </div>
+        <div className="w-full rounded-2xl overflow-hidden" style={{ background: t.cardBg, border: `1px solid ${t.accentBorder}` }}>
+          <div className="p-4">
+            <LiveAudioWaveform src={audioUrl || undefined} demo={!audioUrl} barPlayed={t.barPlayed} barIdle={t.barIdle} progressBg={t.progressBg} accentColor={t.accent} />
           </div>
-        )}
+        </div>
 
-        <p className="text-[9px] tracking-wide" style={{ color: "rgba(28,20,16,0.25)" }}>
+        <p className="text-[9px] tracking-wide" style={{ color: t.textMuted, opacity: 0.5 }}>
           APERÇU · PAGE D&apos;ÉCOUTE
         </p>
       </div>
@@ -187,7 +257,7 @@ function ListenPreview({ card, audioUrl }: { card: CardData; audioUrl: string })
 // ── Main Wizard ───────────────────────────────────────────────────────────────
 export default function ComposerClient() {
   const [step, setStep] = useState<WizardStep>(1);
-  const [card, setCard] = useState<CardData>({ fromName: "", toName: "", date: "", occasion: "" });
+  const [card, setCard] = useState<CardData>({ fromName: "", toName: "", date: "", occasion: "", theme: "classique" });
   const [recordState, setRecordState] = useState<RecordState>("idle");
   const [audioObjectUrl, setAudioObjectUrl] = useState<string>("");
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState<string>("");
@@ -295,7 +365,7 @@ export default function ComposerClient() {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId, fromName: card.fromName, toName: card.toName, date: card.date || "", occasion: card.occasion, audioUrl: uploadedAudioUrl }),
+        body: JSON.stringify({ planId, fromName: card.fromName, toName: card.toName, date: card.date || "", occasion: card.occasion, audioUrl: uploadedAudioUrl, theme: card.theme }),
       });
       const json = await res.json();
       if (json.url) { window.location.href = json.url; }
@@ -494,6 +564,8 @@ export default function ComposerClient() {
                       })}
                     </div>
                   </div>
+                  {/* Theme selector */}
+                  <ThemeSelector selected={card.theme} onChange={(id) => setCard((c) => ({ ...c, theme: id }))} />
                 </div>
 
                 {/* Card preview — desktop only */}

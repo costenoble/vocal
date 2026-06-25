@@ -20,6 +20,10 @@ interface LiveAudioWaveformProps {
   duration?: number
   className?: string
   demo?: boolean
+  barPlayed?: string
+  barIdle?: string
+  progressBg?: string
+  accentColor?: string
 }
 
 /* ── Helpers ── */
@@ -36,6 +40,10 @@ export function LiveAudioWaveform({
   duration: initialDuration,
   className,
   demo = false,
+  barPlayed = "linear-gradient(to top, var(--gold-dark), var(--gold-light))",
+  barIdle = "rgba(184,134,26,0.22)",
+  progressBg = "rgba(184,134,26,0.15)",
+  accentColor = "var(--gold)",
 }: LiveAudioWaveformProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const ctxRef = useRef<AudioContext | null>(null)
@@ -154,9 +162,7 @@ export function LiveAudioWaveform({
               className="flex-1 rounded-full"
               style={{
                 height: `${Math.max(6, h * 100)}%`,
-                background: isPlayed
-                  ? "linear-gradient(to top, var(--gold-dark), var(--gold-light))"
-                  : "rgba(184,134,26,0.22)",
+                background: isPlayed ? barPlayed : barIdle,
                 minWidth: 2,
                 maxWidth: 7,
                 transition: playing ? "height 75ms ease" : "height 300ms ease",
@@ -175,14 +181,14 @@ export function LiveAudioWaveform({
         className="relative w-full rounded-full"
         style={{
           height: 3,
-          background: "rgba(184,134,26,0.15)",
+          background: progressBg,
           cursor: isDisabled ? "default" : "pointer",
         }}
         onClick={handleSeek}
       >
         <div
           className="h-full rounded-full transition-all duration-100"
-          style={{ width: `${progress * 100}%`, background: "var(--gold)" }}
+          style={{ width: `${progress * 100}%`, background: accentColor }}
         />
         {!isDisabled && progress > 0 && (
           <div
@@ -190,8 +196,8 @@ export function LiveAudioWaveform({
             style={{
               left: `calc(${progress * 100}% - 6px)`,
               background: "white",
-              borderColor: "var(--gold)",
-              boxShadow: "0 1px 6px rgba(184,134,26,0.4)",
+              borderColor: accentColor,
+              boxShadow: `0 1px 6px ${accentColor}55`,
             }}
           />
         )}
@@ -207,10 +213,10 @@ export function LiveAudioWaveform({
           style={{
             width: 40,
             height: 40,
-            background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))",
+            background: accentColor,
             boxShadow: playing
-              ? "0 0 0 6px rgba(184,134,26,0.12), 0 4px 16px rgba(184,134,26,0.30)"
-              : "0 4px 14px rgba(184,134,26,0.25)",
+              ? `0 0 0 6px ${accentColor}22, 0 4px 16px ${accentColor}55`
+              : `0 4px 14px ${accentColor}44`,
           }}
           aria-label={playing ? "Pause" : "Lire"}
         >
@@ -230,7 +236,7 @@ export function LiveAudioWaveform({
         <div className="flex items-center justify-between flex-1">
           <span
             className="text-[11px] tabular-nums font-medium"
-            style={{ color: "var(--gold)", fontVariantNumeric: "tabular-nums" }}
+            style={{ color: accentColor, fontVariantNumeric: "tabular-nums" }}
           >
             {fmt(elapsed)}
           </span>

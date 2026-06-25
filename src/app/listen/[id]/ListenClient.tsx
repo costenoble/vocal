@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { LiveAudioWaveform } from "@/components/ui/live-audio-waveform";
 import Logo from "@/components/Logo";
+import { getTheme } from "@/lib/themes";
 
 interface Props {
   fromName: string;
@@ -12,15 +13,17 @@ interface Props {
   duration?: number;
   expired?: boolean;
   demo?: boolean;
+  theme?: string;
 }
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-export default function ListenClient({ fromName, toName, date, audioUrl, duration, expired, demo }: Props) {
+export default function ListenClient({ fromName, toName, date, audioUrl, duration, expired, demo, theme: themeId }: Props) {
+  const t = getTheme(themeId);
   return (
     <div
       className="min-h-screen w-full flex flex-col relative overflow-hidden"
-      style={{ background: "var(--cream)" }}
+      style={{ background: t.pageBg }}
     >
       {/* ── Ambient background orbs ── */}
       <div
@@ -28,7 +31,7 @@ export default function ListenClient({ fromName, toName, date, audioUrl, duratio
         style={{
           width: 420,
           height: 320,
-          background: "radial-gradient(ellipse, rgba(184,134,26,0.10) 0%, transparent 70%)",
+          background: `radial-gradient(ellipse, ${t.orb1} 0%, transparent 70%)`,
           filter: "blur(40px)",
         }}
       />
@@ -37,7 +40,7 @@ export default function ListenClient({ fromName, toName, date, audioUrl, duratio
         style={{
           width: 280,
           height: 280,
-          background: "radial-gradient(ellipse, rgba(184,134,26,0.07) 0%, transparent 70%)",
+          background: `radial-gradient(ellipse, ${t.orb2} 0%, transparent 70%)`,
           filter: "blur(30px)",
         }}
       />
@@ -55,11 +58,11 @@ export default function ListenClient({ fromName, toName, date, audioUrl, duratio
           <div className="text-center">
             <h1
               className="text-[20px] font-black tracking-[0.22em] uppercase"
-              style={{ color: "var(--ink)" }}
+              style={{ color: t.text }}
             >
               N&rsquo;OUBLIE JAMAIS
             </h1>
-            <p className="text-[9px] font-bold tracking-[0.22em] uppercase text-shimmer mt-0.5">
+            <p className="text-[9px] font-bold tracking-[0.22em] uppercase mt-0.5" style={{ color: t.accent }}>
               UN SOUVENIR QUI TRAVERSE LE TEMPS
             </p>
           </div>
@@ -72,21 +75,15 @@ export default function ListenClient({ fromName, toName, date, audioUrl, duratio
           transition={{ delay: 0.2, duration: 0.65, ease: EASE }}
           className="w-full rounded-3xl overflow-hidden"
           style={{
-            background: "rgba(255,255,255,0.92)",
+            background: t.cardBg,
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
-            boxShadow:
-              "0 8px 48px rgba(184,134,26,0.12), 0 2px 8px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,1)",
-            border: "1px solid rgba(184,134,26,0.14)",
+            boxShadow: t.cardShadow,
+            border: `1px solid ${t.cardBorder}`,
           }}
         >
-          {/* Gold top accent bar */}
-          <div
-            style={{
-              height: 3,
-              background: "linear-gradient(to right, var(--gold-dark), var(--gold-light), var(--gold-dark))",
-            }}
-          />
+          {/* Accent top bar */}
+          <div style={{ height: 3, background: t.topBarGrad }} />
 
           <div className="flex flex-col items-center px-6 py-7 gap-5">
 
@@ -101,13 +98,13 @@ export default function ListenClient({ fromName, toName, date, audioUrl, duratio
               >
                 <span
                   className="text-[10px] font-bold uppercase tracking-[0.16em]"
-                  style={{ color: "var(--ink-muted)" }}
+                  style={{ color: t.textMuted }}
                 >
                   De
                 </span>
                 <span
                   className="text-2xl font-semibold text-center leading-tight"
-                  style={{ color: "var(--gold)", fontFamily: "var(--font-playfair)" }}
+                  style={{ color: t.accent, fontFamily: t.font }}
                 >
                   {fromName}
                 </span>
@@ -123,15 +120,15 @@ export default function ListenClient({ fromName, toName, date, audioUrl, duratio
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center heartbeat"
                   style={{
-                    background: "linear-gradient(135deg, rgba(184,134,26,0.15), rgba(184,134,26,0.08))",
-                    border: "1px solid rgba(184,134,26,0.2)",
+                    background: t.accentBg,
+                    border: `1px solid ${t.accentBorder}`,
                   }}
                 >
-                  <svg viewBox="0 0 24 24" fill="var(--gold)" width={18} height={18}>
+                  <svg viewBox="0 0 24 24" fill={t.heartFill} width={18} height={18}>
                     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                   </svg>
                 </div>
-                <div className="w-px h-4" style={{ background: "rgba(184,134,26,0.25)" }} />
+                <div className="w-px h-4" style={{ background: `${t.accent}44` }} />
               </motion.div>
 
               {/* To */}
@@ -143,13 +140,13 @@ export default function ListenClient({ fromName, toName, date, audioUrl, duratio
               >
                 <span
                   className="text-[10px] font-bold uppercase tracking-[0.16em]"
-                  style={{ color: "var(--ink-muted)" }}
+                  style={{ color: t.textMuted }}
                 >
                   Pour
                 </span>
                 <span
                   className="text-2xl font-semibold text-center leading-tight"
-                  style={{ color: "var(--gold)", fontFamily: "var(--font-playfair)" }}
+                  style={{ color: t.accent, fontFamily: t.font }}
                 >
                   {toName}
                 </span>
@@ -165,17 +162,17 @@ export default function ListenClient({ fromName, toName, date, audioUrl, duratio
               <div
                 className="flex items-center gap-2 px-4 py-1.5 rounded-full"
                 style={{
-                  background: "rgba(184,134,26,0.08)",
-                  border: "1px solid rgba(184,134,26,0.18)",
+                  background: t.accentBg,
+                  border: `1px solid ${t.accentBorder}`,
                 }}
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.8" width={12} height={12}>
+                <svg viewBox="0 0 24 24" fill="none" stroke={t.accent} strokeWidth="1.8" width={12} height={12}>
                   <rect x="3" y="4" width="18" height="18" rx="2" />
                   <line x1="16" y1="2" x2="16" y2="6" />
                   <line x1="8" y1="2" x2="8" y2="6" />
                   <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
-                <span className="text-xs font-semibold" style={{ color: "var(--gold)" }}>
+                <span className="text-xs font-semibold" style={{ color: t.accent }}>
                   {date}
                 </span>
               </div>
@@ -187,7 +184,7 @@ export default function ListenClient({ fromName, toName, date, audioUrl, duratio
               animate={{ scaleX: 1, opacity: 1 }}
               transition={{ delay: 0.65, duration: 0.5 }}
               className="w-full h-px"
-              style={{ background: "linear-gradient(to right, transparent, rgba(184,134,26,0.25), transparent)" }}
+              style={{ background: `linear-gradient(to right, transparent, ${t.accent}44, transparent)` }}
             />
 
             {/* Player section */}
@@ -199,24 +196,24 @@ export default function ListenClient({ fromName, toName, date, audioUrl, duratio
             >
               <p
                 className="text-[10px] font-bold uppercase tracking-[0.2em] text-center mb-4"
-                style={{ color: "var(--ink-muted)" }}
+                style={{ color: t.textMuted }}
               >
                 Votre message vocal
               </p>
               {demo ? (
-                <LiveAudioWaveform demo />
+                <LiveAudioWaveform demo barPlayed={t.barPlayed} barIdle={t.barIdle} progressBg={t.progressBg} accentColor={t.accent} />
               ) : expired ? (
                 <div className="flex flex-col items-center gap-3 py-4">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "rgba(184,134,26,0.10)", border: "1px solid rgba(184,134,26,0.20)" }}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth={1.8} width={22} height={22}>
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: t.accentBg, border: `1px solid ${t.accentBorder}` }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke={t.accent} strokeWidth={1.8} width={22} height={22}>
                       <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
                     </svg>
                   </div>
-                  <p className="text-sm text-center font-medium" style={{ color: "var(--ink-muted)" }}>Ce message a expiré.</p>
-                  <p className="text-xs text-center" style={{ color: "var(--ink-muted)", opacity: 0.6 }}>La durée de conservation incluse dans cette formule est dépassée.</p>
+                  <p className="text-sm text-center font-medium" style={{ color: t.textMuted }}>Ce message a expiré.</p>
+                  <p className="text-xs text-center" style={{ color: t.textMuted, opacity: 0.6 }}>La durée de conservation incluse dans cette formule est dépassée.</p>
                 </div>
               ) : (
-                <LiveAudioWaveform src={audioUrl} duration={duration} />
+                <LiveAudioWaveform src={audioUrl} duration={duration} barPlayed={t.barPlayed} barIdle={t.barIdle} progressBg={t.progressBg} accentColor={t.accent} />
               )}
             </motion.div>
           </div>
@@ -230,16 +227,16 @@ export default function ListenClient({ fromName, toName, date, audioUrl, duratio
           className="flex flex-col items-center gap-2 mt-6"
         >
           <div className="flex items-center gap-2">
-            <div className="w-8 h-px" style={{ background: "rgba(184,134,26,0.3)" }} />
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5" width={16} height={16}>
+            <div className="w-8 h-px" style={{ background: `${t.accent}55` }} />
+            <svg viewBox="0 0 24 24" fill="none" stroke={t.accent} strokeWidth="1.5" width={16} height={16}>
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
-            <div className="w-8 h-px" style={{ background: "rgba(184,134,26,0.3)" }} />
+            <div className="w-8 h-px" style={{ background: `${t.accent}55` }} />
           </div>
-          <p className="text-[11px] font-medium text-center" style={{ color: "var(--ink-muted)", opacity: 0.7 }}>
+          <p className="text-[11px] font-medium text-center" style={{ color: t.textMuted, opacity: 0.7 }}>
             Créé avec N&rsquo;OUBLIE JAMAIS
           </p>
-          <p className="text-[10px] text-center" style={{ color: "var(--ink-muted)", opacity: 0.45 }}>
+          <p className="text-[10px] text-center" style={{ color: t.textMuted, opacity: 0.45 }}>
             Un message unique. Un souvenir précieux.
           </p>
         </motion.div>

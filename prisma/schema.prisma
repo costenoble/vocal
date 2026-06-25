@@ -19,6 +19,7 @@ model Message {
   paid            Boolean   @default(false)
   stripeSessionId String?   @unique
   buyerEmail      String?
+  theme           String    @default("classique")
   viewCount       Int       @default(0)
   createdAt       DateTime  @default(now())
   expiresAt       DateTime?

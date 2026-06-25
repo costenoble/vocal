@@ -73,6 +73,7 @@ export default async function ListenPage({ params }: Props) {
       audioUrl={message.audioUrl}
       duration={message.duration ?? undefined}
       expired={expired}
+      theme={message.theme}
     />
   );
 }

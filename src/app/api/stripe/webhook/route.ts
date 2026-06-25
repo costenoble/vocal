@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
           date: meta.date || "",
           audioUrl: meta.audioUrl,
           plan: meta.planId || "carte",
+          theme: meta.theme || "classique",
           paid: true,
           stripeSessionId: session.id,
           buyerEmail,

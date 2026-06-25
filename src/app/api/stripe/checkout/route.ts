@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { planId, email, fromName, toName, date, occasion, audioUrl } = body;
+    const { planId, email, fromName, toName, date, occasion, audioUrl, theme } = body;
 
     const plan = getPlanById(planId);
     if (!plan) {
@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
         date: date ?? "",
         occasion: occasion ?? "",
         audioUrl: audioUrl ?? "",
+        theme: theme ?? "classique",
       },
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/composer`,
