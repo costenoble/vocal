@@ -6,7 +6,7 @@ import Logo from "@/components/Logo";
 import Link from "next/link";
 import { THEMES, getTheme, type ThemeId } from "@/lib/themes";
 
-type WizardStep = 1 | 2 | 3 | 4;
+type WizardStep = 1 | 2 | 3 | 4 | 5;
 type RecordState = "idle" | "requesting" | "recording" | "uploading" | "done";
 
 interface CardData {
@@ -15,7 +15,22 @@ interface CardData {
   date: string;
   occasion: string;
   theme: ThemeId;
+  paper: string;
+  cardFont: string;
 }
+
+const PAPERS = [
+  { id: "ivoire", name: "Ivoire mat",    desc: "Douceur intemporelle", bg: "#F5EED5", text: "#1C1410", accent: "#8B6510", shimmer: false },
+  { id: "nacre",  name: "Blanc nacré",   desc: "Élégance lumineuse",   bg: "#F9F8F3", text: "#1C1410", accent: "#8B6510", shimmer: true  },
+  { id: "lin",    name: "Lin naturel",   desc: "Chaleur organique",    bg: "#DFD0B4", text: "#2A1B0E", accent: "#6B4C1E", shimmer: false },
+  { id: "noir",   name: "Noir velouté",  desc: "Luxe absolu",          bg: "#18120C", text: "#F0E8D8", accent: "#D4A832", shimmer: false },
+] as const;
+
+const CARD_FONTS = [
+  { id: "playfair", name: "Classique",  family: "var(--font-playfair)",      italic: true  },
+  { id: "inter",    name: "Moderne",    family: "var(--font-inter), sans-serif", italic: false },
+  { id: "script",   name: "Signature", family: "'Brush Script MT', 'Segoe Script', cursive", italic: false },
+] as const;
 
 const OCCASIONS = ["Mariage", "Anniversaire", "Naissance", "Diplôme", "Retraite", "Pour toujours", "Deuil", "Autre"];
 
@@ -273,10 +288,197 @@ function Nav({ onPrev, onNext, prevLabel = "Retour", nextLabel = "Continuer", ne
   );
 }
 
+// ── Fake QR Code (demo visual) ────────────────────────────────────────────────
+function FakeQR({ size = 72, fg = "#1C1410", bg = "transparent" }: { size?: number; fg?: string; bg?: string }) {
+  const cell = size / 21;
+  const pattern = [
+    "111111101001011101111111",
+    "100000100110100000100001",
+    "101110100011110111010001",
+    "101110101100001011101001",
+    "101110100010110111010011",
+    "100000101001001000100001",
+    "111111101010101111111101",
+    "000000001101000000000010",
+    "101101110010101101101101",
+    "010010001011010010100110",
+    "110111111000111011110101",
+    "001101001011001101001100",
+    "111001110100110001110011",
+    "000000001001001010100010",
+    "111111100110110111110001",
+    "100000100011001000110100",
+    "101110101100110111011001",
+    "101110100010001011101110",
+    "101110101101110111010011",
+    "100000100001001000100101",
+    "111111101110110101111110",
+  ];
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ display: "block" }}>
+      {bg !== "transparent" && <rect width={size} height={size} fill={bg} />}
+      {pattern.map((row, ri) =>
+        row.split("").map((c, ci) =>
+          c === "1" ? <rect key={`${ri}-${ci}`} x={ci * cell} y={ri * cell} width={cell} height={cell} fill={fg} /> : null
+        )
+      )}
+    </svg>
+  );
+}
+
+// ── Physical Card Preview ──────────────────────────────────────────────────────
+function PhysicalCard({ card }: { card: CardData }) {
+  const paper = PAPERS.find(p => p.id === card.paper) ?? PAPERS[0];
+  const font = CARD_FONTS.find(f => f.id === card.cardFont) ?? CARD_FONTS[0];
+
+  return (
+    <div style={{ perspective: 1200 }}>
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 380,
+          aspectRatio: "1.6 / 1",
+          margin: "0 auto",
+          borderRadius: 14,
+          background: paper.bg,
+          boxShadow: paper.id === "noir"
+            ? "0 32px 80px rgba(0,0,0,0.55), 0 8px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)"
+            : "0 24px 64px rgba(28,20,16,0.18), 0 6px 20px rgba(28,20,16,0.10), inset 0 1px 0 rgba(255,255,255,0.6)",
+          position: "relative",
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "stretch",
+        }}
+      >
+        {/* Shimmer overlay for nacré */}
+        {paper.shimmer && (
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.0) 100%)", pointerEvents: "none", zIndex: 2 }} />
+        )}
+
+        {/* Left accent bar */}
+        <div style={{ width: 4, background: `linear-gradient(to bottom, ${paper.accent}, ${paper.accent}88)`, flexShrink: 0 }} />
+
+        {/* Card content */}
+        <div style={{ flex: 1, padding: "20px 22px", display: "flex", flexDirection: "column", justifyContent: "space-between", position: "relative", zIndex: 1 }}>
+
+          {/* Top row: brand */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <p style={{ fontSize: 7, fontWeight: 900, letterSpacing: "0.22em", textTransform: "uppercase", color: paper.text, opacity: 0.5, fontFamily: "var(--font-inter), sans-serif" }}>N&apos;OUBLIE JAMAIS</p>
+              <div style={{ marginTop: 2, width: 20, height: 1, background: paper.accent, opacity: 0.6 }} />
+            </div>
+            <svg viewBox="0 0 24 24" fill={paper.accent} width={14} height={14} style={{ opacity: 0.7 }}>
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+          </div>
+
+          {/* Center: names */}
+          <div style={{ textAlign: "center" }}>
+            <p style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: paper.text, opacity: 0.38, marginBottom: 6, fontFamily: "var(--font-inter), sans-serif" }}>
+              {card.occasion || "Un message vocal"}
+            </p>
+            <p style={{
+              fontSize: card.fromName || card.toName ? 26 : 18,
+              fontFamily: font.family,
+              fontStyle: font.italic ? "italic" : "normal",
+              color: paper.accent,
+              lineHeight: 1.15,
+              letterSpacing: "0.01em",
+            }}>
+              {card.fromName || "Votre prénom"}&nbsp;
+              <span style={{ color: paper.text, opacity: 0.28, fontStyle: "normal", fontFamily: "var(--font-inter)", fontSize: "0.55em" }}>♥</span>
+              &nbsp;{card.toName || "Destinataire"}
+            </p>
+            {card.date && (
+              <p style={{ marginTop: 6, fontSize: 9, color: paper.text, opacity: 0.45, letterSpacing: "0.12em", fontFamily: "var(--font-inter), sans-serif" }}>{card.date}</p>
+            )}
+          </div>
+
+          {/* Bottom row: QR + hint */}
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+            <div>
+              <p style={{ fontSize: 7, color: paper.text, opacity: 0.35, letterSpacing: "0.1em", fontFamily: "var(--font-inter), sans-serif", marginBottom: 3 }}>
+                SCANNEZ POUR<br />ÉCOUTER LE MESSAGE
+              </p>
+              <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                <div style={{ width: 14, height: 1, background: paper.accent, opacity: 0.4 }} />
+                <p style={{ fontSize: 7, color: paper.accent, opacity: 0.7, letterSpacing: "0.08em", fontFamily: "var(--font-inter), sans-serif" }}>noubliejamais.fr</p>
+              </div>
+            </div>
+            <div style={{
+              padding: 5,
+              background: paper.id === "noir" ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.7)",
+              borderRadius: 6,
+              border: `1px solid ${paper.id === "noir" ? "rgba(255,255,255,0.12)" : "rgba(28,20,16,0.08)"}`,
+            }}>
+              <FakeQR size={54} fg={paper.text} bg="transparent" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Card edge/shadow depth effect */}
+      <div style={{ height: 6, maxWidth: 372, margin: "0 auto", borderRadius: "0 0 10px 10px", background: paper.id === "noir" ? "#0E0A06" : "#D4C8A8", boxShadow: "0 6px 16px rgba(28,20,16,0.12)" }} />
+    </div>
+  );
+}
+
+// ── Paper Selector ────────────────────────────────────────────────────────────
+function PaperSelector({ selected, onChange }: { selected: string; onChange: (id: string) => void }) {
+  return (
+    <div>
+      <p className="text-[10px] font-bold tracking-[0.14em] uppercase mb-2.5" style={{ color: "var(--ink-muted)" }}>Papier</p>
+      <div className="grid grid-cols-4 gap-2">
+        {PAPERS.map((p) => {
+          const active = selected === p.id;
+          return (
+            <button key={p.id} type="button" onClick={() => onChange(p.id)}
+              className="rounded-xl overflow-hidden flex flex-col transition-all"
+              style={{ border: `2px solid ${active ? p.accent : "rgba(28,20,16,0.08)"}`, boxShadow: active ? `0 0 0 3px ${p.accent}22` : "none", transform: active ? "scale(1.04)" : "scale(1)", background: "none", padding: 0, cursor: "pointer" }}
+            >
+              <div style={{ height: 36, background: p.bg, position: "relative" }}>
+                {active && <div style={{ position: "absolute", top: 5, right: 5, width: 12, height: 12, borderRadius: "50%", background: p.accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg viewBox="0 0 10 10" fill="none" width={7} height={7}><path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                </div>}
+              </div>
+              <div style={{ padding: "3px 2px 4px", background: "white", textAlign: "center" }}>
+                <p style={{ fontSize: 8, fontWeight: 700, color: active ? p.accent : "var(--ink-muted)", lineHeight: 1 }}>{p.name}</p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Font Selector ─────────────────────────────────────────────────────────────
+function FontSelector({ selected, onChange, paperAccent = "var(--gold)" }: { selected: string; onChange: (id: string) => void; paperAccent?: string }) {
+  return (
+    <div>
+      <p className="text-[10px] font-bold tracking-[0.14em] uppercase mb-2.5" style={{ color: "var(--ink-muted)" }}>Police</p>
+      <div className="grid grid-cols-3 gap-2">
+        {CARD_FONTS.map((f) => {
+          const active = selected === f.id;
+          return (
+            <button key={f.id} type="button" onClick={() => onChange(f.id)}
+              className="py-3 px-2 rounded-xl transition-all text-center"
+              style={{ background: active ? "var(--ink)" : "white", border: `1.5px solid ${active ? "transparent" : "rgba(28,20,16,0.09)"}`, cursor: "pointer" }}
+            >
+              <p style={{ fontSize: 16, fontFamily: f.family, fontStyle: f.italic ? "italic" : "normal", color: active ? paperAccent : "var(--ink)", lineHeight: 1, marginBottom: 3 }}>Aa</p>
+              <p style={{ fontSize: 9, fontWeight: 600, color: active ? "rgba(240,232,216,0.6)" : "var(--ink-muted)" }}>{f.name}</p>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ── Main Composer ─────────────────────────────────────────────────────────────
 export default function ComposerClient() {
   const [step, setStep] = useState<WizardStep>(1);
-  const [card, setCard] = useState<CardData>({ fromName: "", toName: "", date: "", occasion: "", theme: "classique" });
+  const [card, setCard] = useState<CardData>({ fromName: "", toName: "", date: "", occasion: "", theme: "classique", paper: "ivoire", cardFont: "playfair" });
   const [recordState, setRecordState] = useState<RecordState>("idle");
   const [audioObjectUrl, setAudioObjectUrl] = useState("");
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState("");
@@ -406,7 +608,7 @@ export default function ComposerClient() {
     }
   };
 
-  const goNext = () => setStep(s => Math.min(4, s + 1) as WizardStep);
+  const goNext = () => setStep(s => Math.min(5, s + 1) as WizardStep);
   const goPrev = () => setStep(s => Math.max(1, s - 1) as WizardStep);
 
   const setCardField = (field: keyof CardData, value: string) =>
@@ -430,13 +632,13 @@ export default function ComposerClient() {
 
           {/* Step indicator — dots */}
           <div className="flex items-center gap-1.5">
-            {([1, 2, 3, 4] as WizardStep[]).map((s) => (
+            {([1, 2, 3, 4, 5] as WizardStep[]).map((s) => (
               <div
                 key={s}
                 className="rounded-full transition-all duration-300"
                 style={{
                   height: 5,
-                  width: step === s ? 22 : 5,
+                  width: step === s ? 20 : 5,
                   background: step > s ? "var(--gold)" : step === s ? "var(--ink)" : "rgba(28,20,16,0.15)",
                 }}
               />
@@ -444,7 +646,7 @@ export default function ComposerClient() {
           </div>
 
           <span className="text-[11px]" style={{ color: "var(--ink-muted)" }}>
-            {["Votre carte", "Votre message", "Aperçu", "Formule"][step - 1]}
+            {["Votre carte", "Votre message", "Carte physique", "Aperçu web", "Formule"][step - 1]}
           </span>
         </div>
       </header>
@@ -662,18 +864,68 @@ export default function ComposerClient() {
           </motion.div>
         )}
 
-        {/* STEP 3 — Aperçu */}
+        {/* STEP 3 — Carte physique */}
         {step === 3 && (
-          <motion.div key="s3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}
+          <motion.div key="s3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+            <div className="mb-8 text-center">
+              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "var(--gold)" }}>Étape 3 · Carte physique</p>
+              <h1 className="text-[32px] sm:text-[40px] font-black leading-[1.06]" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
+                Voici la carte<br />que recevra {card.toName || "votre destinataire"}.
+              </h1>
+              <p className="text-[14px] mt-2" style={{ color: "var(--ink-muted)" }}>
+                Choisissez le papier et la police. La carte sera envoyée par courrier avec le QR code intégré.
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start max-w-3xl mx-auto">
+              {/* Selectors */}
+              <div className="flex flex-col gap-6">
+                <PaperSelector
+                  selected={card.paper}
+                  onChange={id => setCard(c => ({ ...c, paper: id }))}
+                />
+                <FontSelector
+                  selected={card.cardFont}
+                  onChange={id => setCard(c => ({ ...c, cardFont: id }))}
+                  paperAccent={(PAPERS.find(p => p.id === card.paper) ?? PAPERS[0]).accent}
+                />
+                <div className="rounded-2xl p-4 flex gap-3 items-start" style={{ background: "rgba(184,134,26,0.06)", border: "1px solid rgba(184,134,26,0.12)" }}>
+                  <svg viewBox="0 0 24 24" width={16} height={16} fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                    <circle cx="12" cy="12" r="10" stroke="var(--gold)" strokeWidth="1.5"/>
+                    <path d="M12 8v4M12 16h.01" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                  <p className="text-[11px] leading-relaxed" style={{ color: "var(--ink-muted)" }}>
+                    La carte physique est imprimée sur du papier premium 350g et envoyée directement chez votre destinataire dans un délai de 3 à 5 jours ouvrés.
+                  </p>
+                </div>
+              </div>
+
+              {/* Live card preview */}
+              <div className="sticky top-16">
+                <p className="text-[10px] font-bold tracking-[0.14em] uppercase mb-4 text-center" style={{ color: "var(--ink-muted)" }}>Aperçu en temps réel</p>
+                <PhysicalCard card={card} />
+                <p className="text-[10px] text-center mt-3" style={{ color: "rgba(28,20,16,0.25)" }}>Format A6 · 148 × 105 mm · Impression recto</p>
+              </div>
+            </div>
+
+            <div className="max-w-3xl mx-auto">
+              <Nav onPrev={goPrev} onNext={goNext} prevLabel="Retour" nextLabel="Aperçu de la page web" />
+            </div>
+          </motion.div>
+        )}
+
+        {/* STEP 4 — Aperçu web */}
+        {step === 4 && (
+          <motion.div key="s4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}
             className="flex flex-col items-center"
           >
             <div className="mb-8 text-center">
-              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "var(--gold)" }}>Étape 3 · Aperçu</p>
+              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "var(--gold)" }}>Étape 4 · Aperçu web</p>
               <h1 className="text-[32px] sm:text-[40px] font-black leading-[1.06]" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
-                Voici votre carte.
+                La page d&apos;écoute<br />de votre carte.
               </h1>
               <p className="text-[14px] mt-2" style={{ color: "var(--ink-muted)" }}>
-                C&apos;est exactement ce que <strong style={{ color: "var(--ink)" }}>{card.toName || "votre destinataire"}</strong> verra en scannant le QR code.
+                C&apos;est ce que <strong style={{ color: "var(--ink)" }}>{card.toName || "votre destinataire"}</strong> verra après avoir scanné le QR code.
               </p>
             </div>
 
@@ -687,11 +939,11 @@ export default function ComposerClient() {
           </motion.div>
         )}
 
-        {/* STEP 4 — Formule */}
-        {step === 4 && (
+        {/* STEP 5 — Formule */}
+        {step === 5 && (
           <motion.div key="s4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
             <div className="mb-8 text-center">
-              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "var(--gold)" }}>Étape 4 · Votre formule</p>
+              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "var(--gold)" }}>Étape 5 · Votre formule</p>
               <h1 className="text-[32px] sm:text-[40px] font-black leading-[1.06]" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
                 Choisissez<br />votre formule.
               </h1>
