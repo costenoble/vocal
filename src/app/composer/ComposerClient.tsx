@@ -288,137 +288,260 @@ function Nav({ onPrev, onNext, prevLabel = "Retour", nextLabel = "Continuer", ne
   );
 }
 
-// ── Fake QR Code (demo visual) ────────────────────────────────────────────────
-function FakeQR({ size = 72, fg = "#1C1410", bg = "transparent" }: { size?: number; fg?: string; bg?: string }) {
-  const cell = size / 21;
-  const pattern = [
-    "111111101001011101111111",
-    "100000100110100000100001",
-    "101110100011110111010001",
-    "101110101100001011101001",
-    "101110100010110111010011",
-    "100000101001001000100001",
-    "111111101010101111111101",
-    "000000001101000000000010",
-    "101101110010101101101101",
-    "010010001011010010100110",
-    "110111111000111011110101",
-    "001101001011001101001100",
-    "111001110100110001110011",
-    "000000001001001010100010",
-    "111111100110110111110001",
-    "100000100011001000110100",
-    "101110101100110111011001",
-    "101110100010001011101110",
-    "101110101101110111010011",
-    "100000100001001000100101",
-    "111111101110110101111110",
+// ── Fake QR Code ─────────────────────────────────────────────────────────────
+function FakeQR({ size = 80, fg = "#1C1410" }: { size?: number; fg?: string }) {
+  const c = size / 21;
+  const rows = [
+    "111111100101011111111",
+    "100000101010110000001",
+    "101110101110110111001",
+    "101110100011010111001",
+    "101110100101010111001",
+    "100000101100110000001",
+    "111111101010111111111",
+    "000000001001000000000",
+    "101011110110101001101",
+    "011010001010100110010",
+    "110111101001110111101",
+    "010010001101001010001",
+    "111001100100111001110",
+    "000000001011000010100",
+    "111111100110111111100",
+    "100000101010100000101",
+    "101110100111110110101",
+    "101110101001001011101",
+    "101110100110110110011",
+    "100000101010001001001",
+    "111111101101101111110",
   ];
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ display: "block" }}>
-      {bg !== "transparent" && <rect width={size} height={size} fill={bg} />}
-      {pattern.map((row, ri) =>
-        row.split("").map((c, ci) =>
-          c === "1" ? <rect key={`${ri}-${ci}`} x={ci * cell} y={ri * cell} width={cell} height={cell} fill={fg} /> : null
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      {rows.map((row, ri) =>
+        row.split("").map((cell, ci) =>
+          cell === "1" ? <rect key={`${ri}-${ci}`} x={ci * c} y={ri * c} width={c} height={c} fill={fg} /> : null
         )
       )}
     </svg>
   );
 }
 
-// ── Physical Card Preview ──────────────────────────────────────────────────────
+// ── Shared card helpers ───────────────────────────────────────────────────────
+function HeartLine({ accent }: { accent: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 5, width: "100%" }}>
+      <div style={{ flex: 1, height: 0.5, background: accent, opacity: 0.45 }} />
+      <svg viewBox="0 0 16 16" fill={accent} width={8} height={8} style={{ opacity: 0.7, flexShrink: 0 }}>
+        <path d="M8 14l-1-0.9C3.5 10.2 1 8.1 1 5.5 1 3.4 2.7 2 4.5 2c1.2 0 2.4.6 3.5 1.7C9.1 2.6 10.3 2 11.5 2 13.3 2 15 3.4 15 5.5c0 2.6-2.5 4.7-6 8.6L8 14z"/>
+      </svg>
+      <div style={{ flex: 1, height: 0.5, background: accent, opacity: 0.45 }} />
+    </div>
+  );
+}
+
+// ── Card Recto ────────────────────────────────────────────────────────────────
+function CardRecto({ card, paper, font }: { card: CardData; paper: typeof PAPERS[number]; font: typeof CARD_FONTS[number] }) {
+  return (
+    <div style={{
+      background: paper.bg,
+      aspectRatio: "105 / 148",
+      width: "100%",
+      position: "relative",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "12px 14px",
+      boxShadow: paper.id === "noir"
+        ? "0 20px 60px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3)"
+        : "0 16px 48px rgba(28,20,16,0.16), 0 4px 12px rgba(28,20,16,0.08)",
+      overflow: "hidden",
+    }}>
+      {/* Border inset */}
+      <div style={{ position: "absolute", inset: 7, border: `0.5px solid ${paper.accent}`, opacity: 0.4, pointerEvents: "none", zIndex: 1 }} />
+      {/* Shimmer */}
+      {paper.shimmer && <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg,rgba(255,255,255,0)40%,rgba(255,255,255,0.22)55%,rgba(255,255,255,0)70%)", pointerEvents: "none", zIndex: 2 }} />}
+
+      {/* Logo */}
+      <div style={{ zIndex: 3, marginTop: 4 }}>
+        <Logo size={52} />
+      </div>
+
+      {/* Brand name */}
+      <div style={{ textAlign: "center", zIndex: 3 }}>
+        <p style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: "0.28em", textTransform: "uppercase", color: paper.text, fontFamily: "var(--font-inter), sans-serif", lineHeight: 1 }}>
+          N&apos;OUBLIE JAMAIS
+        </p>
+        <div style={{ height: 0.5, background: paper.accent, opacity: 0.35, marginTop: 4 }} />
+      </div>
+
+      {/* Heart divider */}
+      <div style={{ width: "72%", zIndex: 3 }}>
+        <HeartLine accent={paper.accent} />
+      </div>
+
+      {/* Text block */}
+      <div style={{ textAlign: "center", zIndex: 3 }}>
+        <p style={{ fontSize: 8.5, color: paper.text, opacity: 0.65, fontFamily: "var(--font-playfair)", lineHeight: 1.5 }}>
+          Certains messages<br />ne s&apos;oublient pas.
+        </p>
+        <p style={{
+          fontSize: 10,
+          fontFamily: font.id === "script" ? "'Brush Script MT','Segoe Script',cursive" : "var(--font-playfair)",
+          fontStyle: "italic",
+          color: paper.accent,
+          marginTop: 3,
+        }}>
+          Ils se portent.
+        </p>
+      </div>
+
+      {/* QR Code */}
+      <div style={{ zIndex: 3, padding: 4, background: paper.id === "noir" ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.85)", borderRadius: 4 }}>
+        <FakeQR size={62} fg="#1C1410" />
+      </div>
+
+      {/* Scan hint */}
+      <div style={{ display: "flex", alignItems: "center", gap: 5, zIndex: 3 }}>
+        <svg viewBox="0 0 24 24" width={11} height={11} fill="none">
+          <rect x="5" y="2" width="14" height="20" rx="3" stroke={paper.accent} strokeWidth="1.4"/>
+          <rect x="9" y="18" width="6" height="1.5" rx="0.75" fill={paper.accent}/>
+        </svg>
+        <p style={{ fontSize: 7, color: paper.text, opacity: 0.5, fontFamily: "var(--font-inter), sans-serif", letterSpacing: "0.04em" }}>
+          Scannez pour écouter votre message
+        </p>
+      </div>
+
+      {/* Bottom heart */}
+      <div style={{ width: "60%", zIndex: 3, paddingBottom: 4 }}>
+        <HeartLine accent={paper.accent} />
+      </div>
+    </div>
+  );
+}
+
+// ── Card Verso ────────────────────────────────────────────────────────────────
+function CardVerso({ card, paper, font }: { card: CardData; paper: typeof PAPERS[number]; font: typeof CARD_FONTS[number] }) {
+  const nameStyle = {
+    fontSize: 18,
+    fontFamily: font.id === "script" ? "'Brush Script MT','Segoe Script',cursive" : font.id === "inter" ? "var(--font-inter), sans-serif" : "var(--font-playfair)",
+    fontStyle: font.id === "inter" ? "normal" : "italic",
+    color: paper.accent,
+    lineHeight: 1.2,
+  };
+  const labelStyle = {
+    fontSize: 7,
+    fontWeight: 800,
+    letterSpacing: "0.22em",
+    textTransform: "uppercase" as const,
+    color: paper.text,
+    opacity: 0.38,
+    fontFamily: "var(--font-inter), sans-serif",
+  };
+
+  return (
+    <div style={{
+      background: paper.bg,
+      aspectRatio: "105 / 148",
+      width: "100%",
+      position: "relative",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "12px 14px",
+      boxShadow: paper.id === "noir"
+        ? "0 20px 60px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3)"
+        : "0 16px 48px rgba(28,20,16,0.16), 0 4px 12px rgba(28,20,16,0.08)",
+      overflow: "hidden",
+    }}>
+      <div style={{ position: "absolute", inset: 7, border: `0.5px solid ${paper.accent}`, opacity: 0.4, pointerEvents: "none", zIndex: 1 }} />
+
+      {/* Top heart */}
+      <div style={{ width: "65%", zIndex: 3, paddingTop: 4 }}>
+        <HeartLine accent={paper.accent} />
+      </div>
+
+      {/* De / fromName */}
+      <div style={{ textAlign: "center", zIndex: 3 }}>
+        <p style={labelStyle}>Message de</p>
+        <p style={nameStyle}>{card.fromName || "Sophie"}</p>
+      </div>
+
+      <div style={{ width: "50%", zIndex: 3 }}>
+        <HeartLine accent={paper.accent} />
+      </div>
+
+      {/* Pour / toName */}
+      <div style={{ textAlign: "center", zIndex: 3 }}>
+        <p style={labelStyle}>Pour</p>
+        <p style={nameStyle}>{card.toName || "Maman"}</p>
+      </div>
+
+      <div style={{ width: "50%", zIndex: 3 }}>
+        <HeartLine accent={paper.accent} />
+      </div>
+
+      {/* Date */}
+      {card.date && (
+        <div style={{ textAlign: "center", zIndex: 3 }}>
+          <p style={labelStyle}>Créé le</p>
+          <p style={{ fontSize: 9, fontFamily: "var(--font-playfair)", fontStyle: "italic", color: paper.text, opacity: 0.7 }}>{card.date}</p>
+        </div>
+      )}
+
+      {/* Logo small */}
+      <div style={{ zIndex: 3 }}>
+        <Logo size={32} />
+      </div>
+
+      {/* Quote */}
+      <div style={{ textAlign: "center", zIndex: 3 }}>
+        <p style={{ fontSize: 7, color: paper.text, opacity: 0.5, fontFamily: "var(--font-playfair)", fontStyle: "italic", lineHeight: 1.6 }}>
+          Ce message a été enregistré<br />
+          avec tout mon cœur.<br />
+          Je serai toujours là, dans ma voix.
+        </p>
+        <p style={{
+          fontSize: 10,
+          marginTop: 4,
+          fontFamily: font.id === "script" ? "'Brush Script MT','Segoe Script',cursive" : "var(--font-playfair)",
+          fontStyle: "italic",
+          color: paper.accent,
+        }}>
+          N&apos;oublie jamais.
+        </p>
+      </div>
+
+      {/* Bottom heart */}
+      <div style={{ zIndex: 3, paddingBottom: 4 }}>
+        <svg viewBox="0 0 16 16" fill={paper.accent} width={10} height={10} style={{ opacity: 0.6 }}>
+          <path d="M8 14l-1-0.9C3.5 10.2 1 8.1 1 5.5 1 3.4 2.7 2 4.5 2c1.2 0 2.4.6 3.5 1.7C9.1 2.6 10.3 2 11.5 2 13.3 2 15 3.4 15 5.5c0 2.6-2.5 4.7-6 8.6L8 14z"/>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+// ── Physical Card (recto + verso) ─────────────────────────────────────────────
 function PhysicalCard({ card }: { card: CardData }) {
   const paper = PAPERS.find(p => p.id === card.paper) ?? PAPERS[0];
   const font = CARD_FONTS.find(f => f.id === card.cardFont) ?? CARD_FONTS[0];
 
   return (
-    <div style={{ perspective: 1200 }}>
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 380,
-          aspectRatio: "1.6 / 1",
-          margin: "0 auto",
-          borderRadius: 14,
-          background: paper.bg,
-          boxShadow: paper.id === "noir"
-            ? "0 32px 80px rgba(0,0,0,0.55), 0 8px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)"
-            : "0 24px 64px rgba(28,20,16,0.18), 0 6px 20px rgba(28,20,16,0.10), inset 0 1px 0 rgba(255,255,255,0.6)",
-          position: "relative",
-          overflow: "hidden",
-          display: "flex",
-          alignItems: "stretch",
-        }}
-      >
-        {/* Shimmer overlay for nacré */}
-        {paper.shimmer && (
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.0) 100%)", pointerEvents: "none", zIndex: 2 }} />
-        )}
-
-        {/* Left accent bar */}
-        <div style={{ width: 4, background: `linear-gradient(to bottom, ${paper.accent}, ${paper.accent}88)`, flexShrink: 0 }} />
-
-        {/* Card content */}
-        <div style={{ flex: 1, padding: "20px 22px", display: "flex", flexDirection: "column", justifyContent: "space-between", position: "relative", zIndex: 1 }}>
-
-          {/* Top row: brand */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <p style={{ fontSize: 7, fontWeight: 900, letterSpacing: "0.22em", textTransform: "uppercase", color: paper.text, opacity: 0.5, fontFamily: "var(--font-inter), sans-serif" }}>N&apos;OUBLIE JAMAIS</p>
-              <div style={{ marginTop: 2, width: 20, height: 1, background: paper.accent, opacity: 0.6 }} />
-            </div>
-            <svg viewBox="0 0 24 24" fill={paper.accent} width={14} height={14} style={{ opacity: 0.7 }}>
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-            </svg>
-          </div>
-
-          {/* Center: names */}
-          <div style={{ textAlign: "center" }}>
-            <p style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: paper.text, opacity: 0.38, marginBottom: 6, fontFamily: "var(--font-inter), sans-serif" }}>
-              {card.occasion || "Un message vocal"}
-            </p>
-            <p style={{
-              fontSize: card.fromName || card.toName ? 26 : 18,
-              fontFamily: font.family,
-              fontStyle: font.italic ? "italic" : "normal",
-              color: paper.accent,
-              lineHeight: 1.15,
-              letterSpacing: "0.01em",
-            }}>
-              {card.fromName || "Votre prénom"}&nbsp;
-              <span style={{ color: paper.text, opacity: 0.28, fontStyle: "normal", fontFamily: "var(--font-inter)", fontSize: "0.55em" }}>♥</span>
-              &nbsp;{card.toName || "Destinataire"}
-            </p>
-            {card.date && (
-              <p style={{ marginTop: 6, fontSize: 9, color: paper.text, opacity: 0.45, letterSpacing: "0.12em", fontFamily: "var(--font-inter), sans-serif" }}>{card.date}</p>
-            )}
-          </div>
-
-          {/* Bottom row: QR + hint */}
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-            <div>
-              <p style={{ fontSize: 7, color: paper.text, opacity: 0.35, letterSpacing: "0.1em", fontFamily: "var(--font-inter), sans-serif", marginBottom: 3 }}>
-                SCANNEZ POUR<br />ÉCOUTER LE MESSAGE
-              </p>
-              <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                <div style={{ width: 14, height: 1, background: paper.accent, opacity: 0.4 }} />
-                <p style={{ fontSize: 7, color: paper.accent, opacity: 0.7, letterSpacing: "0.08em", fontFamily: "var(--font-inter), sans-serif" }}>noubliejamais.fr</p>
-              </div>
-            </div>
-            <div style={{
-              padding: 5,
-              background: paper.id === "noir" ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.7)",
-              borderRadius: 6,
-              border: `1px solid ${paper.id === "noir" ? "rgba(255,255,255,0.12)" : "rgba(28,20,16,0.08)"}`,
-            }}>
-              <FakeQR size={54} fg={paper.text} bg="transparent" />
-            </div>
-          </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div>
+          <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(28,20,16,0.3)", textAlign: "center", marginBottom: 8, fontFamily: "var(--font-inter), sans-serif" }}>Recto</p>
+          <CardRecto card={card} paper={paper} font={font} />
+        </div>
+        <div>
+          <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(28,20,16,0.3)", textAlign: "center", marginBottom: 8, fontFamily: "var(--font-inter), sans-serif" }}>Verso</p>
+          <CardVerso card={card} paper={paper} font={font} />
         </div>
       </div>
-
-      {/* Card edge/shadow depth effect */}
-      <div style={{ height: 6, maxWidth: 372, margin: "0 auto", borderRadius: "0 0 10px 10px", background: paper.id === "noir" ? "#0E0A06" : "#D4C8A8", boxShadow: "0 6px 16px rgba(28,20,16,0.12)" }} />
+      <p style={{ fontSize: 10, textAlign: "center", color: "rgba(28,20,16,0.25)", fontFamily: "var(--font-inter), sans-serif" }}>
+        Format A6 · 105 × 148 mm · Papier 350g · Impression recto-verso
+      </p>
     </div>
   );
 }
@@ -437,7 +560,7 @@ function PaperSelector({ selected, onChange }: { selected: string; onChange: (id
               style={{ border: `2px solid ${active ? p.accent : "rgba(28,20,16,0.08)"}`, boxShadow: active ? `0 0 0 3px ${p.accent}22` : "none", transform: active ? "scale(1.04)" : "scale(1)", background: "none", padding: 0, cursor: "pointer" }}
             >
               <div style={{ height: 36, background: p.bg, position: "relative" }}>
-                {active && <div style={{ position: "absolute", top: 5, right: 5, width: 12, height: 12, borderRadius: "50%", background: p.accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {active && <div style={{ position: "absolute", top: 4, right: 4, width: 12, height: 12, borderRadius: "50%", background: p.accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <svg viewBox="0 0 10 10" fill="none" width={7} height={7}><path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round"/></svg>
                 </div>}
               </div>
@@ -465,7 +588,7 @@ function FontSelector({ selected, onChange, paperAccent = "var(--gold)" }: { sel
               className="py-3 px-2 rounded-xl transition-all text-center"
               style={{ background: active ? "var(--ink)" : "white", border: `1.5px solid ${active ? "transparent" : "rgba(28,20,16,0.09)"}`, cursor: "pointer" }}
             >
-              <p style={{ fontSize: 16, fontFamily: f.family, fontStyle: f.italic ? "italic" : "normal", color: active ? paperAccent : "var(--ink)", lineHeight: 1, marginBottom: 3 }}>Aa</p>
+              <p style={{ fontSize: 16, fontFamily: f.id === "script" ? "'Brush Script MT','Segoe Script',cursive" : f.family, fontStyle: f.italic ? "italic" : "normal", color: active ? paperAccent : "var(--ink)", lineHeight: 1, marginBottom: 3 }}>Aa</p>
               <p style={{ fontSize: 9, fontWeight: 600, color: active ? "rgba(240,232,216,0.6)" : "var(--ink-muted)" }}>{f.name}</p>
             </button>
           );
