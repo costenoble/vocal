@@ -965,59 +965,41 @@ export default function ComposerClient() {
       </div>
 
       {/* ── Bottom nav ──────────────────────────────────────────────────────── */}
-      <div className="fixed bottom-0 left-0 right-0 px-4 pb-4 z-50">
-        <div
-          className="max-w-4xl mx-auto flex justify-between items-center px-6 py-4 rounded-2xl"
-          style={{
-            background: "rgba(240,232,216,0.97)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            border: "1px solid rgba(184,134,26,0.14)",
-            boxShadow: "0 -4px 24px rgba(28,20,16,0.06)",
-          }}
-        >
+      <div className="fixed bottom-0 left-0 right-0 z-50" style={{ pointerEvents: "none" }}>
+        <div className="max-w-4xl mx-auto px-6 pb-6 flex justify-between items-end" style={{ pointerEvents: "auto" }}>
+
+          {/* Retour / Annuler */}
           {step > 1 ? (
             <button
               onClick={goPrev}
-              className="flex items-center gap-1.5 text-[13px] font-semibold transition-opacity hover:opacity-60"
-              style={{ color: "var(--ink-muted)" }}
+              className="text-[12px] transition-opacity hover:opacity-100"
+              style={{ color: "rgba(28,20,16,0.35)" }}
             >
-              <svg viewBox="0 0 16 16" width={14} height={14} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                <path d="M10 4L6 8l4 4" />
-              </svg>
-              Retour
+              ← Retour
             </button>
           ) : (
-            <Link href="/" className="flex items-center gap-1.5 text-[13px] font-semibold transition-opacity hover:opacity-60" style={{ color: "var(--ink-muted)" }}>
-              <svg viewBox="0 0 16 16" width={14} height={14} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                <path d="M10 4L6 8l4 4" />
-              </svg>
-              Annuler
+            <Link
+              href="/"
+              className="text-[12px] transition-opacity hover:opacity-100"
+              style={{ color: "rgba(28,20,16,0.35)" }}
+            >
+              ← Annuler
             </Link>
           )}
 
-          {/* Hint text center */}
-          <p className="text-[10px] font-medium hidden sm:block" style={{ color: "rgba(28,20,16,0.35)" }}>
-            {step === 1 && !step1Valid && "Renseignez les prénoms pour continuer"}
-            {step === 1 && step1Valid && "Prêt à enregistrer votre message"}
-            {step === 2 && !step2Valid && "Enregistrez votre message vocal"}
-            {step === 2 && step2Valid && "Message enregistré avec succès"}
-            {step === 3 && "Ça vous convient ? Choisissez votre formule"}
-            {step === 4 && "Paiement 100 % sécurisé par Stripe"}
-          </p>
-
+          {/* Continuer */}
           {step < 4 && (
             <button
               onClick={goNext}
               disabled={nextDisabled}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-[13px] text-white transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-semibold text-white transition-all active:scale-95 disabled:opacity-25 disabled:cursor-not-allowed"
               style={{
-                background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))",
-                boxShadow: nextDisabled ? "none" : "0 4px 18px rgba(184,134,26,0.30)",
+                background: "var(--ink)",
+                boxShadow: nextDisabled ? "none" : "0 2px 12px rgba(28,20,16,0.18)",
               }}
             >
               {step === 3 ? "Choisir ma formule" : "Continuer"}
-              <svg viewBox="0 0 16 16" width={13} height={13} fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round">
+              <svg viewBox="0 0 16 16" width={12} height={12} fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round">
                 <path d="M6 4l4 4-4 4" />
               </svg>
             </button>
