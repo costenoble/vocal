@@ -632,20 +632,20 @@ export default function LandingPage() {
           {/* Main footer grid */}
           <div className="grid grid-cols-1 gap-10 sm:grid-cols-3 mb-10">
             {/* Brand column */}
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-3">
-                <Logo size={38} />
+            <div className="flex flex-col gap-5">
+              <div className="flex items-center gap-4">
+                <Logo size={52} />
                 <div>
-                  <p className="text-[11px] font-black tracking-[0.22em] uppercase" style={{ color: "var(--cream)" }}>N&rsquo;OUBLIE JAMAIS</p>
-                  <p className="text-[9px] tracking-[0.12em] uppercase" style={{ color: "var(--gold)" }}>La carte vocale</p>
+                  <p className="text-[14px] font-black tracking-[0.22em] uppercase" style={{ color: "var(--cream)" }}>N&rsquo;OUBLIE JAMAIS</p>
+                  <p className="text-[10px] tracking-[0.16em] uppercase mt-0.5" style={{ color: "var(--gold)" }}>La carte vocale</p>
                 </div>
               </div>
-              <p className="text-[13px] leading-relaxed" style={{ color: "rgba(250,246,239,0.55)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
+              <p className="text-[15px] leading-relaxed" style={{ color: "rgba(250,246,239,0.6)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
                 &ldquo;Un souvenir qui traverse le temps.&rdquo;
               </p>
-              <div className="flex gap-0.5">
-                {Array(5).fill(null).map((_, i) => <span key={i} style={{ color: "var(--gold)", fontSize: 11 }}>★</span>)}
-                <span className="text-[10px] ml-2" style={{ color: "rgba(250,246,239,0.45)" }}>4,9/5</span>
+              <div className="flex items-center gap-1.5">
+                {Array(5).fill(null).map((_, i) => <span key={i} style={{ color: "var(--gold)", fontSize: 15 }}>★</span>)}
+                <span className="text-[12px] ml-1.5 font-semibold" style={{ color: "rgba(250,246,239,0.5)" }}>4,9/5</span>
               </div>
             </div>
 
