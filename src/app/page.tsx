@@ -96,7 +96,7 @@ export default function LandingPage() {
       <SiteHeader />
 
       {/* ═══════════════════════════════ HERO ═══════════════════════════════ */}
-      <section className="relative overflow-hidden" style={{ background: "linear-gradient(160deg, #F0E8D8 0%, #FAF6EF 55%, #F5EEE3 100%)" }}>
+      <section className="relative overflow-hidden" style={{ background: "linear-gradient(180deg, #F0E8D8 0%, #F5EEE3 100%)" }}>
         <div style={{ height: 3, background: "linear-gradient(to right, var(--gold-dark), var(--gold-light), var(--gold-dark))" }} />
 
         {/* Ambient glow */}
@@ -298,7 +298,7 @@ export default function LandingPage() {
 
       </section>
 
-      <div aria-hidden style={{ background: "linear-gradient(160deg,#F0E8D8 0%,#FAF6EF 55%,#F5EEE3 100%)", height: 56, lineHeight: 0, overflow: "hidden" }}>
+      <div aria-hidden style={{ background: "#F5EEE3", height: 56, lineHeight: 0, overflow: "hidden" }}>
         <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56"><path d="M0 42 C360 0 1080 56 1440 24 L1440 56 L0 56 Z" fill="white" /></svg>
       </div>
 
