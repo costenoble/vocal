@@ -130,6 +130,94 @@ function CardPreview({ card }: { card: CardData }) {
   );
 }
 
+// ── Simple audio player (no Web Audio API — reliable for blob URLs) ───────────
+function SimplePlayer({ src }: { src: string }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  const fmt = (s: number) => {
+    if (!isFinite(s) || isNaN(s)) return "0:00";
+    return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  };
+
+  const toggle = async () => {
+    if (!audioRef.current) return;
+    if (playing) {
+      audioRef.current.pause();
+      setPlaying(false);
+    } else {
+      try { await audioRef.current.play(); setPlaying(true); } catch { /* denied */ }
+    }
+  };
+
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!audioRef.current) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    audioRef.current.currentTime = ratio * (audioRef.current.duration || 0);
+    setProgress(ratio);
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      <audio
+        ref={audioRef}
+        src={src}
+        onLoadedMetadata={() => setDuration(audioRef.current?.duration ?? 0)}
+        onTimeUpdate={() => {
+          const el = audioRef.current;
+          if (!el || !isFinite(el.duration) || el.duration === 0) return;
+          setElapsed(el.currentTime);
+          setProgress(el.currentTime / el.duration);
+        }}
+        onEnded={() => { setPlaying(false); setProgress(0); setElapsed(0); }}
+      />
+
+      {/* Waveform placeholder bars */}
+      <div className="flex items-end justify-center gap-[2.5px] w-full" style={{ height: 48 }} aria-hidden>
+        {Array.from({ length: 40 }, (_, i) => {
+          const isPlayed = i / 40 <= progress;
+          const h = 18 + Math.abs(Math.sin(i * 0.8 + 1.2) * 22 + Math.cos(i * 0.4) * 10);
+          return (
+            <div key={i} className="flex-1 rounded-full" style={{ height: h, background: isPlayed ? "linear-gradient(to top, var(--gold-dark), var(--gold-light))" : "rgba(184,134,26,0.18)", minWidth: 2, maxWidth: 7 }} />
+          );
+        })}
+      </div>
+
+      {/* Seek bar */}
+      <div role="slider" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}
+        className="relative w-full rounded-full cursor-pointer" style={{ height: 3, background: "rgba(184,134,26,0.14)" }}
+        onClick={handleSeek}
+      >
+        <div className="h-full rounded-full transition-all duration-100" style={{ width: `${progress * 100}%`, background: "var(--gold)" }} />
+        {progress > 0 && (
+          <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2" style={{ left: `calc(${progress * 100}% - 6px)`, background: "white", borderColor: "var(--gold)" }} />
+        )}
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center gap-3">
+        <button onClick={toggle} className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center active:scale-95"
+          style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: playing ? "0 0 0 6px rgba(184,134,26,0.12)" : "0 4px 14px rgba(184,134,26,0.25)" }}
+          aria-label={playing ? "Pause" : "Lire"}
+        >
+          {playing
+            ? <svg viewBox="0 0 24 24" fill="white" width={13} height={13}><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+            : <svg viewBox="0 0 24 24" fill="white" width={14} height={14}><path d="M8 5.14v14l11-7-11-7z"/></svg>
+          }
+        </button>
+        <div className="flex items-center justify-between flex-1">
+          <span className="text-[11px] tabular-nums font-medium" style={{ color: "var(--gold)" }}>{fmt(elapsed)}</span>
+          <span className="text-[11px] tabular-nums" style={{ color: "var(--ink-muted)", opacity: 0.5 }}>{duration > 0 ? fmt(duration) : "--:--"}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Theme Selector Component ──────────────────────────────────────────────────
 function ThemeSelector({ selected, onChange }: { selected: ThemeId; onChange: (id: ThemeId) => void }) {
   return (
@@ -382,7 +470,7 @@ export default function ComposerClient() {
   const nextDisabled = (step === 1 && !step1Valid) || (step === 2 && !step2Valid) || step === 4;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "var(--cream)" }}>
+    <div className="min-h-screen" style={{ background: "var(--cream)", overflowX: "hidden" }}>
 
       {/* ── Top nav ─────────────────────────────────────────────────────────── */}
       <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-3">
@@ -439,7 +527,7 @@ export default function ComposerClient() {
       </div>
 
       {/* ── Page content ────────────────────────────────────────────────────── */}
-      <div className="flex-1 pt-19 pb-28 px-5 max-w-4xl mx-auto w-full">
+      <div className="pt-19 pb-36 px-5 max-w-4xl mx-auto w-full">
         <AnimatePresence mode="wait">
 
           {/* ════════════════════════════════════════════════════════════════
@@ -470,9 +558,9 @@ export default function ComposerClient() {
                 </p>
               </div>
 
-              <div className="grid md:grid-cols-[1fr_auto] gap-10 items-start">
-                {/* Form */}
-                <div className="flex flex-col gap-6 max-w-md">
+              <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
+                {/* Form column */}
+                <div className="flex flex-col gap-6">
 
                   {/* fromName + toName side by side */}
                   <div className="grid grid-cols-2 gap-4">
@@ -566,11 +654,22 @@ export default function ComposerClient() {
                   </div>
                   {/* Theme selector */}
                   <ThemeSelector selected={card.theme} onChange={(id) => setCard((c) => ({ ...c, theme: id }))} />
+
+                  {/* Mobile preview */}
+                  <div className="lg:hidden pt-2">
+                    <p className="text-[10px] font-bold tracking-[0.14em] uppercase mb-3" style={{ color: "var(--ink-muted)" }}>
+                      Aperçu en temps réel
+                    </p>
+                    <ListenPreview card={card} audioUrl="" />
+                  </div>
                 </div>
 
-                {/* Card preview — desktop only */}
-                <div className="hidden md:flex items-start justify-center pt-8">
-                  <CardPreview card={card} />
+                {/* Live preview — desktop sticky */}
+                <div className="hidden lg:block sticky top-24">
+                  <p className="text-[10px] font-bold tracking-[0.14em] uppercase mb-4 text-center" style={{ color: "var(--ink-muted)" }}>
+                    Aperçu en temps réel
+                  </p>
+                  <ListenPreview card={card} audioUrl="" />
                 </div>
               </div>
             </motion.div>
@@ -708,7 +807,7 @@ export default function ComposerClient() {
                       {/* Player */}
                       <div className="w-full rounded-2xl overflow-hidden" style={{ background: "white", boxShadow: "0 6px 24px rgba(28,20,16,0.08)" }}>
                         <div className="p-5">
-                          <LiveAudioWaveform src={audioObjectUrl} />
+                          <SimplePlayer src={audioObjectUrl} />
                         </div>
                       </div>
 
