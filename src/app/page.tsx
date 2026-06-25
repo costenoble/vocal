@@ -186,10 +186,6 @@ export default function LandingPage() {
                 >
                   Commander ma carte
                 </Link>
-                <Link href="/listen/demo" className="text-[13px] font-medium flex items-center gap-1.5" style={{ color: "var(--gold)" }}>
-                  <svg viewBox="0 0 24 24" fill="currentColor" width={14} height={14}><path d="M8 5v14l11-7z"/></svg>
-                  Écouter un exemple
-                </Link>
               </motion.div>
             </div>
 
@@ -298,8 +294,81 @@ export default function LandingPage() {
 
       </section>
 
-      <div aria-hidden style={{ background: "#F5EEE3", height: 90, lineHeight: 0, overflow: "hidden" }}>
-        <svg viewBox="0 0 1440 90" preserveAspectRatio="none" width="100%" height="90"><path d="M0 70 C480 10 960 90 1440 40 L1440 90 L0 90 Z" fill="white" /></svg>
+      {/* Wave hero → composer section */}
+      <div aria-hidden style={{ background: "#F5EEE3", height: 72, lineHeight: 0, overflow: "hidden" }}>
+        <svg viewBox="0 0 1440 72" preserveAspectRatio="none" width="100%" height="72"><path d="M0 40 C360 72 1080 0 1440 52 L1440 72 L0 72 Z" fill="var(--ink)" /></svg>
+      </div>
+
+      {/* ══════════════════════════════ CRÉEZ VOTRE CARTE ══════════════════════════════ */}
+      <section className="px-5 py-16" style={{ background: "var(--ink)" }}>
+        <div className="max-w-3xl mx-auto flex flex-col items-center gap-10">
+          {/* Header */}
+          <div className="text-center">
+            <Label light>Composer votre carte</Label>
+            <h2 className="mt-3 text-[28px] sm:text-[34px] font-black leading-tight" style={{ color: "var(--cream)", fontFamily: "var(--font-playfair)" }}>
+              Créez votre message<br />en 4 étapes.
+            </h2>
+            <p className="mt-3 text-[13px]" style={{ color: "rgba(240,232,216,0.5)" }}>
+              En moins de 5 minutes. Sans compte. Sans application.
+            </p>
+          </div>
+
+          {/* 4 steps */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
+            {[
+              { n: "01", icon: (<svg viewBox="0 0 24 24" width={22} height={22} fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="var(--gold)" strokeWidth="1.6"/><path d="M3 9h18" stroke="var(--gold)" strokeWidth="1.6"/><path d="M7 13h5M7 16h3" stroke="var(--gold)" strokeWidth="1.4" strokeLinecap="round"/></svg>), label: "Votre carte", desc: "Prénom, date, occasion" },
+              { n: "02", icon: (<svg viewBox="0 0 24 24" width={22} height={22} fill="none"><rect x="9" y="2" width="6" height="13" rx="3" stroke="var(--gold)" strokeWidth="1.6"/><path d="M5 11a7 7 0 0 0 14 0" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round"/><path d="M12 18v4M9 22h6" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round"/></svg>), label: "Votre message", desc: "Enregistrez votre voix" },
+              { n: "03", icon: (<svg viewBox="0 0 24 24" width={22} height={22} fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="var(--gold)" strokeWidth="1.6"/><circle cx="12" cy="12" r="3" stroke="var(--gold)" strokeWidth="1.6"/></svg>), label: "Aperçu", desc: "Visualisez le résultat" },
+              { n: "04", icon: (<svg viewBox="0 0 24 24" width={22} height={22} fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="var(--gold)" strokeWidth="1.6"/><path d="M2 10h20" stroke="var(--gold)" strokeWidth="1.6"/><path d="M6 15h4" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round"/></svg>), label: "Votre formule", desc: "Paiement sécurisé" },
+            ].map((s, i) => (
+              <motion.div
+                key={s.n}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08, duration: 0.45, ease: EASE }}
+                className="rounded-2xl p-5 flex flex-col gap-3"
+                style={{ background: "rgba(240,232,216,0.05)", border: "1px solid rgba(240,232,216,0.08)" }}
+              >
+                <div className="flex items-center justify-between">
+                  {s.icon}
+                  <span className="text-[11px] font-black" style={{ color: "rgba(184,134,26,0.45)", fontVariantNumeric: "tabular-nums" }}>{s.n}</span>
+                </div>
+                <div>
+                  <p className="text-[13px] font-bold" style={{ color: "var(--cream)" }}>{s.label}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "rgba(240,232,216,0.38)" }}>{s.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.32, duration: 0.45, ease: EASE }}
+          >
+            <Link
+              href="/composer"
+              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl font-bold text-[15px] text-white transition-all active:scale-95"
+              style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 8px 32px rgba(184,134,26,0.38)" }}
+            >
+              Commencer maintenant
+              <svg viewBox="0 0 16 16" width={14} height={14} fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round">
+                <path d="M6 4l4 4-4 4" />
+              </svg>
+            </Link>
+            <p className="text-center text-[10px] mt-3" style={{ color: "rgba(240,232,216,0.25)" }}>
+              Gratuit jusqu'au paiement · Aucun compte requis
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Wave composer → occasions */}
+      <div aria-hidden style={{ background: "var(--ink)", height: 64, lineHeight: 0, overflow: "hidden" }}>
+        <svg viewBox="0 0 1440 64" preserveAspectRatio="none" width="100%" height="64"><path d="M0 30 C480 64 960 8 1440 48 L1440 64 L0 64 Z" fill="white" /></svg>
       </div>
 
       {/* ═══════════════════════════════ OCCASIONS ═══════════════════════════════ */}
@@ -700,6 +769,13 @@ export default function LandingPage() {
   );
 }
 
-function Label({ children }: { children: React.ReactNode }) {
-  return <p className="text-[9px] font-black tracking-[0.28em] uppercase text-shimmer">{children}</p>;
+function Label({ children, light }: { children: React.ReactNode; light?: boolean }) {
+  return (
+    <p
+      className="text-[9px] font-black tracking-[0.28em] uppercase"
+      style={light ? { color: "var(--gold)" } : undefined}
+    >
+      {light ? children : <span className="text-shimmer">{children}</span>}
+    </p>
+  );
 }
