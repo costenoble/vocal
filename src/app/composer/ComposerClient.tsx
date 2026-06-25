@@ -282,6 +282,7 @@ export default function ComposerClient() {
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState("");
   const [recordingSecs, setRecordingSecs] = useState(0);
   const [bars, setBars] = useState<number[]>(Array(28).fill(3));
+  const [recordError, setRecordError] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState("");
 
@@ -360,7 +361,15 @@ export default function ComposerClient() {
         rafRef.current = requestAnimationFrame(tick);
       };
       rafRef.current = requestAnimationFrame(tick);
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setRecordError(
+        msg.includes("Permission") || msg.includes("NotAllowed") || msg.includes("denied")
+          ? "Accès au microphone refusé. Autorisez-le dans les réglages de votre navigateur."
+          : !navigator.mediaDevices
+          ? "Microphone indisponible. Vérifiez que le site est ouvert en HTTPS ou localhost."
+          : "Impossible d'accéder au microphone. Vérifiez qu'aucune autre app ne l'utilise."
+      );
       setRecordState("idle");
     }
   };
@@ -562,6 +571,9 @@ export default function ComposerClient() {
                     </svg>
                   </button>
                   <p className="text-[14px]" style={{ color: "var(--ink-muted)" }}>Appuyer pour commencer</p>
+                  {recordError && (
+                    <p className="text-[12px] text-center px-4" style={{ color: "#C0392B", maxWidth: 280 }}>{recordError}</p>
+                  )}
                 </div>
               )}
 

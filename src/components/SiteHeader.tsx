@@ -8,7 +8,7 @@ const NAV_LINKS = [
   { href: "#comment-ca-marche", label: "Comment ça marche" },
   { href: "#tarifs", label: "Nos formules" },
   { href: "#faq", label: "Questions fréquentes" },
-  { href: "/listen/demo", label: "Écouter un exemple" },
+  { href: "/composer", label: "Créer ma carte" },
 ];
 
 export default function SiteHeader() {
