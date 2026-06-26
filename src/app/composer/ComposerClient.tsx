@@ -6,8 +6,17 @@ import Logo from "@/components/Logo";
 import Link from "next/link";
 import { THEMES, getTheme, type ThemeId } from "@/lib/themes";
 
-type WizardStep = 1 | 2 | 3 | 4 | 5;
+type WizardStep = 1 | 2 | 3 | 4 | 5 | 6;
 type RecordState = "idle" | "requesting" | "recording" | "uploading" | "done";
+
+interface Shipping {
+  fullName: string;
+  address: string;
+  complement: string;
+  postalCode: string;
+  city: string;
+  country: string;
+}
 
 interface CardData {
   fromName: string;
@@ -18,6 +27,7 @@ interface CardData {
   paper: string;
   cardFont: string;
   message: string;
+  shipping: Shipping;
 }
 
 const PAPERS = [
@@ -625,7 +635,7 @@ function FontSelector({ selected, onChange, paperAccent = "var(--gold)" }: { sel
 // ── Main Composer ─────────────────────────────────────────────────────────────
 export default function ComposerClient() {
   const [step, setStep] = useState<WizardStep>(1);
-  const [card, setCard] = useState<CardData>({ fromName: "", toName: "", date: "", occasion: "", theme: "classique", paper: "ivoire", cardFont: "playfair", message: "" });
+  const [card, setCard] = useState<CardData>({ fromName: "", toName: "", date: "", occasion: "", theme: "classique", paper: "ivoire", cardFont: "playfair", message: "", shipping: { fullName: "", address: "", complement: "", postalCode: "", city: "", country: "France" } });
   const [recordState, setRecordState] = useState<RecordState>("idle");
   const [audioObjectUrl, setAudioObjectUrl] = useState("");
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState("");
@@ -755,8 +765,14 @@ export default function ComposerClient() {
     }
   };
 
-  const goNext = () => setStep(s => Math.min(5, s + 1) as WizardStep);
+  const goNext = () => setStep(s => Math.min(6, s + 1) as WizardStep);
   const goPrev = () => setStep(s => Math.max(1, s - 1) as WizardStep);
+
+  const setShipping = (field: keyof Shipping, value: string) =>
+    setCard(c => ({ ...c, shipping: { ...c.shipping, [field]: value } }));
+
+  const { fullName, address, postalCode, city, country } = card.shipping;
+  const step5Valid = fullName.trim().length > 0 && address.trim().length > 0 && postalCode.trim().length > 0 && city.trim().length > 0 && country.trim().length > 0;
 
   const setCardField = (field: keyof CardData, value: string) =>
     setCard(c => ({ ...c, [field]: value }));
@@ -779,13 +795,13 @@ export default function ComposerClient() {
 
           {/* Step indicator — dots */}
           <div className="flex items-center gap-1.5">
-            {([1, 2, 3, 4, 5] as WizardStep[]).map((s) => (
+            {([1, 2, 3, 4, 5, 6] as WizardStep[]).map((s) => (
               <div
                 key={s}
                 className="rounded-full transition-all duration-300"
                 style={{
                   height: 5,
-                  width: step === s ? 20 : 5,
+                  width: step === s ? 18 : 5,
                   background: step > s ? "var(--gold)" : step === s ? "var(--ink)" : "rgba(28,20,16,0.15)",
                 }}
               />
@@ -793,7 +809,7 @@ export default function ComposerClient() {
           </div>
 
           <span className="text-[11px]" style={{ color: "var(--ink-muted)" }}>
-            {["Votre carte", "Votre message", "Carte physique", "Aperçu web", "Formule"][step - 1]}
+            {["Votre carte", "Enregistrement", "Carte physique", "Aperçu web", "Livraison", "Formule"][step - 1]}
           </span>
         </div>
       </header>
@@ -1106,16 +1122,125 @@ export default function ComposerClient() {
             </div>
 
             <div className="w-full max-w-sm">
-              <Nav onPrev={goPrev} onNext={goNext} prevLabel="Retour" nextLabel="Choisir ma formule" />
+              <Nav onPrev={goPrev} onNext={goNext} prevLabel="Retour" nextLabel="Adresse de livraison" />
             </div>
           </motion.div>
         )}
 
-        {/* STEP 5 — Formule */}
+        {/* STEP 5 — Livraison */}
         {step === 5 && (
-          <motion.div key="s4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+          <motion.div key="s5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}
+            className="flex flex-col items-center"
+          >
             <div className="mb-8 text-center">
-              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "var(--gold)" }}>Étape 5 · Votre formule</p>
+              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "var(--gold)" }}>Étape 5 · Livraison</p>
+              <h1 className="text-[32px] sm:text-[40px] font-black leading-[1.06]" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
+                Où envoyer<br />la carte ?
+              </h1>
+              <p className="text-[14px] mt-2" style={{ color: "var(--ink-muted)" }}>
+                Votre carte sera expédiée directement chez votre destinataire.
+              </p>
+            </div>
+
+            <div className="w-full max-w-md flex flex-col gap-5">
+
+              {/* Récapitulatif expéditeur */}
+              <div className="rounded-2xl p-4 flex items-center gap-4" style={{ background: "white", border: "1px solid rgba(184,134,26,0.12)" }}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(184,134,26,0.08)" }}>
+                  <svg viewBox="0 0 24 24" width={18} height={18} fill="none">
+                    <path d="M3 8l9 6 9-6" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round"/>
+                    <rect x="2" y="6" width="20" height="13" rx="2" stroke="var(--gold)" strokeWidth="1.5"/>
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "var(--ink-muted)" }}>Carte de</p>
+                  <p className="text-[14px] font-semibold" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
+                    {card.fromName} <span style={{ color: "var(--gold)" }}>♥</span> pour {card.toName}
+                  </p>
+                </div>
+              </div>
+
+              {/* Formulaire adresse */}
+              <Field label="Nom complet du destinataire *">
+                <Input
+                  value={card.shipping.fullName}
+                  onChange={v => setShipping("fullName", v)}
+                  placeholder={`${card.toName || "Prénom Nom"}`}
+                />
+              </Field>
+
+              <Field label="Adresse *">
+                <Input
+                  value={card.shipping.address}
+                  onChange={v => setShipping("address", v)}
+                  placeholder="12 rue des Roses"
+                />
+              </Field>
+
+              <Field label="Complément d'adresse">
+                <Input
+                  value={card.shipping.complement}
+                  onChange={v => setShipping("complement", v)}
+                  placeholder="Apt, bâtiment, étage… (optionnel)"
+                />
+              </Field>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Code postal *">
+                  <Input
+                    value={card.shipping.postalCode}
+                    onChange={v => setShipping("postalCode", v)}
+                    placeholder="75001"
+                  />
+                </Field>
+                <Field label="Ville *">
+                  <Input
+                    value={card.shipping.city}
+                    onChange={v => setShipping("city", v)}
+                    placeholder="Paris"
+                  />
+                </Field>
+              </div>
+
+              <Field label="Pays *">
+                <select
+                  value={card.shipping.country}
+                  onChange={e => setShipping("country", e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl text-[14px] font-medium outline-none appearance-none"
+                  style={{
+                    background: "white",
+                    border: "1.5px solid rgba(28,20,16,0.10)",
+                    color: "var(--ink)",
+                    cursor: "pointer",
+                  }}
+                >
+                  {["France", "Belgique", "Suisse", "Luxembourg", "Canada", "Autre"].map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </Field>
+
+              {/* Info délai */}
+              <div className="rounded-2xl p-4 flex gap-3 items-center" style={{ background: "rgba(184,134,26,0.05)", border: "1px solid rgba(184,134,26,0.10)" }}>
+                <svg viewBox="0 0 24 24" width={16} height={16} fill="none" style={{ flexShrink: 0 }}>
+                  <circle cx="12" cy="12" r="10" stroke="var(--gold)" strokeWidth="1.5"/>
+                  <path d="M12 7v5l3 3" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+                <p className="text-[11px]" style={{ color: "var(--ink-muted)" }}>
+                  Livraison en <strong style={{ color: "var(--ink)" }}>3 à 5 jours ouvrés</strong> · Suivi d&apos;envoi inclus · Emballage soigné
+                </p>
+              </div>
+
+              <Nav onPrev={goPrev} onNext={goNext} nextDisabled={!step5Valid} prevLabel="Retour" nextLabel="Choisir ma formule" />
+            </div>
+          </motion.div>
+        )}
+
+        {/* STEP 6 — Formule */}
+        {step === 6 && (
+          <motion.div key="s6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+            <div className="mb-8 text-center">
+              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "var(--gold)" }}>Étape 6 · Votre formule</p>
               <h1 className="text-[32px] sm:text-[40px] font-black leading-[1.06]" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
                 Choisissez<br />votre formule.
               </h1>
@@ -1186,6 +1311,24 @@ export default function ComposerClient() {
 
             {checkoutError && (
               <p className="text-center text-[12px] mt-4" style={{ color: "#C0392B" }}>{checkoutError}</p>
+            )}
+
+            {/* Récap livraison */}
+            {card.shipping.fullName && (
+              <div className="max-w-lg mx-auto mt-6 rounded-2xl p-4 flex gap-3 items-start" style={{ background: "white", border: "1px solid rgba(184,134,26,0.10)" }}>
+                <svg viewBox="0 0 24 24" width={16} height={16} fill="none" style={{ flexShrink: 0, marginTop: 2 }}>
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="var(--gold)" strokeWidth="1.5"/>
+                  <path d="M9 22V12h6v10" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--ink-muted)" }}>Livraison à</p>
+                  <p className="text-[13px] font-semibold" style={{ color: "var(--ink)" }}>{card.shipping.fullName}</p>
+                  <p className="text-[12px]" style={{ color: "var(--ink-muted)" }}>
+                    {card.shipping.address}{card.shipping.complement ? `, ${card.shipping.complement}` : ""}<br />
+                    {card.shipping.postalCode} {card.shipping.city} · {card.shipping.country}
+                  </p>
+                </div>
+              </div>
             )}
 
             <p className="text-center text-[11px] mt-6" style={{ color: "rgba(28,20,16,0.28)" }}>
