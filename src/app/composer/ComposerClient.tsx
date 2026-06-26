@@ -17,6 +17,7 @@ interface CardData {
   theme: ThemeId;
   paper: string;
   cardFont: string;
+  message: string;
 }
 
 const PAPERS = [
@@ -148,7 +149,6 @@ function ThemeSelector({ selected, onChange }: { selected: ThemeId; onChange: (i
               }}
             >
               <div style={{ height: 48, background: th.pageBg, position: "relative" }}>
-                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: th.topBarGrad }} />
                 <div style={{ position: "absolute", top: "20%", left: "14%", right: "14%", bottom: "14%", background: th.cardBg, borderRadius: 5, border: `1px solid ${th.cardBorder}` }}>
                   <div style={{ position: "absolute", top: "22%", left: "15%", right: "15%", display: "flex", flexDirection: "column", gap: 2 }}>
                     <div style={{ height: 2.5, borderRadius: 99, background: th.accent, opacity: 0.5 }} />
@@ -177,7 +177,6 @@ function CardPreview({ card, audioSrc }: { card: CardData; audioSrc?: string }) 
   const t = getTheme(card.theme);
   return (
     <div style={{ borderRadius: 22, overflow: "hidden", border: `1px solid ${t.cardBorder}`, boxShadow: t.cardShadow }}>
-      <div style={{ height: 3, background: t.topBarGrad }} />
       <div style={{ background: t.pageBg, padding: "24px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
         <div style={{ textAlign: "center" }}>
           <Logo size={40} />
@@ -494,16 +493,28 @@ function CardVerso({ card, paper, font }: { card: CardData; paper: typeof PAPERS
         <Logo size={32} />
       </div>
 
-      {/* Quote */}
-      <div style={{ textAlign: "center", zIndex: 3 }}>
-        <p style={{ fontSize: 7, color: paper.text, opacity: 0.5, fontFamily: "var(--font-playfair)", fontStyle: "italic", lineHeight: 1.6 }}>
-          Ce message a été enregistré<br />
-          avec tout mon cœur.<br />
-          Je serai toujours là, dans ma voix.
-        </p>
+      {/* Message perso ou quote par défaut */}
+      <div style={{ textAlign: "center", zIndex: 3, padding: "0 4px" }}>
+        {card.message ? (
+          <p style={{
+            fontSize: 7.5,
+            fontFamily: font.id === "script" ? "'Brush Script MT','Segoe Script',cursive" : "var(--font-playfair)",
+            fontStyle: "italic",
+            color: paper.text,
+            opacity: 0.7,
+            lineHeight: 1.65,
+            whiteSpace: "pre-wrap",
+          }}>
+            {card.message}
+          </p>
+        ) : (
+          <p style={{ fontSize: 7, color: paper.text, opacity: 0.35, fontFamily: "var(--font-playfair)", fontStyle: "italic", lineHeight: 1.6 }}>
+            Votre message personnel<br />apparaîtra ici.
+          </p>
+        )}
         <p style={{
           fontSize: 10,
-          marginTop: 4,
+          marginTop: 5,
           fontFamily: font.id === "script" ? "'Brush Script MT','Segoe Script',cursive" : "var(--font-playfair)",
           fontStyle: "italic",
           color: paper.accent,
@@ -522,25 +533,38 @@ function CardVerso({ card, paper, font }: { card: CardData; paper: typeof PAPERS
   );
 }
 
-// ── Physical Card (recto + verso) ─────────────────────────────────────────────
+// ── Physical Card (recto + verso, rendu Canva) ────────────────────────────────
 function PhysicalCard({ card }: { card: CardData }) {
   const paper = PAPERS.find(p => p.id === card.paper) ?? PAPERS[0];
   const font = CARD_FONTS.find(f => f.id === card.cardFont) ?? CARD_FONTS[0];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        <div>
-          <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(28,20,16,0.3)", textAlign: "center", marginBottom: 8, fontFamily: "var(--font-inter), sans-serif" }}>Recto</p>
-          <CardRecto card={card} paper={paper} font={font} />
+    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+      {/* Canvas neutral — comme Canva */}
+      <div style={{
+        background: "#DEDAD5",
+        borderRadius: 12,
+        padding: "20px 16px 16px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 12,
+      }}>
+        {/* Labels */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" as const, color: "rgba(28,20,16,0.4)", textAlign: "center", fontFamily: "var(--font-inter), sans-serif" }}>Recto</p>
+          <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" as const, color: "rgba(28,20,16,0.4)", textAlign: "center", fontFamily: "var(--font-inter), sans-serif" }}>Verso</p>
         </div>
-        <div>
-          <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(28,20,16,0.3)", textAlign: "center", marginBottom: 8, fontFamily: "var(--font-inter), sans-serif" }}>Verso</p>
+
+        {/* Cards */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <CardRecto card={card} paper={paper} font={font} />
           <CardVerso card={card} paper={paper} font={font} />
         </div>
       </div>
-      <p style={{ fontSize: 10, textAlign: "center", color: "rgba(28,20,16,0.25)", fontFamily: "var(--font-inter), sans-serif" }}>
-        Format A6 · 105 × 148 mm · Papier 350g · Impression recto-verso
+
+      {/* Spec */}
+      <p style={{ fontSize: 9.5, textAlign: "center", color: "rgba(28,20,16,0.3)", fontFamily: "var(--font-inter), sans-serif", padding: "10px 0 0" }}>
+        Format A6 · 105 × 148 mm · 350g · Recto-verso
       </p>
     </div>
   );
@@ -601,7 +625,7 @@ function FontSelector({ selected, onChange, paperAccent = "var(--gold)" }: { sel
 // ── Main Composer ─────────────────────────────────────────────────────────────
 export default function ComposerClient() {
   const [step, setStep] = useState<WizardStep>(1);
-  const [card, setCard] = useState<CardData>({ fromName: "", toName: "", date: "", occasion: "", theme: "classique", paper: "ivoire", cardFont: "playfair" });
+  const [card, setCard] = useState<CardData>({ fromName: "", toName: "", date: "", occasion: "", theme: "classique", paper: "ivoire", cardFont: "playfair", message: "" });
   const [recordState, setRecordState] = useState<RecordState>("idle");
   const [audioObjectUrl, setAudioObjectUrl] = useState("");
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState("");
@@ -1000,7 +1024,7 @@ export default function ComposerClient() {
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start max-w-3xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start max-w-4xl mx-auto">
               {/* Selectors */}
               <div className="flex flex-col gap-6">
                 <PaperSelector
@@ -1012,22 +1036,47 @@ export default function ComposerClient() {
                   onChange={id => setCard(c => ({ ...c, cardFont: id }))}
                   paperAccent={(PAPERS.find(p => p.id === card.paper) ?? PAPERS[0]).accent}
                 />
+
+                {/* Message écrit */}
+                <div>
+                  <p className="text-[10px] font-bold tracking-[0.14em] uppercase mb-2.5" style={{ color: "var(--ink-muted)" }}>
+                    Message écrit <span style={{ opacity: 0.45, fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optionnel)</span>
+                  </p>
+                  <textarea
+                    value={card.message}
+                    onChange={e => setCard(c => ({ ...c, message: e.target.value }))}
+                    placeholder={"Ex : Tu es la plus belle chose qui me soit arrivée.\nJe t'aime, pour toujours."}
+                    maxLength={200}
+                    rows={3}
+                    className="w-full px-4 py-3 rounded-xl text-[13px] outline-none resize-none"
+                    style={{
+                      background: "white",
+                      border: `1.5px solid ${card.message ? "var(--gold)" : "rgba(28,20,16,0.10)"}`,
+                      color: "var(--ink)",
+                      fontFamily: "var(--font-playfair)",
+                      fontStyle: "italic",
+                      lineHeight: 1.6,
+                      boxShadow: card.message ? "0 0 0 3px rgba(184,134,26,0.08)" : "none",
+                      transition: "border-color 0.15s, box-shadow 0.15s",
+                    }}
+                  />
+                  <p className="text-[10px] mt-1 text-right" style={{ color: "rgba(28,20,16,0.28)" }}>{card.message.length}/200</p>
+                </div>
+
                 <div className="rounded-2xl p-4 flex gap-3 items-start" style={{ background: "rgba(184,134,26,0.06)", border: "1px solid rgba(184,134,26,0.12)" }}>
                   <svg viewBox="0 0 24 24" width={16} height={16} fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
                     <circle cx="12" cy="12" r="10" stroke="var(--gold)" strokeWidth="1.5"/>
                     <path d="M12 8v4M12 16h.01" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round"/>
                   </svg>
                   <p className="text-[11px] leading-relaxed" style={{ color: "var(--ink-muted)" }}>
-                    La carte physique est imprimée sur du papier premium 350g et envoyée directement chez votre destinataire dans un délai de 3 à 5 jours ouvrés.
+                    La carte est imprimée sur papier 350g et envoyée directement chez votre destinataire en 3 à 5 jours ouvrés.
                   </p>
                 </div>
               </div>
 
-              {/* Live card preview */}
+              {/* Live card preview — style Canva */}
               <div className="sticky top-16">
-                <p className="text-[10px] font-bold tracking-[0.14em] uppercase mb-4 text-center" style={{ color: "var(--ink-muted)" }}>Aperçu en temps réel</p>
                 <PhysicalCard card={card} />
-                <p className="text-[10px] text-center mt-3" style={{ color: "rgba(28,20,16,0.25)" }}>Format A6 · 148 × 105 mm · Impression recto</p>
               </div>
             </div>
 

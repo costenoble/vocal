@@ -82,9 +82,6 @@ export default function ListenClient({ fromName, toName, date, audioUrl, duratio
             border: `1px solid ${t.cardBorder}`,
           }}
         >
-          {/* Accent top bar */}
-          <div style={{ height: 3, background: t.topBarGrad }} />
-
           <div className="flex flex-col items-center px-6 py-7 gap-5">
 
             {/* FROM / TO section */}
