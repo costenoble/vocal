@@ -17,10 +17,24 @@ model Message {
   duration        Int?
   plan            String    @default("precieux")
   paid            Boolean   @default(false)
+  source          String    @default("web")
   stripeSessionId String?   @unique
   buyerEmail      String?
   theme           String    @default("classique")
+  paper           String    @default("ivoire")
+  cardFont        String    @default("playfair")
+  message         String?
   viewCount       Int       @default(0)
   createdAt       DateTime  @default(now())
   expiresAt       DateTime?
+  accessCode      String?
+  productSlug     String?
+  productName     String?
+  productSize     String?
+  shipName        String?
+  shipAddress     String?
+  shipComplement  String?
+  shipPostalCode  String?
+  shipCity        String?
+  shipCountry     String?
 }

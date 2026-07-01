@@ -11,6 +11,8 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 function SuccessContent() {
   const params = useSearchParams();
   const sessionId = params.get("session_id");
+  const boutiqueSlug = params.get("slug");
+  const isBoutique = !!boutiqueSlug && params.get("boutique") === "1";
 
   type Status = "verifying" | "waiting" | "ready" | "error";
   const [status, setStatus] = useState<Status>("verifying");
@@ -20,6 +22,13 @@ function SuccessContent() {
   const stripeSlugRef = useRef<string>("");
 
   useEffect(() => {
+    // Boutique mode: the order already exists, no Stripe verification needed.
+    if (isBoutique && boutiqueSlug) {
+      setSlug(boutiqueSlug);
+      setStatus("ready");
+      return;
+    }
+
     if (!sessionId) { setStatus("error"); return; }
 
     fetch(`/api/stripe/checkout?session_id=${sessionId}`)
@@ -58,7 +67,7 @@ function SuccessContent() {
       .catch(() => setStatus("error"));
 
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
-  }, [sessionId]);
+  }, [sessionId, isBoutique, boutiqueSlug]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: "var(--cream)" }}>
@@ -94,9 +103,13 @@ function SuccessContent() {
             </motion.div>
 
             <div>
-              <h1 className="text-[24px] font-black" style={{ color: "var(--ink)" }}>Votre carte est prête !</h1>
+              <h1 className="text-[24px] font-black" style={{ color: "var(--ink)" }}>
+                {isBoutique ? "Commande créée !" : "Votre carte est prête !"}
+              </h1>
               <p className="text-[13px] mt-2 leading-relaxed" style={{ color: "var(--ink-muted)" }}>
-                {toName
+                {isBoutique
+                  ? "Imprimez la carte (avec son QR code et son code d'accès) à glisser dans le coffret."
+                  : toName
                   ? `${toName} peut maintenant écouter votre message en scannant le QR code.`
                   : "Votre destinataire peut écouter votre message en scannant le QR code."}
               </p>
@@ -104,12 +117,23 @@ function SuccessContent() {
 
             {slug ? (
               <>
+                {isBoutique && (
+                  <a
+                    href={`/api/pdf/${slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-4 rounded-2xl font-bold text-white text-center text-[15px] block transition-all active:scale-95"
+                    style={{ background: "var(--ink)" }}
+                  >
+                    Imprimer la carte →
+                  </a>
+                )}
                 <Link
                   href={`/listen/${slug}`}
                   className="w-full py-4 rounded-2xl font-bold text-white text-center text-[15px] block transition-all active:scale-95"
                   style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 4px 20px rgba(184,134,26,0.28)" }}
                 >
-                  Voir ma carte d&apos;écoute →
+                  {isBoutique ? "Voir la page d'écoute →" : "Voir ma carte d'écoute →"}
                 </Link>
                 <p className="text-[10px]" style={{ color: "rgba(28,20,16,0.3)" }}>
                   vocale.fr/listen/{slug}

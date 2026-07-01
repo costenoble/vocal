@@ -4,24 +4,21 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "@/components/Logo";
 import SiteHeader from "@/components/SiteHeader";
-import { PLANS } from "@/lib/plans";
+import { PRODUCTS } from "@/lib/products";
 import Link from "next/link";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 const OCCASIONS = [
-  { emoji: "🎂", label: "Anniversaire" },
-  { emoji: "💝", label: "Maman & Papa" },
-  { emoji: "💍", label: "Mariage" },
-  { emoji: "👶", label: "Naissance" },
-  { emoji: "🎓", label: "Retraite" },
-  { emoji: "🎄", label: "Noël & Fêtes" },
+  "Je t'aime", "Joyeux anniversaire", "Merci",
+  "Je suis fier de toi", "Ne baisse jamais les bras", "Bienvenue dans la famille",
+  "Veux-tu m'épouser ?", "À nos grands-parents", "Pour un ami",
 ];
 
 const STEPS = [
-  { n: "01", title: "Choisissez votre formule", desc: "Paiement sécurisé en 30 secondes. Par carte, Apple Pay ou Google Pay." },
-  { n: "02", title: "Enregistrez votre message", desc: "Directement depuis votre téléphone. Votre voix, vos mots, votre émotion." },
-  { n: "03", title: "Imprimez et offrez la carte", desc: "Téléchargez le PDF avec QR code intégré. Imprimez, offrez, émerveillez." },
+  { n: "01", title: "Choisissez votre bracelet NJ", desc: "Le modèle et la taille qui correspondent à votre proche." },
+  { n: "02", title: "Personnalisez & enregistrez", desc: "Votre carte, vos mots, votre voix. Directement depuis votre téléphone." },
+  { n: "03", title: "Nous livrons le coffret", desc: "Le bracelet et la carte avec son QR code, chez vous ou votre proche, sous 3 à 5 jours." },
 ];
 
 const TESTIMONIALS = [
@@ -45,23 +42,27 @@ const TESTIMONIALS = [
 const FAQS = [
   {
     q: "Comment le destinataire écoute-t-il le message ?",
-    a: "Il scanne le QR code avec l'appareil photo de son téléphone. Une page s'ouvre immédiatement — aucune application à installer.",
+    a: "Il scanne le QR code de la carte avec l'appareil photo de son téléphone, saisit le code d'accès confidentiel, et le message se lance. Aucune application à installer.",
   },
   {
-    q: "Le lien reste-t-il actif longtemps ?",
-    a: "Avec nos deux formules, le lien est actif à vie. Le message sera accessible pour toujours, même dans 20 ans.",
+    q: "Le message est-il vraiment privé ?",
+    a: "Oui. Chaque message est protégé par un code d'accès personnel imprimé sur la carte. Sans ce code, personne ne peut écouter le message, même avec le lien.",
   },
   {
-    q: "Peut-on importer un fichier audio existant ?",
-    a: "Oui. Vous pouvez importer un fichier MP3, WAV ou M4A si vous avez déjà un enregistrement.",
+    q: "Que contient le coffret livré ?",
+    a: "Une enveloppe premium, le bracelet en pierre naturelle avec son médaillon N'OUBLIE JAMAIS, ses cartes élégantes et le QR code donnant accès au message vocal.",
   },
   {
-    q: "Comment imprimer la carte ?",
-    a: "Vous téléchargez un PDF haute définition prêt à l'impression. Sur une imprimante standard ou chez un imprimeur.",
+    q: "Quels sont les délais de livraison ?",
+    a: "Votre coffret est expédié sous 3 à 5 jours ouvrés, avec suivi, à l'adresse de votre choix — chez vous ou directement chez votre proche.",
+  },
+  {
+    q: "Le lien du message reste-t-il actif longtemps ?",
+    a: "Le message reste accessible à vie. Votre proche pourra le réécouter pour toujours, même dans 20 ans.",
   },
   {
     q: "Le paiement est-il sécurisé ?",
-    a: "100%. Le paiement est traité par Stripe — utilisé par Amazon, Spotify, des millions d'entreprises. Nous ne stockons jamais vos données bancaires.",
+    a: "100%. Le paiement est traité par Stripe — utilisé par des millions d'entreprises. Nous ne stockons jamais vos données bancaires.",
   },
 ];
 
@@ -117,7 +118,7 @@ export default function LandingPage() {
                 className="flex items-center gap-3 mb-6"
               >
                 <div style={{ width: 24, height: 1, background: "var(--gold)", opacity: 0.5 }} />
-                <span className="text-[10px] font-black tracking-[0.28em] uppercase text-shimmer">La carte vocale</span>
+                <span className="text-[10px] font-black tracking-[0.28em] uppercase text-shimmer">Le bracelet à message vocal</span>
               </motion.div>
 
               {/* Logo NJ */}
@@ -135,7 +136,7 @@ export default function LandingPage() {
                 className="font-black leading-[1.05] tracking-tight mb-5 overflow-hidden"
                 style={{ fontSize: "clamp(36px, 5.5vw, 58px)", fontFamily: "var(--font-playfair)", color: "var(--ink)" }}
               >
-                {["Offrez", "votre", "voix."].map((word, i) => (
+                {["Bien", "plus", "qu'un"].map((word, i) => (
                   <motion.span
                     key={word}
                     initial={{ opacity: 0, y: 32 }}
@@ -147,7 +148,7 @@ export default function LandingPage() {
                   </motion.span>
                 ))}
                 <br />
-                {["Pour", "toujours."].map((word, i) => (
+                {["bracelet."].map((word, i) => (
                   <motion.span
                     key={word}
                     initial={{ opacity: 0, y: 32 }}
@@ -169,7 +170,7 @@ export default function LandingPage() {
                 className="text-[14px] leading-relaxed mb-8"
                 style={{ color: "var(--ink-muted)", maxWidth: 340 }}
               >
-                Enregistrez un message vocal, imprimez la carte N&rsquo;OUBLIE JAMAIS. Le destinataire scanne, et il vous entend.
+                Un bracelet en pierre naturelle, sa carte et son message vocal. Une attention qui restera dans les mémoires.
               </motion.p>
 
               {/* CTAs */}
@@ -180,11 +181,11 @@ export default function LandingPage() {
                 className="flex flex-col gap-3 w-full max-w-[300px]"
               >
                 <Link
-                  href="/composer"
+                  href="/boutique"
                   className="w-full py-4 rounded-2xl font-bold text-white text-[14px] tracking-wide text-center block transition-all active:scale-[0.98]"
                   style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 6px 28px rgba(184,134,26,0.32)" }}
                 >
-                  Commander ma carte
+                  Découvrir le bracelet
                 </Link>
               </motion.div>
             </div>
@@ -304,22 +305,22 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto flex flex-col items-center gap-10">
           {/* Header */}
           <div className="text-center">
-            <Label light>Composer votre carte</Label>
+            <Label light>Depuis chez vous</Label>
             <h2 className="mt-3 text-[28px] sm:text-[34px] font-black leading-tight" style={{ color: "var(--cream)", fontFamily: "var(--font-playfair)" }}>
-              Créez votre message<br />en 4 étapes.
+              Créez un cadeau unique<br />en quelques minutes.
             </h2>
             <p className="mt-3 text-[13px]" style={{ color: "rgba(240,232,216,0.5)" }}>
-              En moins de 5 minutes. Sans compte. Sans application.
+              Choisissez, personnalisez, enregistrez. Nous livrons votre cadeau où qu&rsquo;il soit.
             </p>
           </div>
 
           {/* 4 steps */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
             {[
-              { n: "01", icon: (<svg viewBox="0 0 24 24" width={22} height={22} fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="var(--gold)" strokeWidth="1.6"/><path d="M3 9h18" stroke="var(--gold)" strokeWidth="1.6"/><path d="M7 13h5M7 16h3" stroke="var(--gold)" strokeWidth="1.4" strokeLinecap="round"/></svg>), label: "Votre carte", desc: "Prénom, date, occasion" },
-              { n: "02", icon: (<svg viewBox="0 0 24 24" width={22} height={22} fill="none"><rect x="9" y="2" width="6" height="13" rx="3" stroke="var(--gold)" strokeWidth="1.6"/><path d="M5 11a7 7 0 0 0 14 0" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round"/><path d="M12 18v4M9 22h6" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round"/></svg>), label: "Votre message", desc: "Enregistrez votre voix" },
-              { n: "03", icon: (<svg viewBox="0 0 24 24" width={22} height={22} fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="var(--gold)" strokeWidth="1.6"/><circle cx="12" cy="12" r="3" stroke="var(--gold)" strokeWidth="1.6"/></svg>), label: "Aperçu", desc: "Visualisez le résultat" },
-              { n: "04", icon: (<svg viewBox="0 0 24 24" width={22} height={22} fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="var(--gold)" strokeWidth="1.6"/><path d="M2 10h20" stroke="var(--gold)" strokeWidth="1.6"/><path d="M6 15h4" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round"/></svg>), label: "Votre formule", desc: "Paiement sécurisé" },
+              { n: "01", icon: (<svg viewBox="0 0 24 24" width={22} height={22} fill="none"><circle cx="12" cy="12" r="8" stroke="var(--gold)" strokeWidth="1.6"/><circle cx="12" cy="12" r="3" stroke="var(--gold)" strokeWidth="1.4"/></svg>), label: "Votre bracelet", desc: "Choisissez le modèle NJ" },
+              { n: "02", icon: (<svg viewBox="0 0 24 24" width={22} height={22} fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="var(--gold)" strokeWidth="1.6"/><path d="M3 9h18" stroke="var(--gold)" strokeWidth="1.6"/><path d="M7 13h5M7 16h3" stroke="var(--gold)" strokeWidth="1.4" strokeLinecap="round"/></svg>), label: "Votre carte", desc: "Prénom, date, message" },
+              { n: "03", icon: (<svg viewBox="0 0 24 24" width={22} height={22} fill="none"><rect x="9" y="2" width="6" height="13" rx="3" stroke="var(--gold)" strokeWidth="1.6"/><path d="M5 11a7 7 0 0 0 14 0" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round"/><path d="M12 18v4M9 22h6" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round"/></svg>), label: "Votre voix", desc: "Enregistrez le message" },
+              { n: "04", icon: (<svg viewBox="0 0 24 24" width={22} height={22} fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="var(--gold)" strokeWidth="1.6"/><path d="M9 22V12h6v10" stroke="var(--gold)" strokeWidth="1.6"/></svg>), label: "Livraison", desc: "Où qu'il se trouve" },
             ].map((s, i) => (
               <motion.div
                 key={s.n}
@@ -350,7 +351,7 @@ export default function LandingPage() {
             transition={{ delay: 0.32, duration: 0.45, ease: EASE }}
           >
             <Link
-              href="/composer"
+              href="/boutique"
               className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl font-bold text-[15px] text-white transition-all active:scale-95"
               style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 8px 32px rgba(184,134,26,0.38)" }}
             >
@@ -374,29 +375,76 @@ export default function LandingPage() {
       {/* ═══════════════════════════════ OCCASIONS ═══════════════════════════════ */}
       <section className="px-5 pt-4 pb-16" style={{ background: "white" }}>
         <div className="max-w-lg mx-auto">
-          <Label>Pour toutes les occasions</Label>
+          <Label>Pour dire…</Label>
           <h2 className="mt-2 mb-6 text-[22px] font-black leading-tight" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
-            Une voix pour chaque moment qui compte.
+            Ces mots qui méritent d&rsquo;être conservés.
           </h2>
           <div className="grid grid-cols-3 gap-3 mb-4">
-            {OCCASIONS.map((o, i) => (
+            {OCCASIONS.map((label, i) => (
               <motion.div
-                key={o.label}
+                key={label}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
-                transition={{ delay: i * 0.07, duration: 0.45, ease: EASE }}
+                transition={{ delay: i * 0.05, duration: 0.45, ease: EASE }}
                 whileHover={{ y: -6, scale: 1.04, boxShadow: "0 10px 30px rgba(184,134,26,0.14)", transition: { duration: 0.2, ease: "easeOut" } }}
-                className="rounded-2xl py-6 px-3 flex flex-col items-center gap-3 text-center cursor-default"
+                className="rounded-2xl py-6 px-3 flex items-center justify-center text-center cursor-default min-h-[76px]"
                 style={{ background: "var(--cream)", border: "1px solid rgba(184,134,26,0.14)" }}
               >
-                <span style={{ fontSize: 32 }}>{o.emoji}</span>
-                <span className="text-[12px] font-semibold leading-tight" style={{ color: "var(--ink)" }}>{o.label}</span>
+                <span className="text-[13px] font-semibold leading-tight" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{label}</span>
               </motion.div>
             ))}
           </div>
         </div>
 
+      </section>
+
+      {/* ═══════════════════════════════ CE QUE VOTRE PROCHE RECEVRA ═══════════════════════════════ */}
+      <section className="px-5 py-16" style={{ background: "white" }}>
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-10">
+            <Label>Le coffret</Label>
+            <h2 className="mt-2 text-[24px] sm:text-[28px] font-black leading-tight" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
+              Ce que votre proche recevra.
+            </h2>
+            <p className="mt-3 text-[13px]" style={{ color: "var(--ink-muted)" }}>
+              Un cadeau conçu pour transmettre une émotion sincère, dès l&rsquo;ouverture.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[
+              { t: "Une enveloppe premium", d: "Soigneusement conçue pour sublimer votre cadeau dès son ouverture.", icon: (<path d="M3 6l9 6 9-6M3 6h18v12H3z" stroke="var(--gold)" strokeWidth="1.5" strokeLinejoin="round"/>) },
+              { t: "Le bracelet & son médaillon", d: "En pierre naturelle, réglable, avec le médaillon exclusif N'OUBLIE JAMAIS.", icon: (<><circle cx="12" cy="12" r="8" stroke="var(--gold)" strokeWidth="1.5"/><circle cx="12" cy="12" r="3" stroke="var(--gold)" strokeWidth="1.3"/></>) },
+              { t: "Deux cartes élégantes", d: "Pensées pour accompagner votre message avec soin.", icon: (<><rect x="4" y="6" width="14" height="12" rx="1.5" stroke="var(--gold)" strokeWidth="1.5"/><rect x="7" y="3" width="14" height="12" rx="1.5" stroke="var(--gold)" strokeWidth="1.2" opacity="0.5"/></>) },
+              { t: "Un QR code personnel", d: "Donnant accès à une page privée dédiée à votre cadeau.", icon: (<><rect x="4" y="4" width="7" height="7" rx="1" stroke="var(--gold)" strokeWidth="1.5"/><rect x="13" y="4" width="7" height="7" rx="1" stroke="var(--gold)" strokeWidth="1.5"/><rect x="4" y="13" width="7" height="7" rx="1" stroke="var(--gold)" strokeWidth="1.5"/><path d="M13 13h3v3M20 13v7M16 20h4" stroke="var(--gold)" strokeWidth="1.5"/></>) },
+              { t: "Un message vocal privé", d: "À écouter à tout moment, protégé par un code d'accès confidentiel.", icon: (<><rect x="9" y="2" width="6" height="12" rx="3" stroke="var(--gold)" strokeWidth="1.5"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round"/></>) },
+              { t: "Un souvenir durable", d: "Un cadeau pensé pour laisser une trace sincère, qui traverse le temps.", icon: (<path d="M12 21l-1.45-1.32C5.4 15 2 12 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2 1.1-1.2 2.8-2 4.5-2C19.6 3 22 5.4 22 8.5c0 3.5-3.4 6.5-8.55 11.18L12 21z" stroke="var(--gold)" strokeWidth="1.5" strokeLinejoin="round"/>) },
+            ].map((item, i) => (
+              <motion.div
+                key={item.t}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-30px" }}
+                transition={{ delay: i * 0.06, duration: 0.4, ease: EASE }}
+                className="rounded-2xl p-5 flex gap-4 items-start"
+                style={{ background: "var(--cream)", border: "1px solid rgba(184,134,26,0.12)" }}
+              >
+                <div className="w-11 h-11 rounded-xl shrink-0 flex items-center justify-center" style={{ background: "rgba(184,134,26,0.08)" }}>
+                  <svg viewBox="0 0 24 24" width={20} height={20} fill="none">{item.icon}</svg>
+                </div>
+                <div>
+                  <p className="text-[14px] font-bold mb-1" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{item.t}</p>
+                  <p className="text-[12px] leading-relaxed" style={{ color: "var(--ink-muted)" }}>{item.d}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <p className="text-center text-[11px] mt-8" style={{ color: "var(--ink-muted)", opacity: 0.7 }}>
+            Bracelet ou collier · À porter chaque jour, ou à conserver pour toujours.
+          </p>
+        </div>
       </section>
 
       <div aria-hidden style={{ background: "white", height: 56, lineHeight: 0, overflow: "hidden" }}>
@@ -456,73 +504,49 @@ export default function LandingPage() {
           <p className="text-[12px]" style={{ color: "var(--ink-muted)" }}>Paiement unique · Aucun abonnement · Lien actif pour toujours</p>
         </div>
 
-        <div className="flex flex-row gap-5 px-5 max-w-3xl mx-auto items-stretch">
-          {PLANS.map((plan, i) => (
-            <motion.div
-              key={plan.id}
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.4, ease: EASE }}
-              whileHover={{
-                y: -8,
-                boxShadow: plan.highlight
-                  ? "0 20px 60px rgba(184,134,26,0.24)"
-                  : "0 16px 48px rgba(184,134,26,0.14)",
-                transition: { duration: 0.22, ease: "easeOut" },
-              }}
-              className="flex-1 rounded-3xl overflow-hidden flex flex-col cursor-default"
-              style={{
-                background: plan.highlight ? "#FFFDF9" : "var(--cream)",
-                border: plan.highlight ? "2px solid var(--gold)" : "1px solid rgba(184,134,26,0.14)",
-                boxShadow: plan.highlight ? "0 8px 40px rgba(184,134,26,0.14)" : "none",
-              }}
-            >
-              {plan.highlight ? (
-                <div className="py-2 text-center shrink-0" style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))" }}>
-                  <span className="text-[10px] font-bold tracking-widest uppercase text-white">✦ Le plus populaire</span>
-                </div>
-              ) : (
-                <div className="py-2 shrink-0" />
-              )}
+        <div className="px-5 max-w-md mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, ease: EASE }}
+            className="rounded-3xl overflow-hidden flex flex-col"
+            style={{ background: "#FFFDF9", border: "2px solid var(--gold)", boxShadow: "0 8px 40px rgba(184,134,26,0.14)" }}
+          >
+            <div className="py-2 text-center shrink-0" style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))" }}>
+              <span className="text-[10px] font-bold tracking-widest uppercase text-white">Le coffret N&rsquo;OUBLIE JAMAIS</span>
+            </div>
 
-              <div className="p-7 flex flex-col flex-1 gap-1">
-                <h3 className="text-[18px] font-bold" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{plan.name}</h3>
-                <p className="text-[12px] mb-2" style={{ color: "var(--ink-muted)" }}>{plan.tagline}</p>
+            <div className="p-7 flex flex-col gap-1">
+              <h3 className="text-[20px] font-bold" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{PRODUCTS[0].name}</h3>
+              <p className="text-[12px] mb-2" style={{ color: "var(--ink-muted)" }}>Bracelet + carte + message vocal privé</p>
 
-                <div className="flex items-baseline gap-1 mb-5">
-                  <span className="text-[36px] font-black leading-none" style={{ color: plan.highlight ? "var(--gold)" : "var(--ink)" }}>
-                    {plan.price.toFixed(2).replace(".", ",")}
-                  </span>
-                  <span className="text-[16px] font-bold" style={{ color: plan.highlight ? "var(--gold)" : "var(--ink-muted)" }}>€</span>
-                </div>
-
-                <ul className="flex flex-col gap-3 mb-6 flex-1">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5">
-                      <svg viewBox="0 0 10 10" width={11} height={11} fill="none" className="shrink-0 mt-0.5">
-                        <path d="M1.5 5.5L3.5 7.5L8.5 2.5" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <span className="text-[13px] leading-snug" style={{ color: "var(--ink-muted)" }}>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  href="/composer"
-                  className="w-full py-4 rounded-2xl font-bold text-[14px] tracking-wide transition-all active:scale-[0.98] mt-auto text-center block"
-                  style={{
-                    background: plan.highlight ? "linear-gradient(135deg, var(--gold-light), var(--gold-dark))" : "transparent",
-                    color: plan.highlight ? "white" : "var(--gold)",
-                    border: plan.highlight ? "none" : "1.5px solid var(--gold)",
-                    boxShadow: plan.highlight ? "0 4px 20px rgba(184,134,26,0.28)" : "none",
-                  }}
-                >
-                  Composer ma carte
-                </Link>
+              <div className="flex items-baseline gap-1 mb-5">
+                <span className="text-[40px] font-black leading-none" style={{ color: "var(--gold)" }}>{PRODUCTS[0].price}</span>
+                <span className="text-[18px] font-bold" style={{ color: "var(--gold)" }}>€</span>
+                <span className="text-[12px] ml-2" style={{ color: "var(--ink-muted)" }}>Livraison incluse</span>
               </div>
-            </motion.div>
-          ))}
+
+              <ul className="flex flex-col gap-3 mb-6">
+                {PRODUCTS[0].details.map((f) => (
+                  <li key={f} className="flex items-start gap-2.5">
+                    <svg viewBox="0 0 10 10" width={11} height={11} fill="none" className="shrink-0 mt-0.5">
+                      <path d="M1.5 5.5L3.5 7.5L8.5 2.5" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span className="text-[13px] leading-snug" style={{ color: "var(--ink-muted)" }}>{f}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/boutique"
+                className="w-full py-4 rounded-2xl font-bold text-[14px] tracking-wide transition-all active:scale-[0.98] text-center block text-white"
+                style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 4px 20px rgba(184,134,26,0.28)" }}
+              >
+                Commander le bracelet
+              </Link>
+            </div>
+          </motion.div>
         </div>
 
         <div className="flex items-center justify-center gap-1.5 mt-6 px-5 pb-4">
@@ -675,11 +699,11 @@ export default function LandingPage() {
             En moins de 10 minutes. Un message qui sera écouté pour toujours.
           </p>
           <Link
-            href="/composer"
+            href="/boutique"
             className="mt-2 w-full max-w-[280px] py-4 rounded-2xl font-bold text-white text-[14px] tracking-wide text-center block transition-all active:scale-[0.98]"
             style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 6px 24px rgba(184,134,26,0.28)" }}
           >
-            Créer ma carte maintenant
+            Commander le bracelet
           </Link>
         </div>
       </section>

@@ -8,7 +8,7 @@ const NAV_LINKS = [
   { href: "#comment-ca-marche", label: "Comment ça marche" },
   { href: "#tarifs", label: "Nos formules" },
   { href: "#faq", label: "Questions fréquentes" },
-  { href: "/composer", label: "Créer ma carte" },
+  { href: "/boutique", label: "Commander" },
 ];
 
 export default function SiteHeader() {
@@ -149,7 +149,7 @@ export default function SiteHeader() {
                   className="mt-8"
                 >
                   <a
-                    href="/composer"
+                    href="/boutique"
                     onClick={close}
                     className="block w-full py-4 rounded-2xl font-bold text-white text-center text-[14px] tracking-wide"
                     style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 4px 20px rgba(184,134,26,0.25)" }}

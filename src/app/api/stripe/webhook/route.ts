@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { sendOrderConfirmation } from "@/lib/email";
+import { getProductBySlug } from "@/lib/products";
 import Stripe from "stripe";
 
 export const dynamic = "force-dynamic";
@@ -34,7 +35,8 @@ export async function POST(req: NextRequest) {
       null;
 
     if (meta.slug && meta.fromName && meta.toName && meta.audioUrl) {
-      // Composer flow — create Message record directly from metadata
+      // Composer flow — create Message record directly from metadata.
+      // Shipping address is collected in the composer (step 5) and passed via metadata.
       await prisma.message.upsert({
         where: { slug: meta.slug },
         create: {
@@ -43,8 +45,21 @@ export async function POST(req: NextRequest) {
           toName: meta.toName,
           date: meta.date || "",
           audioUrl: meta.audioUrl,
-          plan: meta.planId || "carte",
+          plan: meta.planId || "bracelet",
           theme: meta.theme || "classique",
+          paper: meta.paper || "ivoire",
+          cardFont: meta.cardFont || "playfair",
+          message: meta.message || null,
+          accessCode: meta.accessCode || null,
+          productSlug: meta.productSlug || null,
+          productName: meta.productSlug ? getProductBySlug(meta.productSlug)?.name ?? null : null,
+          productSize: meta.productSize || null,
+          shipName: meta.shipName || null,
+          shipAddress: meta.shipAddress || null,
+          shipComplement: meta.shipComplement || null,
+          shipPostalCode: meta.shipPostalCode || null,
+          shipCity: meta.shipCity || null,
+          shipCountry: meta.shipCountry || null,
           paid: true,
           stripeSessionId: session.id,
           buyerEmail,
@@ -62,7 +77,8 @@ export async function POST(req: NextRequest) {
             toName: meta.toName,
             listenUrl: `${origin}/listen/${meta.slug}`,
             pdfUrl: `${origin}/api/pdf/${meta.slug}`,
-            plan: meta.planId || "carte",
+            plan: meta.planId || "bracelet",
+            accessCode: meta.accessCode || undefined,
           });
         } catch (err) {
           console.error("[webhook] Email send failed", err);

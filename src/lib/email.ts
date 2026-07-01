@@ -11,10 +11,11 @@ interface OrderEmailParams {
   listenUrl: string;
   pdfUrl: string;
   plan: string;
+  accessCode?: string;
 }
 
 export async function sendOrderConfirmation(params: OrderEmailParams) {
-  const { to, fromName, toName, listenUrl, pdfUrl, plan } = params;
+  const { to, fromName, toName, listenUrl, pdfUrl, plan, accessCode } = params;
 
   await resend.emails.send({
     from: FROM,
@@ -73,6 +74,13 @@ export async function sendOrderConfirmation(params: OrderEmailParams) {
           </div>
         </div>
       </div>
+
+      ${accessCode ? `
+      <div class="names" style="text-align:center;">
+        <span class="name-label">Code d'accès confidentiel</span>
+        <div style="font-size:26px; font-weight:900; letter-spacing:0.4em; color:#B8861A; font-family:sans-serif; margin-top:6px;">${escapeHtml(accessCode)}</div>
+        <p style="font-size:12px; color:#7A6455; margin:10px 0 0;">Ce code est demandé au destinataire avant l'écoute du message. Il figure aussi sur la carte imprimée.</p>
+      </div>` : ""}
 
       <p style="text-align:center; margin: 20px 0;">
         <a href="${listenUrl}" class="btn">Voir la page d'écoute</a>

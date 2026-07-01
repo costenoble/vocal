@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Logo from "@/components/Logo";
 import Link from "next/link";
 import { THEMES, getTheme, type ThemeId } from "@/lib/themes";
+import { getProductBySlug, type Product } from "@/lib/products";
 
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6;
 type RecordState = "idle" | "requesting" | "recording" | "uploading" | "done";
@@ -644,6 +645,61 @@ export default function ComposerClient() {
   const [recordError, setRecordError] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState("");
+  const [product, setProduct] = useState<Product | null>(null);
+  const [productSize, setProductSize] = useState("");
+  const [boutiqueKey, setBoutiqueKey] = useState("");
+
+  // Read the chosen bracelet + size from the boutique (?product=&size=)
+  // and detect boutique mode (?mode=boutique&key=…) for in-store orders.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get("product");
+    const size = params.get("size");
+    if (slug) {
+      const p = getProductBySlug(slug);
+      if (p) {
+        setProduct(p);
+        setProductSize(size && p.sizes.includes(size) ? size : "");
+      }
+    }
+    if (params.get("mode") === "boutique" && params.get("key")) {
+      setBoutiqueKey(params.get("key") || "");
+    }
+  }, []);
+
+  const boutiqueMode = boutiqueKey.length > 0;
+
+  const handleBoutiqueOrder = async () => {
+    setCheckoutLoading("boutique");
+    setCheckoutError("");
+    try {
+      const res = await fetch("/api/boutique/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          key: boutiqueKey,
+          fromName: card.fromName,
+          toName: card.toName,
+          date: card.date,
+          occasion: card.occasion,
+          audioUrl: uploadedAudioUrl,
+          theme: card.theme,
+          paper: card.paper,
+          cardFont: card.cardFont,
+          message: card.message,
+          productSlug: product?.slug,
+          productSize,
+          shipping: card.shipping,
+        }),
+      });
+      const json = await res.json();
+      if (json.ok) window.location.href = `/success?slug=${json.slug}&boutique=1`;
+      else { setCheckoutError(json.error || "Erreur lors de la création."); setCheckoutLoading(null); }
+    } catch {
+      setCheckoutError("Erreur réseau. Vérifiez votre connexion.");
+      setCheckoutLoading(null);
+    }
+  };
 
   const mrRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
@@ -754,7 +810,21 @@ export default function ComposerClient() {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId, fromName: card.fromName, toName: card.toName, date: card.date, occasion: card.occasion, audioUrl: uploadedAudioUrl, theme: card.theme }),
+        body: JSON.stringify({
+          planId,
+          productSlug: product?.slug,
+          productSize,
+          fromName: card.fromName,
+          toName: card.toName,
+          date: card.date,
+          occasion: card.occasion,
+          audioUrl: uploadedAudioUrl,
+          theme: card.theme,
+          paper: card.paper,
+          cardFont: card.cardFont,
+          message: card.message,
+          shipping: card.shipping,
+        }),
       });
       const json = await res.json();
       if (json.url) window.location.href = json.url;
@@ -816,6 +886,22 @@ export default function ComposerClient() {
 
       {/* ── Content ── */}
       <div className="max-w-5xl mx-auto px-5 py-10">
+
+        {/* Bandeau produit sélectionné (parcours boutique) */}
+        {product && (
+          <div className="mb-8 rounded-2xl px-4 py-3 flex items-center gap-3" style={{ background: "white", border: "1px solid rgba(184,134,26,0.15)" }}>
+            <div className="w-10 h-10 rounded-lg shrink-0 flex items-center justify-center" style={{ background: "#F5EED5" }}>
+              <Logo size={24} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] font-bold truncate" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{product.name}</p>
+              <p className="text-[11px]" style={{ color: "var(--ink-muted)" }}>
+                {productSize ? `Taille ${productSize}` : "Taille à confirmer"} · {product.price},00 €
+              </p>
+            </div>
+            <Link href="/boutique" className="text-[11px] font-semibold shrink-0" style={{ color: "var(--gold)" }}>Modifier</Link>
+          </div>
+        )}
 
         {/* STEP 1 — Personnalisation */}
         {step === 1 && (
@@ -1231,24 +1317,114 @@ export default function ComposerClient() {
                 </p>
               </div>
 
-              <Nav onPrev={goPrev} onNext={goNext} nextDisabled={!step5Valid} prevLabel="Retour" nextLabel="Choisir ma formule" />
+              <Nav onPrev={goPrev} onNext={goNext} nextDisabled={!step5Valid} prevLabel="Retour" nextLabel={product ? "Finaliser ma commande" : "Choisir ma formule"} />
             </div>
           </motion.div>
         )}
 
-        {/* STEP 6 — Formule */}
+        {/* STEP 6 — Commande / Formule */}
         {step === 6 && (
           <motion.div key="s6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
             <div className="mb-8 text-center">
-              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "var(--gold)" }}>Étape 6 · Votre formule</p>
+              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: "var(--gold)" }}>
+                Étape 6 · {boutiqueMode ? "Commande boutique" : product ? "Votre commande" : "Votre formule"}
+              </p>
               <h1 className="text-[32px] sm:text-[40px] font-black leading-[1.06]" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
-                Choisissez<br />votre formule.
+                {boutiqueMode ? <>Validez<br />la commande.</> : product ? <>Finalisez<br />votre commande.</> : <>Choisissez<br />votre formule.</>}
               </h1>
               <p className="text-[14px] mt-2" style={{ color: "var(--ink-muted)" }}>
-                Paiement sécurisé · Accès immédiat après confirmation.
+                {boutiqueMode ? "Règlement encaissé en boutique · Création immédiate." : "Paiement sécurisé · Accès immédiat après confirmation."}
               </p>
             </div>
 
+            {/* Mode boutique — validation sans Stripe */}
+            {boutiqueMode && (
+              <div className="max-w-md mx-auto">
+                <div className="rounded-2xl p-5 flex flex-col gap-3" style={{ background: "var(--ink)", boxShadow: "0 8px 40px rgba(28,20,16,0.20)" }}>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded-md text-[9px] font-black tracking-widest uppercase" style={{ background: "var(--gold)", color: "white" }}>Boutique</span>
+                    <p className="text-[12px]" style={{ color: "rgba(240,232,216,0.6)" }}>Commande créée manuellement</p>
+                  </div>
+                  <div className="flex items-center justify-between pt-1">
+                    <div>
+                      <p className="text-[15px] font-bold" style={{ color: "var(--cream)", fontFamily: "var(--font-playfair)" }}>
+                        {card.fromName || "—"} → {card.toName || "—"}
+                      </p>
+                      <p className="text-[11px]" style={{ color: "rgba(240,232,216,0.5)" }}>
+                        {product ? `${product.name}${productSize ? ` · ${productSize}` : ""} · ${product.price},00 €` : "Carte vocale"}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleBoutiqueOrder}
+                    disabled={checkoutLoading !== null || !uploadedAudioUrl}
+                    className="w-full py-4 rounded-xl font-bold text-[15px] transition-all active:scale-[0.98] disabled:opacity-50"
+                    style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", color: "white" }}
+                  >
+                    {checkoutLoading === "boutique"
+                      ? "Création…"
+                      : "Valider la commande (réglée en caisse)"}
+                  </button>
+                  <p className="text-center text-[10px]" style={{ color: "rgba(240,232,216,0.35)" }}>
+                    Un code d&apos;accès sera généré et à imprimer sur la carte.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Récap commande produit (bracelet) */}
+            {!boutiqueMode && product && (
+              <div className="max-w-md mx-auto">
+                <div className="rounded-2xl overflow-hidden" style={{ background: "white", border: "1.5px solid rgba(184,134,26,0.15)", boxShadow: "0 8px 40px rgba(28,20,16,0.08)" }}>
+                  {/* Ligne produit */}
+                  <div className="p-5 flex gap-4 items-center" style={{ borderBottom: "1px solid rgba(28,20,16,0.06)" }}>
+                    <div className="w-16 h-16 rounded-xl shrink-0 flex items-center justify-center" style={{ background: "#F5EED5" }}>
+                      <Logo size={38} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[15px] font-bold" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{product.name}</p>
+                      <p className="text-[12px]" style={{ color: "var(--ink-muted)" }}>
+                        Taille {productSize || "—"} · Carte vocale incluse
+                      </p>
+                    </div>
+                    <p className="text-[16px] font-black" style={{ color: "var(--ink)" }}>{product.price} €</p>
+                  </div>
+
+                  {/* Détails inclus */}
+                  <div className="px-5 py-4 flex flex-col gap-2" style={{ borderBottom: "1px solid rgba(28,20,16,0.06)" }}>
+                    {["Bracelet + médaillon NJ", "Carte imprimée avec QR code", "Message vocal privé + code d'accès", "Livraison 3-5 jours ouvrés"].map((d) => (
+                      <div key={d} className="flex items-center gap-2 text-[12px]" style={{ color: "var(--ink-muted)" }}>
+                        <svg viewBox="0 0 12 12" width={11} height={11} fill="none"><path d="M2 6l3 3 5-5" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                        {d}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Total */}
+                  <div className="px-5 py-4 flex items-center justify-between">
+                    <span className="text-[13px] font-bold uppercase tracking-wider" style={{ color: "var(--ink)" }}>Total</span>
+                    <span className="text-[22px] font-black" style={{ color: "var(--ink)" }}>{product.price},00 €</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handleCheckout(product.slug)}
+                  disabled={checkoutLoading !== null}
+                  className="w-full mt-4 py-4 rounded-2xl font-bold text-[15px] text-white transition-all active:scale-[0.98] disabled:opacity-50"
+                  style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 6px 28px rgba(184,134,26,0.32)" }}
+                >
+                  {checkoutLoading === product.slug
+                    ? <span className="flex items-center justify-center gap-2">
+                        <span className="w-3.5 h-3.5 border-2 rounded-full animate-spin" style={{ borderColor: "rgba(255,255,255,0.3)", borderTopColor: "white" }} />
+                        Redirection…
+                      </span>
+                    : `Payer ${product.price},00 € · Commander`
+                  }
+                </button>
+              </div>
+            )}
+
+            {!boutiqueMode && !product && (
             <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
               {PLANS.map((plan) => (
                 <div
@@ -1308,6 +1484,7 @@ export default function ComposerClient() {
                 </div>
               ))}
             </div>
+            )}
 
             {checkoutError && (
               <p className="text-center text-[12px] mt-4" style={{ color: "#C0392B" }}>{checkoutError}</p>

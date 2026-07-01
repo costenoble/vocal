@@ -2,6 +2,38 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import QRCode from "qrcode";
 
+// Paper + font tables mirror the composer preview (src/lib/products aside).
+const PAPERS: Record<string, { bg: string; text: string; accent: string; shimmer: boolean; darkQr: boolean }> = {
+  ivoire: { bg: "#F5EED5", text: "#1C1410", accent: "#8B6510", shimmer: false, darkQr: false },
+  nacre:  { bg: "#F9F8F3", text: "#1C1410", accent: "#8B6510", shimmer: true,  darkQr: false },
+  lin:    { bg: "#DFD0B4", text: "#2A1B0E", accent: "#6B4C1E", shimmer: false, darkQr: false },
+  noir:   { bg: "#18120C", text: "#F0E8D8", accent: "#D4A832", shimmer: false, darkQr: true },
+};
+
+const FONTS: Record<string, { family: string; italic: boolean }> = {
+  playfair: { family: "'Playfair Display', serif", italic: true },
+  inter:    { family: "'Inter', sans-serif", italic: false },
+  script:   { family: "'Brush Script MT', 'Segoe Script', cursive", italic: false },
+};
+
+function logoSvg(size: number, accent: string) {
+  return `<svg viewBox="0 0 220 220" width="${size}" height="${size}" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="110" cy="110" r="96" stroke="${accent}" stroke-width="1.6"/>
+    <circle cx="110" cy="110" r="86" stroke="${accent}" stroke-width="0.6" opacity="0.4"/>
+    <text x="110" y="126" text-anchor="middle" font-size="58" fill="${accent}" font-family="Georgia,'Times New Roman',serif" font-style="italic" font-weight="500" letter-spacing="4">NJ</text>
+    <path d="M163,54 C165,60 165,60 171,62 C165,64 165,64 163,70 C161,64 161,64 155,62 C161,60 161,60 163,54Z" fill="${accent}"/>
+    <path d="M176,84 C177,87 177,87 180,88 C177,89 177,89 176,92 C175,89 175,89 172,88 C175,87 175,87 176,84Z" fill="${accent}"/>
+  </svg>`;
+}
+
+function heartLine(accent: string, widthPct: number) {
+  return `<div style="display:flex;align-items:center;gap:5px;width:${widthPct}%;">
+    <div style="flex:1;height:0.5px;background:${accent};opacity:0.45;"></div>
+    <svg viewBox="0 0 16 16" fill="${accent}" width="8" height="8" style="opacity:0.7;flex-shrink:0;"><path d="M8 14l-1-0.9C3.5 10.2 1 8.1 1 5.5 1 3.4 2.7 2 4.5 2c1.2 0 2.4.6 3.5 1.7C9.1 2.6 10.3 2 11.5 2 13.3 2 15 3.4 15 5.5c0 2.6-2.5 4.7-6 8.6L8 14z"/></svg>
+    <div style="flex:1;height:0.5px;background:${accent};opacity:0.45;"></div>
+  </div>`;
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -16,360 +48,125 @@ export async function GET(
   const baseUrl = req.headers.get("origin") || req.nextUrl.origin || "http://localhost:3000";
   const listenUrl = `${baseUrl}/listen/${message.slug}`;
 
-  // Large QR for better scannability
+  const paper = PAPERS[message.paper] ?? PAPERS.ivoire;
+  const font = FONTS[message.cardFont] ?? FONTS.playfair;
+  const nameFamily = font.family;
+  const nameItalic = message.cardFont === "inter" ? "normal" : "italic";
+
   const qrDataUrl = await QRCode.toDataURL(listenUrl, {
     width: 600,
-    margin: 2,
-    color: { dark: "#B8861A", light: "#FFFFFF" },
+    margin: 1,
+    color: { dark: "#1C1410", light: "#FFFFFF" },
     errorCorrectionLevel: "H",
   });
 
   const dateFormatted = (() => {
     try {
-      return new Date(message.date).toLocaleDateString("fr-FR", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      });
-    } catch {
-      return message.date;
-    }
+      return new Date(message.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+    } catch { return message.date; }
   })();
+
+  const shimmer = paper.shimmer
+    ? `<div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0) 40%,rgba(255,255,255,0.22) 55%,rgba(255,255,255,0) 70%);pointer-events:none;z-index:2;"></div>`
+    : "";
+
+  const cardBase = `position:relative;width:105mm;height:148mm;background:${paper.bg};display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:9mm 8mm;overflow:hidden;box-shadow:0 16px 48px rgba(28,20,16,0.16);`;
+  const inset = `<div style="position:absolute;inset:5mm;border:0.5px solid ${paper.accent};opacity:0.4;pointer-events:none;z-index:1;"></div>`;
+  const label = `font-size:8px;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;color:${paper.text};opacity:0.4;font-family:'Inter',sans-serif;`;
+
+  // ── RECTO ──
+  const recto = `<div style="${cardBase}">
+    ${inset}${shimmer}
+    <div style="z-index:3;margin-top:4px;">${logoSvg(66, paper.accent)}</div>
+    <div style="text-align:center;z-index:3;">
+      <p style="font-size:12px;font-weight:900;letter-spacing:0.28em;text-transform:uppercase;color:${paper.text};font-family:'Inter',sans-serif;margin:0;">N'OUBLIE JAMAIS</p>
+      <div style="height:0.5px;background:${paper.accent};opacity:0.35;margin-top:5px;"></div>
+    </div>
+    <div style="z-index:3;width:72%;">${heartLine(paper.accent, 100)}</div>
+    <div style="text-align:center;z-index:3;">
+      <p style="font-size:11px;color:${paper.text};opacity:0.65;font-family:'Playfair Display',serif;line-height:1.5;margin:0;">Certains messages<br/>ne s'oublient pas.</p>
+      <p style="font-size:13px;font-family:${nameFamily};font-style:italic;color:${paper.accent};margin:4px 0 0;">Ils se portent.</p>
+    </div>
+    <div style="z-index:3;padding:6px;background:${paper.darkQr ? "rgba(255,255,255,0.94)" : "rgba(255,255,255,0.88)"};border-radius:6px;">
+      <img src="${qrDataUrl}" width="150" height="150" style="display:block;" alt="QR"/>
+    </div>
+    ${message.accessCode ? `<div style="z-index:3;text-align:center;">
+      <p style="${label}margin:0;">Code d'accès</p>
+      <p style="font-size:20px;font-weight:900;letter-spacing:0.34em;color:${paper.accent};font-family:'Inter',sans-serif;margin:2px 0 0;">${escapeHtml(message.accessCode)}</p>
+    </div>` : ""}
+    <div style="display:flex;align-items:center;gap:5px;z-index:3;">
+      <svg viewBox="0 0 24 24" width="11" height="11" fill="none"><rect x="5" y="2" width="14" height="20" rx="3" stroke="${paper.accent}" stroke-width="1.4"/><rect x="9" y="18" width="6" height="1.5" rx="0.75" fill="${paper.accent}"/></svg>
+      <p style="font-size:8px;color:${paper.text};opacity:0.5;font-family:'Inter',sans-serif;letter-spacing:0.04em;margin:0;">Scannez pour écouter votre message</p>
+    </div>
+    <div style="z-index:3;width:60%;padding-bottom:4px;">${heartLine(paper.accent, 100)}</div>
+  </div>`;
+
+  // ── VERSO ──
+  const nameStyle = `font-size:20px;font-family:${nameFamily};font-style:${nameItalic};color:${paper.accent};line-height:1.2;margin:0;`;
+  const verso = `<div style="${cardBase}">
+    ${inset}
+    <div style="z-index:3;width:65%;padding-top:4px;">${heartLine(paper.accent, 100)}</div>
+    <div style="text-align:center;z-index:3;">
+      <p style="${label}margin:0;">Message de</p>
+      <p style="${nameStyle}">${escapeHtml(message.fromName)}</p>
+    </div>
+    <div style="z-index:3;width:50%;">${heartLine(paper.accent, 100)}</div>
+    <div style="text-align:center;z-index:3;">
+      <p style="${label}margin:0;">Pour</p>
+      <p style="${nameStyle}">${escapeHtml(message.toName)}</p>
+    </div>
+    ${dateFormatted ? `<div style="text-align:center;z-index:3;">
+      <p style="${label}margin:0;">Créé le</p>
+      <p style="font-size:10px;font-family:'Playfair Display',serif;font-style:italic;color:${paper.text};opacity:0.7;margin:2px 0 0;">${escapeHtml(dateFormatted)}</p>
+    </div>` : ""}
+    <div style="z-index:3;">${logoSvg(38, paper.accent)}</div>
+    <div style="text-align:center;z-index:3;padding:0 6px;">
+      ${message.message
+        ? `<p style="font-size:10px;font-family:${nameFamily};font-style:italic;color:${paper.text};opacity:0.72;line-height:1.6;white-space:pre-wrap;margin:0;">${escapeHtml(message.message)}</p>`
+        : ""}
+      <p style="font-size:12px;margin:6px 0 0;font-family:${nameFamily};font-style:italic;color:${paper.accent};">N'oublie jamais.</p>
+    </div>
+    <div style="z-index:3;padding-bottom:4px;">
+      <svg viewBox="0 0 16 16" fill="${paper.accent}" width="10" height="10" style="opacity:0.6;"><path d="M8 14l-1-0.9C3.5 10.2 1 8.1 1 5.5 1 3.4 2.7 2 4.5 2c1.2 0 2.4.6 3.5 1.7C9.1 2.6 10.3 2 11.5 2 13.3 2 15 3.4 15 5.5c0 2.6-2.5 4.7-6 8.6L8 14z"/></svg>
+    </div>
+  </div>`;
 
   const html = `<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Carte N'OUBLIE JAMAIS</title>
+<title>Carte N'OUBLIE JAMAIS — ${escapeHtml(message.fromName)} pour ${escapeHtml(message.toName)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,500&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-  :root {
-    --gold: #B8861A;
-    --gold-light: #D4A832;
-    --gold-dark: #8B6510;
-    --cream: #FAF6EF;
-    --ink: #1C1410;
-    --ink-muted: #6B5040;
-  }
-
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#DEDAD5; font-family:'Inter',sans-serif; display:flex; flex-direction:column; align-items:center; padding:24px 16px 40px; min-height:100vh; }
+  .toolbar { display:flex; align-items:center; gap:12px; margin-bottom:22px; }
+  .toolbar span { font-size:12px; color:#6B5040; }
+  .print-btn { padding:9px 22px; background:#B8861A; color:#fff; border:none; border-radius:22px; font-size:13px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; }
+  .cards { display:flex; gap:22px; flex-wrap:wrap; justify-content:center; }
+  .card-wrap { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .card-label { font-size:9px; font-weight:800; letter-spacing:0.22em; text-transform:uppercase; color:#8A7258; }
+  @page { size: A4 landscape; margin: 8mm; }
   @media print {
-    body { margin: 0; }
-    .no-print { display: none !important; }
-    .card { page-break-inside: avoid; }
+    body { background:#fff; padding:0; }
+    .no-print { display:none !important; }
+    .cards { gap:10mm; }
+    .card-wrap { gap:0; }
+    .card-label { display:none; }
   }
-
-  body {
-    background: #F0E8D8;
-    font-family: 'Inter', sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 20px;
-  }
-
-  .page-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-  }
-
-  /* Print hint */
-  .print-hint {
-    font-size: 12px;
-    color: var(--ink-muted);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .print-btn {
-    padding: 8px 20px;
-    background: var(--gold);
-    color: white;
-    border: none;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: 'Inter', sans-serif;
-  }
-
-  /* Card — CR80 format (85.6mm × 53.98mm) × 2 = carte type carte de vœux */
-  .card {
-    width: 320px;
-    background: var(--cream);
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(184,134,26,0.18), 0 4px 16px rgba(0,0,0,0.08);
-    border: 1px solid rgba(184,134,26,0.25);
-    position: relative;
-  }
-
-  /* Gold top stripe */
-  .card-stripe {
-    height: 5px;
-    background: linear-gradient(to right, var(--gold-dark), var(--gold-light), var(--gold-dark));
-  }
-
-  .card-inner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 28px 24px 24px;
-    gap: 18px;
-  }
-
-  /* Brand */
-  .brand { text-align: center; }
-  .brand-name {
-    font-family: 'Inter', sans-serif;
-    font-weight: 900;
-    font-size: 16px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--ink);
-  }
-  .brand-tagline {
-    font-size: 9px;
-    color: var(--gold);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    margin-top: 3px;
-    font-weight: 600;
-  }
-  .brand-sub {
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
-    font-size: 12px;
-    color: var(--gold);
-    margin-top: 4px;
-  }
-
-  /* Divider */
-  .divider {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .divider-line {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(to right, transparent, var(--gold));
-    opacity: 0.4;
-  }
-  .divider-line.rev {
-    background: linear-gradient(to left, transparent, var(--gold));
-  }
-  .heart-icon {
-    color: var(--gold);
-    font-size: 14px;
-    line-height: 1;
-  }
-
-  /* From / To */
-  .names-row {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-around;
-    width: 100%;
-    gap: 12px;
-  }
-  .name-block { text-align: center; flex: 1; }
-  .name-label {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--ink-muted);
-    display: block;
-    margin-bottom: 3px;
-  }
-  .name-value {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    font-weight: 500;
-    color: var(--gold);
-    line-height: 1.1;
-    display: block;
-  }
-  .names-sep {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 14px;
-    gap: 4px;
-  }
-  .names-sep .heart-icon { font-size: 16px; }
-  .names-sep .vline {
-    width: 1px;
-    height: 16px;
-    background: rgba(184,134,26,0.25);
-  }
-
-  /* Date pill */
-  .date-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 14px;
-    background: rgba(184,134,26,0.08);
-    border: 1px solid rgba(184,134,26,0.2);
-    border-radius: 20px;
-  }
-  .date-text {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--gold);
-  }
-
-  /* Separator line */
-  .sep-line {
-    width: 100%;
-    height: 1px;
-    background: linear-gradient(to right, transparent, rgba(184,134,26,0.2), transparent);
-  }
-
-  /* QR section */
-  .qr-section { text-align: center; }
-  .qr-label {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--ink-muted);
-    margin-bottom: 10px;
-    display: block;
-  }
-  .qr-wrapper {
-    display: inline-flex;
-    padding: 10px;
-    background: white;
-    border-radius: 16px;
-    border: 1px solid rgba(184,134,26,0.15);
-    box-shadow: 0 4px 16px rgba(184,134,26,0.10);
-  }
-  .qr-img {
-    width: 140px;
-    height: 140px;
-    display: block;
-  }
-  .qr-hint {
-    font-size: 9px;
-    color: var(--ink-muted);
-    margin-top: 8px;
-    opacity: 0.7;
-  }
-
-  /* Footer */
-  .card-footer { text-align: center; }
-  .card-footer p {
-    font-size: 9px;
-    color: var(--ink-muted);
-    opacity: 0.65;
-    line-height: 1.6;
-  }
-
-  /* Corner decorations */
-  .corner {
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    opacity: 0.12;
-  }
-  .corner-tl { top: 8px; left: 8px; border-top: 1.5px solid var(--gold); border-left: 1.5px solid var(--gold); border-radius: 6px 0 0 0; }
-  .corner-tr { top: 8px; right: 8px; border-top: 1.5px solid var(--gold); border-right: 1.5px solid var(--gold); border-radius: 0 6px 0 0; }
-  .corner-bl { bottom: 8px; left: 8px; border-bottom: 1.5px solid var(--gold); border-left: 1.5px solid var(--gold); border-radius: 0 0 0 6px; }
-  .corner-br { bottom: 8px; right: 8px; border-bottom: 1.5px solid var(--gold); border-right: 1.5px solid var(--gold); border-radius: 0 0 6px 0; }
 </style>
 </head>
 <body>
-<div class="page-wrap">
-
-  <!-- Print button -->
-  <div class="print-hint no-print">
-    <span>Carte prête à imprimer</span>
-    <button class="print-btn" onclick="window.print()">🖨️ Imprimer</button>
+  <div class="toolbar no-print">
+    <span>Carte prête à imprimer — recto / verso, format A6</span>
+    <button class="print-btn" onclick="window.print()">Imprimer</button>
   </div>
-
-  <!-- Card -->
-  <div class="card">
-    <div class="card-stripe"></div>
-
-    <!-- Corner accents -->
-    <div class="corner corner-tl"></div>
-    <div class="corner corner-tr"></div>
-    <div class="corner corner-bl"></div>
-    <div class="corner corner-br"></div>
-
-    <div class="card-inner">
-
-      <!-- Brand -->
-      <div class="brand">
-        <div class="brand-name">N'OUBLIE JAMAIS</div>
-        <div class="brand-tagline">Un souvenir qui traverse le temps</div>
-        <div class="brand-sub">À chaque personne son message.</div>
-      </div>
-
-      <!-- Divider -->
-      <div class="divider">
-        <div class="divider-line"></div>
-        <span class="heart-icon">♥</span>
-        <div class="divider-line rev"></div>
-      </div>
-
-      <!-- From / To -->
-      <div class="names-row">
-        <div class="name-block">
-          <span class="name-label">Message de</span>
-          <span class="name-value">${escapeHtml(message.fromName)}</span>
-        </div>
-        <div class="names-sep">
-          <div class="vline"></div>
-          <span class="heart-icon">♥</span>
-          <div class="vline"></div>
-        </div>
-        <div class="name-block">
-          <span class="name-label">Pour</span>
-          <span class="name-value">${escapeHtml(message.toName)}</span>
-        </div>
-      </div>
-
-      <!-- Date -->
-      <div class="date-pill">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#B8861A" stroke-width="2">
-          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-        <span class="date-text">${dateFormatted}</span>
-      </div>
-
-      <!-- Separator -->
-      <div class="sep-line"></div>
-
-      <!-- QR Code -->
-      <div class="qr-section">
-        <span class="qr-label">Scannez pour écouter</span>
-        <div class="qr-wrapper">
-          <img src="${qrDataUrl}" class="qr-img" alt="QR Code" />
-        </div>
-        <p class="qr-hint">Pointez votre appareil photo sur ce code</p>
-      </div>
-
-      <!-- Footer -->
-      <div class="card-footer">
-        <p>Créé avec N'OUBLIE JAMAIS</p>
-        <p>Un message unique · Un souvenir précieux</p>
-      </div>
-
-    </div><!-- /.card-inner -->
-  </div><!-- /.card -->
-
-</div>
+  <div class="cards">
+    <div class="card-wrap"><span class="card-label no-print">Recto</span>${recto}</div>
+    <div class="card-wrap"><span class="card-label no-print">Verso</span>${verso}</div>
+  </div>
 </body>
 </html>`;
 

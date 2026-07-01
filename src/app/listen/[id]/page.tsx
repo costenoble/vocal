@@ -65,14 +65,20 @@ export default async function ListenPage({ params }: Props) {
     }
   })();
 
+  // If the message is protected by an access code, do NOT ship the audio URL
+  // to the browser — the client requests it after verifying the code.
+  const locked = !!message.accessCode && !expired;
+
   return (
     <ListenClient
+      slug={message.slug}
       fromName={message.fromName}
       toName={message.toName}
       date={dateFormatted}
-      audioUrl={message.audioUrl}
+      audioUrl={locked ? "" : message.audioUrl}
       duration={message.duration ?? undefined}
       expired={expired}
+      locked={locked}
       theme={message.theme}
     />
   );
