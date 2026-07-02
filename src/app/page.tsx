@@ -688,31 +688,31 @@ export default function LandingPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.6, ease: EASE }}
-          className="max-w-2xl mx-auto rounded-3xl px-7 py-12 sm:px-14 sm:py-16 relative overflow-hidden"
+          className="max-w-5xl mx-auto rounded-3xl px-7 py-12 sm:px-16 sm:py-16 relative overflow-hidden"
           style={{ background: "var(--ink)" }}
         >
           {/* Halo doré */}
-          <div className="absolute -top-24 left-1/2 -translate-x-1/2 pointer-events-none" style={{ width: 420, height: 300, background: "radial-gradient(ellipse, rgba(212,168,50,0.16) 0%, transparent 70%)" }} />
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 pointer-events-none" style={{ width: 640, height: 340, background: "radial-gradient(ellipse, rgba(212,168,50,0.16) 0%, transparent 70%)" }} />
 
-          <div className="relative flex flex-col items-center text-center gap-6">
+          <div className="relative flex flex-col items-center text-center gap-8">
             <Label light>Notre histoire</Label>
-            <h2 className="text-[24px] sm:text-[30px] font-black leading-snug" style={{ color: "var(--cream)", fontFamily: "var(--font-playfair)" }}>
+            <h2 className="text-[26px] sm:text-[36px] font-black leading-snug" style={{ color: "var(--cream)", fontFamily: "var(--font-playfair)" }}>
               Les photos gardent les visages.<br />
               <span style={{ color: "var(--gold)", fontStyle: "italic" }}>Rien ne gardait les voix.</span>
             </h2>
-            <div className="flex flex-col gap-4 max-w-md">
-              <p className="text-[14px] leading-relaxed" style={{ color: "rgba(240,232,216,0.75)" }}>
+            <div className="grid sm:grid-cols-2 gap-5 sm:gap-12 max-w-3xl text-left">
+              <p className="text-[14px] sm:text-[15px] leading-relaxed" style={{ color: "rgba(240,232,216,0.75)" }}>
                 N&rsquo;OUBLIE JAMAIS est né d&rsquo;un constat simple : un jour, on donnerait tout
                 pour réécouter trois mots d&rsquo;une personne qu&rsquo;on aime. Son rire au téléphone.
                 Sa façon de dire notre prénom.
               </p>
-              <p className="text-[14px] leading-relaxed" style={{ color: "rgba(240,232,216,0.75)" }}>
+              <p className="text-[14px] sm:text-[15px] leading-relaxed" style={{ color: "rgba(240,232,216,0.75)" }}>
                 Alors nous avons créé ce bracelet et sa carte vocale : une voix, un QR code,
                 et un souvenir qui ne s&rsquo;efface pas. Chaque coffret est préparé à la main,
                 avec le soin qu&rsquo;on met aux choses qui comptent.
               </p>
             </div>
-            <div className="flex flex-col items-center gap-2 mt-2">
+            <div className="flex flex-col items-center gap-2">
               <div className="w-10 h-px" style={{ background: "rgba(212,168,50,0.5)" }} />
               <p className="text-[12px] italic" style={{ color: "var(--gold)", fontFamily: "var(--font-playfair)" }}>
                 L&rsquo;équipe N&rsquo;OUBLIE JAMAIS

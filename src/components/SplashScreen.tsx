@@ -209,12 +209,15 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
         )}
       </AnimatePresence>
 
-      {/* Contenu du site — monte en fondu quand le rideau se lève.
-          Aucune animation si le splash a déjà été vu cette session. */}
+      {/* Contenu du site — invisible ET non peint pendant le splash
+          (visibility:hidden évite de rendre la page et ses animations
+          derrière l'overlay), puis simple fondu à la levée du rideau.
+          Pas de translate sur la page entière : trop lourd à composer. */}
       <motion.div
         initial={false}
-        animate={splashPlayed ? { opacity: 1, y: 0 } : show ? { opacity: 0, y: 28 } : {}}
-        transition={{ duration: 0.8, ease: EASE, delay: splashPlayed ? 0.05 : 0 }}
+        style={{ visibility: show ? "hidden" : "visible" }}
+        animate={splashPlayed ? { opacity: 1 } : show ? { opacity: 0 } : {}}
+        transition={{ duration: 0.7, ease: EASE }}
       >
         {children}
       </motion.div>
