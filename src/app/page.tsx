@@ -188,6 +188,14 @@ export default function LandingPage() {
                 >
                   Découvrir le bracelet
                 </Link>
+                <Link
+                  href="/listen/demo"
+                  className="w-full py-4 rounded-2xl font-bold text-[14px] tracking-wide text-center flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                  style={{ background: "white", color: "var(--gold-dark)", border: "1.5px solid rgba(184,134,26,0.3)" }}
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" width={13} height={13}><path d="M8 5.14v14l11-7-11-7z"/></svg>
+                  Essayer avec ma voix
+                </Link>
               </motion.div>
             </div>
 

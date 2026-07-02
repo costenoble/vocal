@@ -3,12 +3,22 @@ import { cookies } from "next/headers";
 
 export const ADMIN_COOKIE = "nj_admin";
 
-// Le jeton de session est dérivé de ADMIN_KEY : impossible à forger sans la
-// clé, et invalidé automatiquement si la clé est changée.
+// Identifiants : ADMIN_USER (défaut "admin") + ADMIN_PASSWORD.
+// ADMIN_KEY est accepté comme mot de passe en fallback (compat).
+function adminUser(): string {
+  return process.env.ADMIN_USER ?? "admin";
+}
+
+function adminSecret(): string | null {
+  return process.env.ADMIN_PASSWORD ?? process.env.ADMIN_KEY ?? null;
+}
+
+// Le jeton de session est dérivé du mot de passe : impossible à forger sans
+// lui, et invalidé automatiquement s'il est changé.
 export function adminSessionToken(): string | null {
-  const key = process.env.ADMIN_KEY;
-  if (!key) return null;
-  return createHmac("sha256", key).update("nj-admin-session-v1").digest("hex");
+  const secret = adminSecret();
+  if (!secret) return null;
+  return createHmac("sha256", secret).update("nj-admin-session-v1").digest("hex");
 }
 
 function safeEqual(a: string, b: string): boolean {
@@ -17,10 +27,10 @@ function safeEqual(a: string, b: string): boolean {
   return ba.length === bb.length && timingSafeEqual(ba, bb);
 }
 
-export function isValidAdminKey(candidate: string): boolean {
-  const key = process.env.ADMIN_KEY;
-  if (!key || !candidate) return false;
-  return safeEqual(candidate, key);
+export function isValidAdminLogin(user: string, password: string): boolean {
+  const secret = adminSecret();
+  if (!secret || !user || !password) return false;
+  return safeEqual(user, adminUser()) && safeEqual(password, secret);
 }
 
 export async function isAdminSession(): Promise<boolean> {

@@ -135,6 +135,13 @@ function SuccessContent() {
                 >
                   {isBoutique ? "Voir la page d'écoute →" : "Voir ma carte d'écoute →"}
                 </Link>
+                <a
+                  href={`/api/qr/${slug}?download=1`}
+                  className="w-full py-4 rounded-2xl font-bold text-center text-[14px] block transition-all active:scale-95"
+                  style={{ background: "white", color: "var(--gold-dark)", border: "1.5px solid rgba(184,134,26,0.35)" }}
+                >
+                  ⤓ Télécharger le QR code (HD)
+                </a>
                 <p className="text-[10px]" style={{ color: "rgba(28,20,16,0.3)" }}>
                   {typeof window !== "undefined" ? window.location.host : ""}/listen/{slug}
                 </p>

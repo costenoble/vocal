@@ -37,4 +37,8 @@ model Message {
   shipPostalCode  String?
   shipCity        String?
   shipCountry     String?
+  replyAudioUrl   String?
+  replyFromName   String?
+  replyAt         DateTime?
+  followupSentAt  DateTime?
 }

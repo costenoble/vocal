@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     const message = await prisma.message.findUnique({
       where: { slug: String(slug) },
-      select: { accessCode: true, audioUrl: true, message: true, duration: true, expiresAt: true },
+      select: { accessCode: true, audioUrl: true, message: true, duration: true, expiresAt: true, replyAudioUrl: true, replyFromName: true },
     });
 
     if (!message) {
@@ -49,6 +49,8 @@ export async function POST(req: NextRequest) {
       audioUrl: message.audioUrl,
       message: message.message ?? null,
       duration: message.duration ?? null,
+      replyAudioUrl: message.replyAudioUrl ?? null,
+      replyFromName: message.replyFromName ?? null,
     });
   } catch {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

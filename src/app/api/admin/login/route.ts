@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { adminSessionToken, isValidAdminKey, ADMIN_COOKIE } from "@/lib/admin-auth";
+import { adminSessionToken, isValidAdminLogin, ADMIN_COOKIE } from "@/lib/admin-auth";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -12,9 +12,10 @@ export async function POST(req: NextRequest) {
   }
 
   const form = await req.formData();
-  const key = String(form.get("key") ?? "");
+  const user = String(form.get("user") ?? "");
+  const password = String(form.get("password") ?? "");
 
-  if (!isValidAdminKey(key)) {
+  if (!isValidAdminLogin(user, password)) {
     return NextResponse.redirect(new URL("/admin?error=1", req.url), 303);
   }
 

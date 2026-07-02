@@ -110,3 +110,84 @@ export async function sendOrderConfirmation(params: OrderEmailParams) {
 function escapeHtml(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
+
+// Coque commune aux emails secondaires (réponse, suivi)
+function emailShell(inner: string) {
+  return `
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#F0E8D8;font-family:Georgia,serif;">
+<div style="max-width:560px;margin:0 auto;padding:40px 20px;">
+  <div style="background:#FAF6EF;border-radius:16px;overflow:hidden;border:1px solid rgba(184,134,26,0.2);">
+    <div style="height:4px;background:linear-gradient(to right,#8B6510,#D4A832,#8B6510);"></div>
+    <div style="padding:36px 32px;">
+      <div style="font-size:18px;font-weight:900;letter-spacing:0.2em;text-transform:uppercase;color:#1C1410;font-family:sans-serif;">N'OUBLIE JAMAIS</div>
+      <div style="font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#B8861A;font-family:sans-serif;margin-top:4px;">Un souvenir qui traverse le temps</div>
+      ${inner}
+    </div>
+    <div style="text-align:center;padding:20px;border-top:1px solid rgba(184,134,26,0.15);">
+      <p style="font-size:11px;color:#7A6455;font-family:sans-serif;margin:0;">N'OUBLIE JAMAIS · Un message unique, un souvenir précieux.</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>`.trim();
+}
+
+const BTN = `display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#D4A832,#8B6510);color:white !important;text-decoration:none;border-radius:30px;font-family:sans-serif;font-weight:700;font-size:14px;letter-spacing:0.05em;`;
+
+// Le destinataire a répondu par un message vocal → on prévient l'acheteur.
+export async function sendReplyNotification(params: {
+  to: string;
+  replierName: string;
+  toName: string;
+  listenUrl: string;
+}) {
+  const { to, replierName, toName, listenUrl } = params;
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: `♥ ${replierName || toName} vous a répondu`,
+    html: emailShell(`
+      <h1 style="font-size:24px;color:#1C1410;margin:24px 0 8px;">Vous avez reçu une réponse ♥</h1>
+      <p style="font-size:15px;color:#4A3728;line-height:1.7;margin:0 0 16px;">
+        <strong>${escapeHtml(replierName || toName)}</strong> a écouté votre carte vocale et vous a laissé
+        une réponse en retour. Elle vous attend sur la page de votre carte.
+      </p>
+      <p style="text-align:center;margin:24px 0;">
+        <a href="${listenUrl}" style="${BTN}">Écouter la réponse</a>
+      </p>
+      <p style="font-size:12px;color:#7A6455;">Si la carte est protégée, utilisez le code d'accès reçu lors de votre commande.</p>
+    `),
+  });
+}
+
+// Email J+3 : "votre proche a-t-il écouté ?" avec le compteur d'écoutes.
+export async function sendFollowupEmail(params: {
+  to: string;
+  toName: string;
+  listenUrl: string;
+  viewCount: number;
+}) {
+  const { to, toName, listenUrl, viewCount } = params;
+  const heard = viewCount > 0;
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: heard
+      ? `✦ Bonne nouvelle — votre carte pour ${toName} a été ouverte`
+      : `✦ Votre carte pour ${toName} attend d'être offerte`,
+    html: emailShell(`
+      <h1 style="font-size:24px;color:#1C1410;margin:24px 0 8px;">${heard ? "Votre message a trouvé son destinataire ♥" : "Et si c'était le moment ?"}</h1>
+      <p style="font-size:15px;color:#4A3728;line-height:1.7;margin:0 0 16px;">
+        ${heard
+          ? `La page de votre carte pour <strong>${escapeHtml(toName)}</strong> a été ouverte <strong>${viewCount} fois</strong>. Votre voix fait son chemin.`
+          : `Votre carte vocale pour <strong>${escapeHtml(toName)}</strong> n'a pas encore été scannée. Peut-être le moment d'offrir votre coffret — ou de vérifier que la carte est bien arrivée ?`}
+      </p>
+      <p style="text-align:center;margin:24px 0;">
+        <a href="${listenUrl}" style="${BTN}">Voir la page d'écoute</a>
+      </p>
+    `),
+  });
+}

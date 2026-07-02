@@ -82,6 +82,8 @@ export default async function ListenPage({ params }: Props) {
       expired={expired}
       locked={locked}
       theme={message.theme}
+      replyAudioUrl={locked ? undefined : message.replyAudioUrl ?? undefined}
+      replyFromName={locked ? undefined : message.replyFromName ?? undefined}
     />
   );
 }

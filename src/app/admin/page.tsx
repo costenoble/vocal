@@ -8,36 +8,74 @@ import { getProductBySlug } from "@/lib/products";
 export const dynamic = "force-dynamic";
 
 function LoginForm({ error }: { error?: string }) {
+  const inputStyle = {
+    background: "white",
+    border: "1px solid rgba(184,134,26,0.25)",
+    color: "var(--ink)",
+  } as const;
   return (
     <div className="min-h-screen flex items-center justify-center px-6" style={{ background: "var(--cream)" }}>
-      <form method="POST" action="/api/admin/login" className="w-full max-w-xs flex flex-col items-center gap-5">
-        <Logo size={64} />
-        <div className="text-center">
-          <h1 className="text-lg font-black tracking-widest uppercase" style={{ color: "var(--ink)" }}>Espace admin</h1>
-          <p className="text-xs mt-1" style={{ color: "var(--ink-muted)" }}>N&rsquo;OUBLIE JAMAIS</p>
+      <div className="w-full max-w-sm">
+        <div className="rounded-3xl px-8 py-10" style={{ background: "white", border: "1px solid rgba(184,134,26,0.14)", boxShadow: "0 10px 44px rgba(184,134,26,0.10)" }}>
+          <form method="POST" action="/api/admin/login" className="flex flex-col items-center gap-5">
+            <Logo size={72} />
+            <div className="text-center">
+              <h1 className="text-lg font-black tracking-widest uppercase" style={{ color: "var(--ink)" }}>Espace admin</h1>
+              <p className="text-xs mt-1" style={{ color: "var(--ink-muted)" }}>N&rsquo;OUBLIE JAMAIS</p>
+            </div>
+
+            <div className="w-full flex flex-col gap-1.5">
+              <label htmlFor="admin-user" className="text-[11px] font-bold tracking-[0.12em] uppercase" style={{ color: "var(--ink-muted)" }}>
+                Identifiant
+              </label>
+              <input
+                id="admin-user"
+                type="text"
+                name="user"
+                required
+                autoFocus
+                autoComplete="username"
+                placeholder="admin"
+                className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+                style={inputStyle}
+              />
+            </div>
+
+            <div className="w-full flex flex-col gap-1.5">
+              <label htmlFor="admin-password" className="text-[11px] font-bold tracking-[0.12em] uppercase" style={{ color: "var(--ink-muted)" }}>
+                Mot de passe
+              </label>
+              <input
+                id="admin-password"
+                type="password"
+                name="password"
+                required
+                autoComplete="current-password"
+                placeholder="••••••••"
+                className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+                style={inputStyle}
+              />
+            </div>
+
+            {error && (
+              <p className="text-xs font-semibold" style={{ color: "#C0392B" }}>
+                {error === "ratelimit" ? "Trop de tentatives. Réessayez dans une minute." : "Identifiant ou mot de passe incorrect."}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-3.5 rounded-xl font-bold text-sm text-white transition-all active:scale-95"
+              style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 4px 18px rgba(184,134,26,0.25)" }}
+            >
+              Se connecter
+            </button>
+          </form>
         </div>
-        <input
-          type="password"
-          name="key"
-          required
-          autoFocus
-          placeholder="Clé d'accès"
-          className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-          style={{ background: "white", border: "1px solid rgba(184,134,26,0.25)", color: "var(--ink)" }}
-        />
-        {error && (
-          <p className="text-xs font-semibold" style={{ color: "#C0392B" }}>
-            {error === "ratelimit" ? "Trop de tentatives. Réessayez dans une minute." : "Clé incorrecte."}
-          </p>
-        )}
-        <button
-          type="submit"
-          className="w-full py-3 rounded-xl font-bold text-sm text-white transition-all active:scale-95"
-          style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))" }}
-        >
-          Entrer
-        </button>
-      </form>
+        <p className="text-center text-[11px] mt-4" style={{ color: "rgba(28,20,16,0.35)" }}>
+          Accès réservé — N&rsquo;OUBLIE JAMAIS
+        </p>
+      </div>
     </div>
   );
 }
@@ -150,6 +188,9 @@ export default async function AdminPage({
                         <Link href={`/api/pdf/${m.slug}`} className="text-[11px] font-semibold" style={{ color: "var(--gold)" }}>
                           Carte →
                         </Link>
+                        <a href={`/api/qr/${m.slug}?download=1`} className="text-[11px] font-semibold" style={{ color: "var(--gold)" }}>
+                          QR →
+                        </a>
                       </div>
                     </div>
                     {hasShipping && (

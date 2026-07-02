@@ -42,3 +42,9 @@ CREATE UNIQUE INDEX "Message_slug_key" ON "Message"("slug");
 -- CreateIndex
 CREATE UNIQUE INDEX "Message_stripeSessionId_key" ON "Message"("stripeSessionId");
 
+
+-- ── Migration 20260702 : réponse vocale + email de suivi J+3 ─────────────────
+ALTER TABLE "Message" ADD COLUMN IF NOT EXISTS "replyAudioUrl" TEXT;
+ALTER TABLE "Message" ADD COLUMN IF NOT EXISTS "replyFromName" TEXT;
+ALTER TABLE "Message" ADD COLUMN IF NOT EXISTS "replyAt" TIMESTAMP(3);
+ALTER TABLE "Message" ADD COLUMN IF NOT EXISTS "followupSentAt" TIMESTAMP(3);
