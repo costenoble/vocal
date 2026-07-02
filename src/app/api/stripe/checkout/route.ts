@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { planId, productSlug, productSize, email, fromName, toName, date, occasion, audioUrl, theme, paper, cardFont, message, shipping } = body;
+    const { planId, productSlug, productSize, email, fromName, toName, date, audioUrl, theme, paper, cardFont, message, shipping } = body;
 
     // Two pricing paths: a physical product (bracelet) or a legacy card plan.
     const product = productSlug ? getProductBySlug(productSlug) : undefined;
@@ -83,7 +83,6 @@ export async function POST(req: NextRequest) {
         fromName: fromName ?? "",
         toName: toName ?? "",
         date: date ?? "",
-        occasion: occasion ?? "",
         audioUrl: audioUrl ?? "",
         theme: theme ?? "classique",
         paper: paper ?? "ivoire",

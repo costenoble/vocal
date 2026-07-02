@@ -452,10 +452,10 @@ export default function LandingPage() {
       </div>
 
       {/* ═══════════════════════════════ HOW IT WORKS ═══════════════════════════════ */}
-      <section id="comment-ca-marche" className="px-5 py-16" style={{ background: "var(--cream)" }}>
-        <div className="max-w-lg mx-auto">
+      <section id="comment-ca-marche" className="px-5 py-20 sm:py-24" style={{ background: "var(--cream)" }}>
+        <div className="max-w-2xl mx-auto">
           <Label>Comment ça marche</Label>
-          <h2 className="mt-2 mb-10 text-[22px] font-black leading-tight" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
+          <h2 className="mt-3 mb-12" style={{ fontSize: "clamp(28px, 4.5vw, 40px)", fontWeight: 900, lineHeight: 1.12, color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
             En 3 étapes. Moins de 10 minutes.
           </h2>
           <div className="flex flex-col">
@@ -466,22 +466,22 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, duration: 0.45, ease: EASE }}
-                className="flex gap-4 pb-8"
+                className="flex gap-5 sm:gap-7 pb-12"
               >
                 <div className="flex flex-col items-center shrink-0">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-[12px] shrink-0"
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center font-black text-[17px] sm:text-[19px] shrink-0"
                     style={{
                       background: i === 0 ? "linear-gradient(135deg, var(--gold-light), var(--gold-dark))" : "white",
                       color: i === 0 ? "white" : "var(--gold)",
                       border: i !== 0 ? "1.5px solid rgba(184,134,26,0.35)" : "none",
-                      boxShadow: i === 0 ? "0 3px 14px rgba(184,134,26,0.25)" : "none",
+                      boxShadow: i === 0 ? "0 4px 18px rgba(184,134,26,0.28)" : "none",
                     }}
                   >{step.n}</div>
-                  {i < STEPS.length - 1 && <div className="flex-1 w-px mt-2" style={{ background: "rgba(184,134,26,0.18)", minHeight: 24 }} />}
+                  {i < STEPS.length - 1 && <div className="flex-1 w-px mt-3" style={{ background: "rgba(184,134,26,0.18)", minHeight: 32 }} />}
                 </div>
-                <div className="pt-2.5">
-                  <h3 className="text-[14px] font-bold mb-1" style={{ color: "var(--ink)" }}>{step.title}</h3>
-                  <p className="text-[12px] leading-relaxed" style={{ color: "var(--ink-muted)" }}>{step.desc}</p>
+                <div className="pt-2.5 sm:pt-3.5">
+                  <h3 className="text-[19px] sm:text-[22px] font-bold mb-2" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{step.title}</h3>
+                  <p className="text-[15px] sm:text-[16px] leading-relaxed" style={{ color: "var(--ink-muted)" }}>{step.desc}</p>
                 </div>
               </motion.div>
             ))}

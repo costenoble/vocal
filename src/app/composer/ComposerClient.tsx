@@ -23,7 +23,6 @@ interface CardData {
   fromName: string;
   toName: string;
   date: string;
-  occasion: string;
   theme: ThemeId;
   paper: string;
   cardFont: string;
@@ -44,7 +43,6 @@ const CARD_FONTS = [
   { id: "script",   name: "Signature", family: "'Brush Script MT', 'Segoe Script', cursive", italic: false },
 ] as const;
 
-const OCCASIONS = ["Mariage", "Anniversaire", "Naissance", "Diplôme", "Retraite", "Pour toujours", "Deuil", "Autre"];
 
 const PLANS = [
   { id: "carte", name: "La Carte", price: 14.9, tagline: "Un souvenir unique, pour toujours.", features: ["1 carte vocale personnalisée", "QR code unique", "Page d'écoute premium", "PDF imprimable", "Lien actif à vie"], highlight: true },
@@ -220,10 +218,6 @@ function CardPreview({ card, audioSrc }: { card: CardData; audioSrc?: string }) 
           <div style={{ padding: "4px 12px", borderRadius: 99, background: t.accentBg, border: `1px solid ${t.accentBorder}` }}>
             <span style={{ fontSize: 10, fontWeight: 600, color: t.accent }}>{card.date}</span>
           </div>
-        )}
-
-        {card.occasion && (
-          <span style={{ fontSize: 10, color: t.textMuted }}>{card.occasion}</span>
         )}
 
         <div style={{ height: 1, width: "100%", background: `linear-gradient(to right, transparent, ${t.accent}33, transparent)` }} />
@@ -638,7 +632,7 @@ function FontSelector({ selected, onChange, paperAccent = "var(--gold)" }: { sel
 // ── Main Composer ─────────────────────────────────────────────────────────────
 export default function ComposerClient() {
   const [step, setStep] = useState<WizardStep>(1);
-  const [card, setCard] = useState<CardData>({ fromName: "", toName: "", date: "", occasion: "", theme: "classique", paper: "ivoire", cardFont: "playfair", message: "", shipping: { fullName: "", address: "", complement: "", postalCode: "", city: "", country: "France" } });
+  const [card, setCard] = useState<CardData>({ fromName: "", toName: "", date: "", theme: "classique", paper: "ivoire", cardFont: "playfair", message: "", shipping: { fullName: "", address: "", complement: "", postalCode: "", city: "", country: "France" } });
   const [recordState, setRecordState] = useState<RecordState>("idle");
   const [audioObjectUrl, setAudioObjectUrl] = useState("");
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState("");
@@ -681,7 +675,6 @@ export default function ComposerClient() {
           fromName: card.fromName,
           toName: card.toName,
           date: card.date,
-          occasion: card.occasion,
           audioUrl: uploadedAudioUrl,
           theme: card.theme,
           paper: card.paper,
@@ -817,7 +810,6 @@ export default function ComposerClient() {
           fromName: card.fromName,
           toName: card.toName,
           date: card.date,
-          occasion: card.occasion,
           audioUrl: uploadedAudioUrl,
           theme: card.theme,
           paper: card.paper,
@@ -931,29 +923,6 @@ export default function ComposerClient() {
                 <Field label="Date ou occasion">
                   <Input value={card.date} onChange={v => setCardField("date", v)} placeholder="ex : Notre mariage · 25 juin 2026" />
                 </Field>
-
-                <div>
-                  <p className="text-[10px] font-bold tracking-[0.14em] uppercase mb-2.5" style={{ color: "var(--ink-muted)" }}>Type d&apos;occasion</p>
-                  <div className="flex flex-wrap gap-2">
-                    {OCCASIONS.map((o) => {
-                      const active = card.occasion === o;
-                      return (
-                        <button
-                          key={o} type="button"
-                          onClick={() => setCardField("occasion", active ? "" : o)}
-                          className="px-3.5 py-1.5 rounded-full text-[12px] font-medium transition-all"
-                          style={{
-                            background: active ? "var(--ink)" : "white",
-                            color: active ? "white" : "var(--ink-muted)",
-                            border: `1.5px solid ${active ? "transparent" : "rgba(28,20,16,0.09)"}`,
-                          }}
-                        >
-                          {o}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
 
                 <ThemeSelector selected={card.theme} onChange={id => setCard(c => ({ ...c, theme: id }))} />
 

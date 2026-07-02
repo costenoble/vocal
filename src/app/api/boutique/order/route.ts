@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { fromName, toName, date, occasion, audioUrl, theme, paper, cardFont, message, productSlug, productSize, shipping, buyerEmail } = body;
+    const { fromName, toName, date, audioUrl, theme, paper, cardFont, message, productSlug, productSize, shipping, buyerEmail } = body;
     if (!fromName || !toName || !audioUrl) {
       return NextResponse.json({ error: "Champs manquants (prénoms + audio requis)" }, { status: 400 });
     }

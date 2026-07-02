@@ -176,26 +176,22 @@ body {
   animation: goldGlow 2.5s ease-in-out infinite;
 }
 
-/* ─── Shimmer text ─── */
-@keyframes shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-
+/* ─── Shimmer text ───
+   Dégradé statique : l'animation de background-position combinée à
+   background-clip: text faisait disparaître/réapparaître le texte
+   (glitch de rendu, notamment Safari/mobile). */
 .text-shimmer {
   background: linear-gradient(
     90deg,
     var(--gold-dark) 0%,
-    var(--gold-lighter) 30%,
-    var(--gold) 50%,
-    var(--gold-lighter) 70%,
+    var(--gold) 45%,
+    var(--gold-lighter) 60%,
+    var(--gold) 75%,
     var(--gold-dark) 100%
   );
-  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: shimmer 4s linear infinite;
 }
 
 /* ─── Fade in up ─── */

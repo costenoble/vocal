@@ -28,8 +28,7 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${inter.variable} ${playfair.variable} h-full`}>
       <body className="min-h-full" style={{ background: "var(--cream)" }}>
-        <SplashScreen />
-        {children}
+        <SplashScreen>{children}</SplashScreen>
       </body>
     </html>
   );
