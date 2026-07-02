@@ -1,24 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendReplyNotification } from "@/lib/email";
+import { audioPublicPrefix } from "@/lib/storage";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-// Seuls les fichiers hébergés sur notre Vercel Blob sont acceptés : impossible
-// de faire pointer une "réponse" vers un contenu arbitraire.
+// Seuls les fichiers hébergés sur notre bucket Supabase sont acceptés :
+// impossible de faire pointer une "réponse" vers un contenu arbitraire.
 function isOwnBlobUrl(url: string): boolean {
-  try {
-    const u = new URL(url);
-    return (
-      u.protocol === "https:" &&
-      (u.hostname.endsWith(".public.blob.vercel-storage.com") ||
-        u.hostname.endsWith(".vercel-blob.com")) &&
-      u.pathname.startsWith("/audio/")
-    );
-  } catch {
-    return false;
-  }
+  const prefix = audioPublicPrefix();
+  return !!prefix && url.startsWith(prefix);
 }
 
 // Le destinataire répond par un message vocal ; l'acheteur est prévenu par email.

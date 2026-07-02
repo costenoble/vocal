@@ -1,0 +1,21 @@
+# Déclenche l'email de suivi J+3 chaque matin (remplace le cron Vercel,
+# le site étant hébergé sur Hostinger).
+# Prérequis : ajouter le secret CRON_SECRET dans GitHub
+# (Settings → Secrets and variables → Actions), identique à la variable
+# d'environnement CRON_SECRET de l'app sur Hostinger.
+name: Email de suivi J+3
+
+on:
+  schedule:
+    - cron: "0 8 * * *" # 8h UTC ≈ 9-10h Paris
+  workflow_dispatch: {}
+
+jobs:
+  followup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Appeler /api/cron/followup
+        run: |
+          curl -fsS \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ vars.APP_URL || 'https://beige-crab-487480.hostingersite.com' }}/api/cron/followup"
