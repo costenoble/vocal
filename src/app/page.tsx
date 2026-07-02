@@ -332,7 +332,7 @@ export default function LandingPage() {
 
       {/* Wave hero → composer section */}
       <div aria-hidden style={{ background: "#F5EEE3", height: 72, lineHeight: 0, overflow: "hidden" }}>
-        <svg viewBox="0 0 1440 72" preserveAspectRatio="none" width="100%" height="72"><path d="M0 40 C360 72 1080 0 1440 52 L1440 72 L0 72 Z" fill="var(--ink)" /></svg>
+        <svg viewBox="0 0 1440 72" preserveAspectRatio="none" width="100%" height="72" style={{ display: "block", marginBottom: -1 }}><path d="M0 40 C360 72 1080 0 1440 52 L1440 72 L0 72 Z" fill="var(--ink)" /></svg>
       </div>
 
       {/* ══════════════════════════════ CRÉEZ VOTRE CARTE ══════════════════════════════ */}
@@ -404,7 +404,7 @@ export default function LandingPage() {
 
       {/* Wave composer → occasions */}
       <div aria-hidden style={{ background: "var(--ink)", height: 64, lineHeight: 0, overflow: "hidden" }}>
-        <svg viewBox="0 0 1440 64" preserveAspectRatio="none" width="100%" height="64"><path d="M0 30 C480 64 960 8 1440 48 L1440 64 L0 64 Z" fill="white" /></svg>
+        <svg viewBox="0 0 1440 64" preserveAspectRatio="none" width="100%" height="64" style={{ display: "block", marginBottom: -1 }}><path d="M0 30 C480 64 960 8 1440 48 L1440 64 L0 64 Z" fill="white" /></svg>
       </div>
 
       {/* ═══════════════════════════════ OCCASIONS ═══════════════════════════════ */}
@@ -483,7 +483,7 @@ export default function LandingPage() {
       </section>
 
       <div aria-hidden style={{ background: "white", height: 56, lineHeight: 0, overflow: "hidden" }}>
-        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56"><path d="M0 24 C480 56 960 0 1440 42 L1440 56 L0 56 Z" fill="var(--cream)" /></svg>
+        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56" style={{ display: "block", marginBottom: -1 }}><path d="M0 24 C480 56 960 0 1440 42 L1440 56 L0 56 Z" fill="var(--cream)" /></svg>
       </div>
 
       {/* ═══════════════════════════════ STORY SKETCH ═══════════════════════════════ */}
@@ -539,7 +539,7 @@ export default function LandingPage() {
       </section>
 
       <div aria-hidden style={{ background: "var(--cream)", height: 56, lineHeight: 0, overflow: "hidden" }}>
-        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56"><path d="M0 16 C600 56 840 0 1440 38 L1440 56 L0 56 Z" fill="white" /></svg>
+        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56" style={{ display: "block", marginBottom: -1 }}><path d="M0 16 C600 56 840 0 1440 38 L1440 56 L0 56 Z" fill="white" /></svg>
       </div>
 
       {/* ═══════════════════════════════ POUR QUI ═══════════════════════════════ */}
@@ -638,7 +638,7 @@ export default function LandingPage() {
       </section>
 
       <div aria-hidden style={{ background: "white", height: 56, lineHeight: 0, overflow: "hidden" }}>
-        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56"><path d="M0 38 C400 0 1000 56 1440 16 L1440 56 L0 56 Z" fill="var(--cream)" /></svg>
+        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56" style={{ display: "block", marginBottom: -1 }}><path d="M0 38 C400 0 1000 56 1440 16 L1440 56 L0 56 Z" fill="var(--cream)" /></svg>
       </div>
 
       {/* ═══════════════════════════════ TESTIMONIALS ═══════════════════════════════ */}
@@ -737,7 +737,7 @@ export default function LandingPage() {
       </section>
 
       <div aria-hidden style={{ background: "var(--cream)", height: 56, lineHeight: 0, overflow: "hidden" }}>
-        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56"><path d="M0 12 C500 56 900 0 1440 44 L1440 56 L0 56 Z" fill="white" /></svg>
+        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56" style={{ display: "block", marginBottom: -1 }}><path d="M0 12 C500 56 900 0 1440 44 L1440 56 L0 56 Z" fill="white" /></svg>
       </div>
 
       {/* ═══════════════════════════════ FAQ ═══════════════════════════════ */}
@@ -806,7 +806,7 @@ export default function LandingPage() {
       </section>
 
       <div aria-hidden style={{ background: "white", height: 56, lineHeight: 0, overflow: "hidden" }}>
-        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56"><path d="M0 44 C360 0 1080 56 1440 14 L1440 56 L0 56 Z" fill="var(--cream)" /></svg>
+        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56" style={{ display: "block", marginBottom: -1 }}><path d="M0 44 C360 0 1080 56 1440 14 L1440 56 L0 56 Z" fill="var(--cream)" /></svg>
       </div>
 
       {/* ═══════════════════════════════ FINAL CTA ═══════════════════════════════ */}
@@ -833,7 +833,7 @@ export default function LandingPage() {
 
       {/* Wave cta → footer */}
       <div aria-hidden style={{ background: "var(--cream)", height: 56, lineHeight: 0, overflow: "hidden", margin: "0 8px", borderRadius: "0 0 0 0" }}>
-        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56">
+        <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56" style={{ display: "block", marginBottom: -1 }}>
           <path d="M0 20 C400 56 1000 0 1440 36 L1440 56 L0 56 Z" fill="var(--ink)" />
         </svg>
       </div>
