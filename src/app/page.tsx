@@ -100,11 +100,12 @@ export default function LandingPage() {
       <section className="relative overflow-hidden" style={{ background: "linear-gradient(180deg, #F0E8D8 0%, #F5EEE3 100%)" }}>
         <div style={{ height: 3, background: "linear-gradient(to right, var(--gold-dark), var(--gold-light), var(--gold-dark))" }} />
 
-        {/* Ambient glow */}
-        <div className="absolute top-0 right-0 pointer-events-none" style={{ width: 500, height: 500, background: "radial-gradient(ellipse, rgba(184,134,26,0.10) 0%, transparent 65%)", filter: "blur(50px)" }} />
-        <div className="absolute bottom-0 left-0 pointer-events-none" style={{ width: 300, height: 300, background: "radial-gradient(ellipse, rgba(184,134,26,0.07) 0%, transparent 70%)", filter: "blur(40px)" }} />
+        {/* Ambient glow — dégradés radiaux seuls (le blur créait des bords de
+            calque visibles sur certains écrans) */}
+        <div className="absolute top-0 right-0 pointer-events-none" style={{ width: 500, height: 500, background: "radial-gradient(ellipse, rgba(184,134,26,0.10) 0%, transparent 65%)" }} />
+        <div className="absolute bottom-0 left-0 pointer-events-none" style={{ width: 300, height: 300, background: "radial-gradient(ellipse, rgba(184,134,26,0.07) 0%, transparent 70%)" }} />
 
-        <div className="relative max-w-5xl mx-auto px-6 pt-14 pb-6">
+        <div className="relative max-w-5xl mx-auto px-6 pt-14 pb-16">
           <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
 
             {/* ── LEFT : texte ── */}
@@ -203,7 +204,7 @@ export default function LandingPage() {
                 background: "linear-gradient(160deg, #2a2a2a, #111)",
                 borderRadius: 40,
                 padding: "14px 9px 18px",
-                boxShadow: "0 40px 100px rgba(0,0,0,0.35), 0 8px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.4)",
+                boxShadow: "0 18px 44px rgba(28,20,16,0.18), 0 6px 16px rgba(28,20,16,0.10), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.4)",
                 position: "relative",
               }}>
                 {/* Side buttons */}
