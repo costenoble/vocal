@@ -82,6 +82,13 @@ export async function GET(
         >
           {/* Brand */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`${process.env.NEXT_PUBLIC_APP_URL ?? "https://noubliejamais.fr"}/logo.png`}
+              width={110}
+              height={109}
+              alt=""
+            />
             <span style={{ fontSize: 13, fontFamily: "sans-serif", fontWeight: 900, letterSpacing: "0.22em", textTransform: "uppercase", color: "#1C1410" }}>
               N'OUBLIE JAMAIS
             </span>

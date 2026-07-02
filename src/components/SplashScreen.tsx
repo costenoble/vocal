@@ -55,14 +55,11 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
                 transition={{ duration: 1.1, ease: EASE }}
               >
                 <Image
-                  src="/logo.jpg"
+                  src="/logo.png"
                   alt="N'OUBLIE JAMAIS"
                   width={210}
-                  height={208}
+                  height={209}
                   priority
-                  // Le fond ivoire du JPG se fond dans le crème de la page,
-                  // seuls les traits dorés restent visibles.
-                  style={{ mixBlendMode: "multiply" }}
                 />
               </motion.div>
 

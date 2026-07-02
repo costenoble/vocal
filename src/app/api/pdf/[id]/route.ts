@@ -16,14 +16,10 @@ const FONTS: Record<string, { family: string; italic: boolean }> = {
   script:   { family: "'Brush Script MT', 'Segoe Script', cursive", italic: false },
 };
 
-function logoSvg(size: number, accent: string) {
-  return `<svg viewBox="0 0 220 220" width="${size}" height="${size}" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="110" cy="110" r="96" stroke="${accent}" stroke-width="1.6"/>
-    <circle cx="110" cy="110" r="86" stroke="${accent}" stroke-width="0.6" opacity="0.4"/>
-    <text x="110" y="126" text-anchor="middle" font-size="58" fill="${accent}" font-family="Georgia,'Times New Roman',serif" font-style="italic" font-weight="500" letter-spacing="4">NJ</text>
-    <path d="M163,54 C165,60 165,60 171,62 C165,64 165,64 163,70 C161,64 161,64 155,62 C161,60 161,60 163,54Z" fill="${accent}"/>
-    <path d="M176,84 C177,87 177,87 180,88 C177,89 177,89 176,92 C175,89 175,89 172,88 C175,87 175,87 176,84Z" fill="${accent}"/>
-  </svg>`;
+// Logo officiel (PNG doré à fond transparent) — rendu identique sur les
+// quatre papiers, y compris le noir.
+function logoImg(size: number, baseUrl: string) {
+  return `<img src="${baseUrl}/logo.png" width="${size}" height="${Math.round(size * (715 / 720))}" style="display:block;" alt="N'OUBLIE JAMAIS"/>`;
 }
 
 function heartLine(accent: string, widthPct: number) {
@@ -78,7 +74,7 @@ export async function GET(
   // ── RECTO ──
   const recto = `<div style="${cardBase}">
     ${inset}${shimmer}
-    <div style="z-index:3;margin-top:4px;">${logoSvg(66, paper.accent)}</div>
+    <div style="z-index:3;margin-top:4px;">${logoImg(66, baseUrl)}</div>
     <div style="text-align:center;z-index:3;">
       <p style="font-size:12px;font-weight:900;letter-spacing:0.28em;text-transform:uppercase;color:${paper.text};font-family:'Inter',sans-serif;margin:0;">N'OUBLIE JAMAIS</p>
       <div style="height:0.5px;background:${paper.accent};opacity:0.35;margin-top:5px;"></div>
@@ -120,7 +116,7 @@ export async function GET(
       <p style="${label}margin:0;">Créé le</p>
       <p style="font-size:10px;font-family:'Playfair Display',serif;font-style:italic;color:${paper.text};opacity:0.7;margin:2px 0 0;">${escapeHtml(dateFormatted)}</p>
     </div>` : ""}
-    <div style="z-index:3;">${logoSvg(38, paper.accent)}</div>
+    <div style="z-index:3;">${logoImg(38, baseUrl)}</div>
     <div style="text-align:center;z-index:3;padding:0 6px;">
       ${message.message
         ? `<p style="font-size:10px;font-family:${nameFamily};font-style:italic;color:${paper.text};opacity:0.72;line-height:1.6;white-space:pre-wrap;margin:0;">${escapeHtml(message.message)}</p>`
