@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,19 @@ export async function POST(req: NextRequest) {
     const { slug, code } = await req.json();
     if (!slug || !code) {
       return NextResponse.json({ error: "Requête invalide" }, { status: 400 });
+    }
+
+    // Anti brute-force : le code n'a que 6 chiffres, on limite strictement
+    // les tentatives par IP et par carte.
+    const ip = clientIp(req);
+    const byIp = rateLimit(`verify-ip:${ip}`, 10, 60_000);
+    const bySlug = rateLimit(`verify-slug:${slug}`, 20, 60_000);
+    if (!byIp.ok || !bySlug.ok) {
+      const retry = Math.max(byIp.retryAfterSeconds, bySlug.retryAfterSeconds);
+      return NextResponse.json(
+        { error: "Trop de tentatives. Réessayez dans une minute." },
+        { status: 429, headers: { "Retry-After": String(retry) } }
+      );
     }
 
     const message = await prisma.message.findUnique({

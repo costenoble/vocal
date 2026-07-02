@@ -17,6 +17,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `Message de ${msg.fromName} pour ${msg.toName} — N'OUBLIE JAMAIS`,
     description: `Un message vocal unique, enregistré avec amour.`,
+    // Message privé : jamais indexé par les moteurs de recherche.
+    robots: { index: false, follow: false },
     openGraph: {
       title: `Un message de ${msg.fromName} pour ${msg.toName}`,
       description: `Scannez ou cliquez pour écouter ce message vocal unique.`,

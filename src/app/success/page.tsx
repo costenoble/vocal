@@ -136,7 +136,7 @@ function SuccessContent() {
                   {isBoutique ? "Voir la page d'écoute →" : "Voir ma carte d'écoute →"}
                 </Link>
                 <p className="text-[10px]" style={{ color: "rgba(28,20,16,0.3)" }}>
-                  vocale.fr/listen/{slug}
+                  {typeof window !== "undefined" ? window.location.host : ""}/listen/{slug}
                 </p>
               </>
             ) : (

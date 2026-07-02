@@ -45,7 +45,8 @@ export async function GET(
     return NextResponse.json({ error: "Message introuvable" }, { status: 404 });
   }
 
-  const baseUrl = req.headers.get("origin") || req.nextUrl.origin || "http://localhost:3000";
+  // URL canonique pour le QR code imprimé — jamais depuis un header spoofable.
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin || "http://localhost:3000";
   const listenUrl = `${baseUrl}/listen/${message.slug}`;
 
   const paper = PAPERS[message.paper] ?? PAPERS.ivoire;

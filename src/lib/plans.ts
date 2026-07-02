@@ -27,23 +27,9 @@ export const PLANS: Plan[] = [
     expiresInDays: null,
     cardCount: 1,
   },
-  {
-    id: "coffret",
-    name: "Le Coffret",
-    tagline: "Parfait pour une famille ou un événement.",
-    price: 34.90,
-    features: [
-      "5 cartes vocales personnalisées",
-      "5 QR codes uniques",
-      "5 pages d'écoute premium",
-      "5 cartes PDF imprimables",
-      "Liens actifs à vie",
-      "Support prioritaire",
-    ],
-    highlight: false,
-    expiresInDays: null,
-    cardCount: 5,
-  },
+  // "Le Coffret" (5 cartes, 34,90 €) retiré de la vente : le webhook ne crée
+  // qu'un Message par commande. Réactiver uniquement avec la génération des
+  // 5 cartes (slugs, codes d'accès, email récapitulatif).
 ];
 
 export function getPlanById(id: string): Plan | undefined {

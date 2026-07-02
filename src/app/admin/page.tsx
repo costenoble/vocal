@@ -1,28 +1,56 @@
 import { prisma } from "@/lib/prisma";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import Logo from "@/components/Logo";
 import Link from "next/link";
+import { isAdminSession } from "@/lib/admin-auth";
+import { getPlanById } from "@/lib/plans";
+import { getProductBySlug } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
 
-async function checkAuth() {
-  const hdrs = await headers();
-  const key = hdrs.get("x-admin-key") || "";
-  // Check via cookie or query param handled in middleware
-  return key === process.env.ADMIN_KEY;
+function LoginForm({ error }: { error?: string }) {
+  return (
+    <div className="min-h-screen flex items-center justify-center px-6" style={{ background: "var(--cream)" }}>
+      <form method="POST" action="/api/admin/login" className="w-full max-w-xs flex flex-col items-center gap-5">
+        <Logo size={64} />
+        <div className="text-center">
+          <h1 className="text-lg font-black tracking-widest uppercase" style={{ color: "var(--ink)" }}>Espace admin</h1>
+          <p className="text-xs mt-1" style={{ color: "var(--ink-muted)" }}>N&rsquo;OUBLIE JAMAIS</p>
+        </div>
+        <input
+          type="password"
+          name="key"
+          required
+          autoFocus
+          placeholder="Clé d'accès"
+          className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+          style={{ background: "white", border: "1px solid rgba(184,134,26,0.25)", color: "var(--ink)" }}
+        />
+        {error && (
+          <p className="text-xs font-semibold" style={{ color: "#C0392B" }}>
+            {error === "ratelimit" ? "Trop de tentatives. Réessayez dans une minute." : "Clé incorrecte."}
+          </p>
+        )}
+        <button
+          type="submit"
+          className="w-full py-3 rounded-xl font-bold text-sm text-white transition-all active:scale-95"
+          style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))" }}
+        >
+          Entrer
+        </button>
+      </form>
+    </div>
+  );
 }
 
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ key?: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const sp = await searchParams;
-  const key = sp.key || "";
 
-  if (!process.env.ADMIN_KEY || key !== process.env.ADMIN_KEY) {
-    redirect("/");
+  if (!(await isAdminSession())) {
+    return <LoginForm error={sp.error} />;
   }
 
   const messages = await prisma.message.findMany({
@@ -35,8 +63,10 @@ export default async function AdminPage({
   const revenue = messages
     .filter((m) => m.paid)
     .reduce((sum, m) => {
-      const prices: Record<string, number> = { essentiel: 9.9, precieux: 14.9, coffret: 34.9 };
-      return sum + (prices[m.plan] ?? 0);
+      const price = m.productSlug
+        ? getProductBySlug(m.productSlug)?.price ?? 0
+        : getPlanById(m.plan)?.price ?? 0;
+      return sum + price;
     }, 0);
 
   return (
@@ -52,7 +82,7 @@ export default async function AdminPage({
             <p className="text-xs" style={{ color: "var(--ink-muted)" }}>N&rsquo;OUBLIE JAMAIS</p>
           </div>
           <Link
-            href={`/composer?mode=boutique&key=${encodeURIComponent(key)}`}
+            href="/composer?mode=boutique"
             className="px-4 py-2.5 rounded-xl font-bold text-[13px] text-white transition-all active:scale-95"
             style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 4px 16px rgba(184,134,26,0.28)" }}
           >

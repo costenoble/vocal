@@ -2,7 +2,10 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY ?? "re_placeholder");
 
-const FROM = process.env.EMAIL_FROM ?? "N'OUBLIE JAMAIS <noreply@noubliejamais.fr>";
+const FROM =
+  process.env.EMAIL_FROM ??
+  process.env.RESEND_FROM ??
+  "N'OUBLIE JAMAIS <noreply@noubliejamais.fr>";
 
 interface OrderEmailParams {
   to: string;

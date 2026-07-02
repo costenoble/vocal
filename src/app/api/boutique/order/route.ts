@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getProductBySlug } from "@/lib/products";
 import { sendOrderConfirmation } from "@/lib/email";
+import { isAdminSession } from "@/lib/admin-auth";
 import { nanoid, customAlphabet } from "nanoid";
 
 export const dynamic = "force-dynamic";
@@ -9,15 +10,15 @@ export const dynamic = "force-dynamic";
 const genAccessCode = customAlphabet("0123456789", 6);
 
 // Boutique mode: a vendor creates a paid order directly (payment taken at the
-// register), bypassing Stripe. Protected by the admin key.
+// register), bypassing Stripe. Protected by the admin session cookie.
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { key, fromName, toName, date, occasion, audioUrl, theme, paper, cardFont, message, productSlug, productSize, shipping, buyerEmail } = body;
-
-    if (!process.env.ADMIN_KEY || key !== process.env.ADMIN_KEY) {
+    if (!(await isAdminSession())) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
+
+    const body = await req.json();
+    const { fromName, toName, date, occasion, audioUrl, theme, paper, cardFont, message, productSlug, productSize, shipping, buyerEmail } = body;
     if (!fromName || !toName || !audioUrl) {
       return NextResponse.json({ error: "Champs manquants (prénoms + audio requis)" }, { status: 400 });
     }
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     // Optional confirmation email if the vendor entered the buyer's address
     if (buyerEmail) {
-      const origin = req.headers.get("origin") || "http://localhost:3000";
+      const origin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
       try {
         await sendOrderConfirmation({
           to: buyerEmail,

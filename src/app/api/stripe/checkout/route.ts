@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { getPlanById } from "@/lib/plans";
 import { getProductBySlug } from "@/lib/products";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 import { nanoid, customAlphabet } from "nanoid";
 
 // 6-digit numeric access code (no ambiguous chars) printed on the card
@@ -23,6 +24,11 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const { ok } = rateLimit(`checkout:${clientIp(req)}`, 10, 60_000);
+    if (!ok) {
+      return NextResponse.json({ error: "Trop de requêtes. Réessayez dans une minute." }, { status: 429 });
+    }
+
     const body = await req.json();
     const { planId, productSlug, productSize, email, fromName, toName, date, occasion, audioUrl, theme, paper, cardFont, message, shipping } = body;
 
@@ -40,7 +46,9 @@ export async function POST(req: NextRequest) {
       : plan!.tagline;
     const unitPrice = product ? product.price : plan!.price;
 
-    const origin = req.headers.get("origin") || "http://localhost:3000";
+    // On ne fait pas confiance au header Origin (spoofable) pour les URLs de
+    // redirection Stripe : l'URL canonique vient de l'environnement.
+    const origin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
     // Pre-generate slug + access code so the webbook can persist them immediately.
     const slug = nanoid(8);
@@ -57,7 +65,10 @@ export async function POST(req: NextRequest) {
             product_data: {
               name: lineName,
               description: lineDesc,
-              images: [`${origin}/og-default.png`],
+              // Stripe exige une URL publique https — pas d'image en local.
+              ...(origin.startsWith("https")
+                ? { images: [`${origin}/og-default.png`] }
+                : {}),
             },
           },
           quantity: 1,

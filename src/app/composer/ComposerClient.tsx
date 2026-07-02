@@ -47,8 +47,10 @@ const CARD_FONTS = [
 const OCCASIONS = ["Mariage", "Anniversaire", "Naissance", "Diplôme", "Retraite", "Pour toujours", "Deuil", "Autre"];
 
 const PLANS = [
-  { id: "carte", name: "La Carte", price: 14.9, tagline: "Un souvenir unique, pour toujours.", features: ["1 carte vocale personnalisée", "QR code unique", "Page d'écoute premium", "PDF imprimable", "Lien actif à vie"], highlight: false },
-  { id: "coffret", name: "Le Coffret", price: 34.9, tagline: "Parfait pour une famille ou un événement.", features: ["5 cartes vocales", "5 QR codes uniques", "5 pages d'écoute", "5 PDF imprimables", "Support prioritaire"], highlight: true },
+  { id: "carte", name: "La Carte", price: 14.9, tagline: "Un souvenir unique, pour toujours.", features: ["1 carte vocale personnalisée", "QR code unique", "Page d'écoute premium", "PDF imprimable", "Lien actif à vie"], highlight: true },
+  // "Le Coffret" (5 cartes, 34,90 €) désactivé : le webhook Stripe ne génère
+  // qu'une seule carte par commande. Réactiver quand la génération multiple
+  // (5 slugs + 5 codes + email listant les 5 liens) sera implémentée.
 ];
 
 const fmtTime = (s: number) =>
@@ -647,10 +649,11 @@ export default function ComposerClient() {
   const [checkoutError, setCheckoutError] = useState("");
   const [product, setProduct] = useState<Product | null>(null);
   const [productSize, setProductSize] = useState("");
-  const [boutiqueKey, setBoutiqueKey] = useState("");
+  const [boutiqueMode, setBoutiqueMode] = useState(false);
 
   // Read the chosen bracelet + size from the boutique (?product=&size=)
-  // and detect boutique mode (?mode=boutique&key=…) for in-store orders.
+  // and detect boutique mode (?mode=boutique) for in-store orders — the
+  // vendor is authenticated by the httpOnly admin cookie, checked server-side.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const slug = params.get("product");
@@ -662,12 +665,10 @@ export default function ComposerClient() {
         setProductSize(size && p.sizes.includes(size) ? size : "");
       }
     }
-    if (params.get("mode") === "boutique" && params.get("key")) {
-      setBoutiqueKey(params.get("key") || "");
+    if (params.get("mode") === "boutique") {
+      setBoutiqueMode(true);
     }
   }, []);
-
-  const boutiqueMode = boutiqueKey.length > 0;
 
   const handleBoutiqueOrder = async () => {
     setCheckoutLoading("boutique");
@@ -677,7 +678,6 @@ export default function ComposerClient() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          key: boutiqueKey,
           fromName: card.fromName,
           toName: card.toName,
           date: card.date,
