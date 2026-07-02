@@ -64,6 +64,31 @@ const FAQS = [
     q: "Le paiement est-il sécurisé ?",
     a: "100%. Le paiement est traité par Stripe — utilisé par des millions d'entreprises. Nous ne stockons jamais vos données bancaires.",
   },
+  {
+    q: "Le destinataire peut-il répondre ?",
+    a: "Oui — et c'est souvent le plus beau moment. Après avoir écouté votre message, votre proche peut enregistrer une réponse vocale directement depuis la page d'écoute. Vous recevez un email dès qu'elle arrive.",
+  },
+  {
+    q: "Et si la carte est perdue ?",
+    a: "Rien n'est perdu. Le QR code est retéléchargeable en haute qualité depuis votre email de confirmation, pour le réimprimer ou le graver ailleurs. Le message, lui, reste en sécurité.",
+  },
+  {
+    q: "Peut-on réécouter le message plusieurs fois ?",
+    a: "Autant de fois qu'on le souhaite, sans limite. Certains destinataires le réécoutent chaque soir — c'est exactement pour cela qu'il existe.",
+  },
+  {
+    q: "Peut-on modifier le message après la commande ?",
+    a: "Le message est figé au moment de la commande pour préserver son authenticité. En cas d'erreur, écrivez-nous rapidement : tant que le coffret n'est pas expédié, nous pouvons le remplacer.",
+  },
+];
+
+const POUR_QUI = [
+  { title: "D'un grand-parent", line: "Sa voix, à réécouter à 18 ans comme à 40." },
+  { title: "Pour un mariage", line: "Vos vœux, gravés ailleurs que dans les souvenirs." },
+  { title: "Pour une naissance", line: "Les premiers mots qu'on lui a murmurés." },
+  { title: "Pour dire je t'aime", line: "Ce qu'on n'ose pas toujours dire en face." },
+  { title: "Pour un deuil", line: "Une voix qui continue d'accompagner." },
+  { title: "Pour un départ", line: "Merci, bonne route — et reviens-nous vite." },
 ];
 
 export default function LandingPage() {
@@ -503,6 +528,39 @@ export default function LandingPage() {
         <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56"><path d="M0 16 C600 56 840 0 1440 38 L1440 56 L0 56 Z" fill="white" /></svg>
       </div>
 
+      {/* ═══════════════════════════════ POUR QUI ═══════════════════════════════ */}
+      <section className="px-5 py-16" style={{ background: "white" }}>
+        <div className="max-w-2xl mx-auto">
+          <Label>Pour qui ?</Label>
+          <h2 className="mt-2 mb-8 text-[24px] sm:text-[28px] font-black leading-tight" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
+            Il y a toujours une voix<br />qui mérite d&rsquo;être gardée.
+          </h2>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {POUR_QUI.map((item, i) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-30px" }}
+                transition={{ delay: i * 0.06, duration: 0.45, ease: EASE }}
+                className="rounded-2xl px-5 py-5 flex flex-col gap-1.5"
+                style={{ background: "var(--cream)", border: "1px solid rgba(184,134,26,0.14)" }}
+              >
+                <div className="flex items-center gap-2.5">
+                  <svg viewBox="0 0 24 24" fill="var(--gold)" width={13} height={13} className="shrink-0">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                  </svg>
+                  <h3 className="text-[16px] font-bold" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{item.title}</h3>
+                </div>
+                <p className="text-[13px] italic leading-relaxed" style={{ color: "var(--ink-muted)", fontFamily: "var(--font-playfair)" }}>
+                  «&nbsp;{item.line}&nbsp;»
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ═══════════════════════════════ PRICING ═══════════════════════════════ */}
       <section id="tarifs" className="py-16 overflow-hidden" style={{ background: "white" }}>
         <div className="px-5 max-w-lg mx-auto mb-8">
@@ -620,6 +678,48 @@ export default function LandingPage() {
           ))}
         </div>
 
+      </section>
+
+      {/* ═══════════════════════════════ NOTRE HISTOIRE ═══════════════════════════════ */}
+      {/* Copy générique en attendant les mots + la photo du fondateur (client). */}
+      <section className="px-5 py-16" style={{ background: "var(--cream)" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6, ease: EASE }}
+          className="max-w-2xl mx-auto rounded-3xl px-7 py-12 sm:px-14 sm:py-16 relative overflow-hidden"
+          style={{ background: "var(--ink)" }}
+        >
+          {/* Halo doré */}
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 pointer-events-none" style={{ width: 420, height: 300, background: "radial-gradient(ellipse, rgba(212,168,50,0.16) 0%, transparent 70%)" }} />
+
+          <div className="relative flex flex-col items-center text-center gap-6">
+            <Label light>Notre histoire</Label>
+            <h2 className="text-[24px] sm:text-[30px] font-black leading-snug" style={{ color: "var(--cream)", fontFamily: "var(--font-playfair)" }}>
+              Les photos gardent les visages.<br />
+              <span style={{ color: "var(--gold)", fontStyle: "italic" }}>Rien ne gardait les voix.</span>
+            </h2>
+            <div className="flex flex-col gap-4 max-w-md">
+              <p className="text-[14px] leading-relaxed" style={{ color: "rgba(240,232,216,0.75)" }}>
+                N&rsquo;OUBLIE JAMAIS est né d&rsquo;un constat simple : un jour, on donnerait tout
+                pour réécouter trois mots d&rsquo;une personne qu&rsquo;on aime. Son rire au téléphone.
+                Sa façon de dire notre prénom.
+              </p>
+              <p className="text-[14px] leading-relaxed" style={{ color: "rgba(240,232,216,0.75)" }}>
+                Alors nous avons créé ce bracelet et sa carte vocale : une voix, un QR code,
+                et un souvenir qui ne s&rsquo;efface pas. Chaque coffret est préparé à la main,
+                avec le soin qu&rsquo;on met aux choses qui comptent.
+              </p>
+            </div>
+            <div className="flex flex-col items-center gap-2 mt-2">
+              <div className="w-10 h-px" style={{ background: "rgba(212,168,50,0.5)" }} />
+              <p className="text-[12px] italic" style={{ color: "var(--gold)", fontFamily: "var(--font-playfair)" }}>
+                L&rsquo;équipe N&rsquo;OUBLIE JAMAIS
+              </p>
+            </div>
+          </div>
+        </motion.div>
       </section>
 
       <div aria-hidden style={{ background: "var(--cream)", height: 56, lineHeight: 0, overflow: "hidden" }}>
