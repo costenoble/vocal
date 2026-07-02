@@ -144,9 +144,20 @@ export default function BoutiquePage() {
                   Choisissez une taille pour continuer
                 </button>
               )}
-              <p className="text-center text-[11px]" style={{ color: "var(--ink-muted)" }}>
-                Paiement sécurisé · Stripe · Livraison 3-5 jours ouvrés
-              </p>
+              {/* Réassurance */}
+              <div className="grid grid-cols-3 gap-2 mt-1">
+                {[
+                  { icon: <><rect x="4" y="10" width="16" height="11" rx="2" /><path d="M8 10V7a4 4 0 1 1 8 0v3" /></>, t: "Paiement sécurisé", d: "Stripe · CB, Apple Pay" },
+                  { icon: <><rect x="1" y="6" width="14" height="12" rx="1.5" /><path d="M15 10h4l3 3v5h-7zM5.5 21a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6zM18 21a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6z" /></>, t: "Livraison 3-5 jours", d: "Suivie, en France" },
+                  { icon: <><path d="M3 12a9 9 0 1 0 3-6.7" /><path d="M3 4v4h4" /></>, t: "Retour 14 jours", d: "Satisfait ou remboursé" },
+                ].map((r) => (
+                  <div key={r.t} className="rounded-xl px-2.5 py-3 flex flex-col items-center text-center gap-1.5" style={{ background: "white", border: "1px solid rgba(184,134,26,0.10)" }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width={17} height={17}>{r.icon}</svg>
+                    <p className="text-[11px] font-bold leading-tight" style={{ color: "var(--ink)" }}>{r.t}</p>
+                    <p className="text-[10px] leading-tight" style={{ color: "var(--ink-muted)" }}>{r.d}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Divider */}

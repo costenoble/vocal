@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "@/components/Logo";
 import SiteHeader from "@/components/SiteHeader";
+import StorySketch from "@/components/StorySketch";
 import { PRODUCTS } from "@/lib/products";
 import Link from "next/link";
 
@@ -485,6 +486,19 @@ export default function LandingPage() {
         <svg viewBox="0 0 1440 56" preserveAspectRatio="none" width="100%" height="56"><path d="M0 24 C480 56 960 0 1440 42 L1440 56 L0 56 Z" fill="var(--cream)" /></svg>
       </div>
 
+      {/* ═══════════════════════════════ STORY SKETCH ═══════════════════════════════ */}
+      <section className="px-5 pt-16 pb-4" style={{ background: "var(--cream)" }}>
+        <div className="max-w-xl mx-auto">
+          <div className="text-center mb-8">
+            <Label>En 15 secondes</Label>
+            <h2 className="mt-2 text-[24px] sm:text-[28px] font-black leading-tight" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
+              L&rsquo;histoire d&rsquo;un message.
+            </h2>
+          </div>
+          <StorySketch />
+        </div>
+      </section>
+
       {/* ═══════════════════════════════ HOW IT WORKS ═══════════════════════════════ */}
       <section id="comment-ca-marche" className="px-5 py-20 sm:py-24" style={{ background: "var(--cream)" }}>
         <div className="max-w-2xl mx-auto">
@@ -865,21 +879,34 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Legal */}
+            {/* Legal + Contact */}
             <div>
-              <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-4" style={{ color: "var(--gold)" }}>Légal & Contact</p>
-              <div className="flex flex-col gap-2.5">
+              <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-4" style={{ color: "var(--gold)" }}>Légal</p>
+              <div className="flex flex-col gap-2.5 mb-6">
                 {[
                   { href: "/cgv", label: "Conditions générales de vente" },
                   { href: "/mentions-legales", label: "Mentions légales" },
                   { href: "/confidentialite", label: "Politique de confidentialité" },
-                  { href: "mailto:contact@noubliez-jamais.fr", label: "Nous contacter" },
                 ].map((l) => (
                   <a key={l.label} href={l.href} className="text-[13px] transition-colors" style={{ color: "rgba(250,246,239,0.65)" }}>
                     {l.label}
                   </a>
                 ))}
               </div>
+
+              {/* Contact SAV — adresse en clair, obligatoire en e-commerce FR */}
+              <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-3" style={{ color: "var(--gold)" }}>Une question ?</p>
+              <a
+                href="mailto:contact@noubliejamais.fr"
+                className="inline-flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all"
+                style={{ background: "rgba(250,246,239,0.06)", border: "1px solid rgba(212,168,50,0.25)" }}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5" width={15} height={15}>
+                  <rect x="2" y="4" width="20" height="16" rx="2" /><path d="m2 7 10 6 10-6" />
+                </svg>
+                <span className="text-[13px] font-semibold" style={{ color: "var(--cream)" }}>contact@noubliejamais.fr</span>
+              </a>
+              <p className="text-[11px] mt-2" style={{ color: "rgba(250,246,239,0.4)" }}>Réponse sous 24 h ouvrées</p>
             </div>
           </div>
 
