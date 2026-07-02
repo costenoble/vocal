@@ -286,8 +286,8 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Shadow under phone */}
-              <div style={{ width: 140, height: 14, marginTop: 6, background: "rgba(0,0,0,0.15)", filter: "blur(12px)", borderRadius: "50%" }} />
+              {/* Shadow under phone — radial qui s'éteint sans bord visible */}
+              <div style={{ width: 200, height: 26, marginTop: 10, background: "radial-gradient(ellipse 50% 50% at 50% 50%, rgba(28,20,16,0.16) 0%, rgba(28,20,16,0.06) 45%, transparent 72%)" }} />
             </motion.div>
 
           </div>

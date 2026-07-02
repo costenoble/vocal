@@ -132,7 +132,8 @@ function LogoPhase() {
 }
 
 // ── Splash : onde vocale → logo révélé → rideau qui se lève ──────────────────
-// Joué une fois par session de navigation.
+// Joué à chaque chargement complet de la page (les navigations internes via
+// <Link> ne le redéclenchent pas).
 export default function SplashScreen({ children }: { children: React.ReactNode }) {
   // null = pas encore décidé (SSR + premier rendu client)
   const [show, setShow] = useState<boolean | null>(null);
@@ -140,17 +141,20 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
-    if (sessionStorage.getItem("nj_splash_seen")) {
-      setShow(false);
-      return;
-    }
     setShow(true);
     document.body.style.overflow = "hidden";
 
     const finish = () => {
-      sessionStorage.setItem("nj_splash_seen", "1");
       setShow(false);
       document.body.style.overflow = "";
+      // Arrivée avec une ancre (#faq…) : le scroll natif a été bloqué pendant
+      // le splash, on rejoue la navigation vers la section après le rideau.
+      const hash = window.location.hash;
+      if (hash) {
+        setTimeout(() => {
+          document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: "smooth" });
+        }, 400);
+      }
     };
 
     // Accessibilité : animation raccourcie si l'utilisateur préfère

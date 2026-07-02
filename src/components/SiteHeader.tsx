@@ -1,8 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "@/components/Logo";
+
+// Navigation client (pas de rechargement complet, donc pas de splash) tout en
+// gardant les animations d'entrée des liens du menu.
+const MotionLink = motion.create(Link);
 
 // Ancres préfixées par "/" : depuis une autre page (ex. /boutique), le lien
 // ramène à l'accueil sur la bonne section ; depuis l'accueil, simple scroll.
@@ -44,12 +49,12 @@ export default function SiteHeader() {
       >
         <div className="max-w-5xl mx-auto px-5 h-20 flex items-center justify-between">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2.5 shrink-0">
+          <Link href="/" className="flex items-center gap-2.5 shrink-0">
             <Logo size={64} />
             <span className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: "var(--ink)" }}>
               N&rsquo;OUBLIE JAMAIS
             </span>
-          </a>
+          </Link>
 
           {/* Hamburger — 2 bars */}
           <button
@@ -120,7 +125,7 @@ export default function SiteHeader() {
                 {/* Nav links */}
                 <nav className="flex flex-col gap-1 flex-1">
                   {NAV_LINKS.map((l, i) => (
-                    <motion.a
+                    <MotionLink
                       key={l.href}
                       href={l.href}
                       onClick={close}
@@ -139,7 +144,7 @@ export default function SiteHeader() {
                       <svg viewBox="0 0 16 16" fill="none" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round" width={14} height={14} style={{ opacity: 0.6 }}>
                         <path d="M3 8h10M9 4l4 4-4 4" />
                       </svg>
-                    </motion.a>
+                    </MotionLink>
                   ))}
                 </nav>
 
@@ -150,14 +155,14 @@ export default function SiteHeader() {
                   transition={{ delay: 0.32, duration: 0.35 }}
                   className="mt-8"
                 >
-                  <a
+                  <Link
                     href="/boutique"
                     onClick={close}
                     className="block w-full py-4 rounded-2xl font-bold text-white text-center text-[14px] tracking-wide"
                     style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 4px 20px rgba(184,134,26,0.25)" }}
                   >
                     Commander ma carte
-                  </a>
+                  </Link>
                   <p className="text-center text-[10px] mt-3" style={{ color: "rgba(250,246,239,0.3)" }}>
                     Paiement sécurisé · Accès immédiat
                   </p>
