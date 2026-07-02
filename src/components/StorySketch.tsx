@@ -182,19 +182,12 @@ export default function StorySketch() {
             transition={{ duration: 0.35 }}
             className="flex flex-col items-center px-5 pt-6 pb-7"
           >
+            {/* Pas de filtre SVG (feDisplacementMap) : il rendait le dessin
+                invisible sur certains navigateurs. */}
             <svg viewBox="0 0 320 200" width="100%" style={{ maxWidth: 420 }} fill="none" aria-hidden>
-              <defs>
-                {/* Tremblé de croquis fait main */}
-                <filter id="nj-sketch" x="-5%" y="-5%" width="110%" height="110%">
-                  <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="noise" />
-                  <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.4" />
-                </filter>
-              </defs>
-              <g filter="url(#nj-sketch)">
-                {current.paths.map((p, i) => (
-                  <ScenePath key={i} p={p} index={i} />
-                ))}
-              </g>
+              {current.paths.map((p, i) => (
+                <ScenePath key={i} p={p} index={i} />
+              ))}
             </svg>
 
             {/* Légende de la scène */}
