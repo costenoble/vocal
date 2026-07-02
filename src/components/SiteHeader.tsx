@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "@/components/Logo";
 
+// Ancres préfixées par "/" : depuis une autre page (ex. /boutique), le lien
+// ramène à l'accueil sur la bonne section ; depuis l'accueil, simple scroll.
 const NAV_LINKS = [
-  { href: "#comment-ca-marche", label: "Comment ça marche" },
-  { href: "#tarifs", label: "Nos formules" },
-  { href: "#faq", label: "Questions fréquentes" },
+  { href: "/#comment-ca-marche", label: "Comment ça marche" },
+  { href: "/#tarifs", label: "Nos formules" },
+  { href: "/#faq", label: "Questions fréquentes" },
   { href: "/boutique", label: "Commander" },
 ];
 

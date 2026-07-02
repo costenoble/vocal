@@ -112,6 +112,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Les ancres (#faq, #tarifs…) ne doivent pas atterrir sous la barre fixe */
+[id] {
+  scroll-margin-top: 96px;
+}
+
 body {
   background: var(--cream);
   color: var(--ink);
