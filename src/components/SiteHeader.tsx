@@ -40,10 +40,10 @@ export default function SiteHeader() {
           borderBottom: scrolled ? "1px solid rgba(184,134,26,0.12)" : "1px solid transparent",
         }}
       >
-        <div className="max-w-5xl mx-auto px-5 h-14 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-5 h-20 flex items-center justify-between">
           {/* Logo */}
           <a href="/" className="flex items-center gap-2.5 shrink-0">
-            <Logo size={32} />
+            <Logo size={64} />
             <span className="text-[10px] font-black tracking-[0.22em] uppercase" style={{ color: "var(--ink)" }}>
               N&rsquo;OUBLIE JAMAIS
             </span>
@@ -70,7 +70,7 @@ export default function SiteHeader() {
       </header>
 
       {/* Spacer */}
-      <div className="h-14" />
+      <div className="h-20" />
 
       {/* ── Overlay + panel ── */}
       <AnimatePresence>
