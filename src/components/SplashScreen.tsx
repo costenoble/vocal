@@ -71,10 +71,12 @@ function LogoPhase() {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.85, ease: EASE }}
       >
+        {/* Halo : dégradé radial seul, sans filter (le blur animé faisait
+            ramer le rendu) */}
         <motion.div
           className="absolute pointer-events-none"
-          style={{ inset: "-30%", background: "radial-gradient(ellipse, rgba(212,168,50,0.22) 0%, transparent 65%)", filter: "blur(24px)" }}
-          animate={{ opacity: [0.3, 0.8, 0.45] }}
+          style={{ inset: "-30%", background: "radial-gradient(ellipse, rgba(212,168,50,0.20) 0%, transparent 62%)" }}
+          animate={{ opacity: [0.3, 0.9, 0.5] }}
           transition={{ duration: 2, ease: "easeInOut" }}
         />
         <Image src="/logo.png" alt="N'OUBLIE JAMAIS" width={216} height={215} priority />
@@ -90,11 +92,13 @@ function LogoPhase() {
             maskSize: "100% 100%",
           }}
         >
+          {/* Déplacement en transform (x) et non en `left` : composité GPU,
+              aucun recalcul de layout par frame */}
           <motion.div
-            className="absolute top-0 bottom-0"
-            style={{ width: "55%", background: "linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.95) 50%, transparent 100%)" }}
-            initial={{ left: "-60%" }}
-            animate={{ left: "125%" }}
+            className="absolute top-0 bottom-0 left-0"
+            style={{ width: "55%", background: "linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.95) 50%, transparent 100%)", willChange: "transform" }}
+            initial={{ x: "-110%" }}
+            animate={{ x: "300%" }}
             transition={{ delay: 0.75, duration: 1.05, ease: "easeInOut" }}
           />
         </div>
@@ -108,8 +112,8 @@ function LogoPhase() {
             aria-hidden
             className="text-[19px] font-black uppercase"
             style={{ color: "var(--ink)", letterSpacing: "0.24em" }}
-            initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45 + i * 0.045, duration: 0.5, ease: EASE }}
           >
             {ch === " " ? " " : ch}
