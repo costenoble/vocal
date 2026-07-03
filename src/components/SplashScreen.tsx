@@ -2,225 +2,234 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
-const EASE = [0.22, 1, 0.36, 1] as const;
-const CURTAIN_EASE = [0.76, 0, 0.24, 1] as const;
+// Splash d'arrivée : onde vocale → logo révélé → rideau qui se lève.
+// Joué une seule fois par session de navigation.
+//
+// Toutes les animations sont en CSS pur (transform/opacity) : elles tournent
+// sur le thread compositeur du navigateur et restent fluides même pendant
+// l'hydratation React de la page — c'était la cause des saccades avec les
+// animations pilotées en JS.
 
 const BRAND = "N'OUBLIE JAMAIS";
+const WAVE_MS = 1300;
+const TOTAL_MS = 3800; // début de la levée du rideau
+const CURTAIN_MS = 900;
 
-// ── Phase 1 : onde vocale dorée qui pulse ─────────────────────────────────────
-function WavePhase() {
-  const bars = [16, 30, 46, 62, 46, 30, 16];
-  return (
-    <motion.div
-      className="flex items-center justify-center gap-2"
-      style={{ height: 80 }}
-      exit={{ opacity: 0, scale: 0.55, filter: "blur(5px)" }}
-      transition={{ duration: 0.35, ease: EASE }}
-    >
-      {bars.map((h, i) => (
-        <motion.div
-          key={i}
-          className="rounded-full"
-          style={{ width: 6, height: h, background: "linear-gradient(180deg, var(--gold-light), var(--gold-dark))", transformOrigin: "center" }}
-          initial={{ scaleY: 0.15, opacity: 0 }}
-          animate={{ scaleY: [0.15, 1, 0.35, 0.9, 0.25, 1], opacity: 1 }}
-          transition={{
-            scaleY: { duration: 1.1, repeat: Infinity, ease: "easeInOut", delay: i * 0.09 },
-            opacity: { duration: 0.3, delay: i * 0.06 },
-          }}
-        />
-      ))}
-    </motion.div>
-  );
+type Status = "pending" | "wave" | "logo" | "lifting" | "done";
+
+const CSS = `
+@keyframes nj-bar {
+  0%, 100% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1); }
 }
+@keyframes nj-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes nj-zoom-in {
+  from { opacity: 0; transform: scale(0.86); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes nj-shine {
+  from { transform: translateX(-130%); }
+  to { transform: translateX(320%); }
+}
+@keyframes nj-glow {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.9; }
+}
+@keyframes nj-sparkle {
+  0% { opacity: 0; transform: scale(0) rotate(-30deg); }
+  35% { opacity: 1; transform: scale(1) rotate(0deg); }
+  70% { opacity: 0.75; transform: scale(0.7) rotate(12deg); }
+  100% { opacity: 0; transform: scale(0.2) rotate(25deg); }
+}
+.nj-curtain {
+  transition: transform ${CURTAIN_MS}ms cubic-bezier(0.76, 0, 0.24, 1);
+  will-change: transform;
+}
+.nj-curtain.up { transform: translateY(-101%); }
+.nj-content {
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .nj-anim { animation: none !important; opacity: 1 !important; transform: none !important; }
+}
+`;
 
-// ── Étincelle dorée ────────────────────────────────────────────────────────────
 function Sparkle({ x, y, size, delay }: { x: string; y: string; size: number; delay: number }) {
   return (
-    <motion.svg
+    <svg
       viewBox="0 0 24 24"
       width={size}
       height={size}
-      className="absolute pointer-events-none"
-      style={{ left: x, top: y, fill: "var(--gold)" }}
-      initial={{ scale: 0, opacity: 0, rotate: -30 }}
-      animate={{ scale: [0, 1, 0.6, 1, 0], opacity: [0, 1, 0.7, 1, 0], rotate: 25 }}
-      transition={{ duration: 1.8, delay, ease: "easeInOut" }}
+      className="absolute pointer-events-none nj-anim"
+      style={{ left: x, top: y, fill: "var(--gold)", opacity: 0, animation: `nj-sparkle 1.8s ease-in-out ${delay}s both` }}
+      aria-hidden
     >
       <path d="M12 2 C13.2 8 16 10.8 22 12 C16 13.2 13.2 16 12 22 C10.8 16 8 13.2 2 12 C8 10.8 10.8 8 12 2 Z" />
-    </motion.svg>
+    </svg>
   );
 }
 
-// ── Phase 2 : logo + reflet métallique + lettres ──────────────────────────────
-function LogoPhase() {
-  return (
-    <motion.div className="relative flex flex-col items-center" exit={{ opacity: 1 }}>
-      {/* Étincelles autour du logo */}
-      <Sparkle x="-14%" y="12%" size={16} delay={1.15} />
-      <Sparkle x="102%" y="30%" size={12} delay={1.4} />
-      <Sparkle x="-6%" y="72%" size={10} delay={1.65} />
-      <Sparkle x="94%" y="80%" size={14} delay={1.9} />
-
-      {/* Logo — apparition en douceur + halo pulsant */}
-      <motion.div
-        className="relative"
-        initial={{ opacity: 0, scale: 0.82, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.85, ease: EASE }}
-      >
-        {/* Halo : dégradé radial seul, sans filter (le blur animé faisait
-            ramer le rendu) */}
-        <motion.div
-          className="absolute pointer-events-none"
-          style={{ inset: "-30%", background: "radial-gradient(ellipse, rgba(212,168,50,0.20) 0%, transparent 62%)" }}
-          animate={{ opacity: [0.3, 0.9, 0.5] }}
-          transition={{ duration: 2, ease: "easeInOut" }}
-        />
-        <Image src="/logo.png" alt="N'OUBLIE JAMAIS" width={216} height={215} priority />
-
-        {/* Reflet lumineux qui balaye uniquement les traits dorés
-            (le logo lui-même sert de masque) */}
-        <div
-          className="absolute inset-0 overflow-hidden pointer-events-none"
-          style={{
-            WebkitMaskImage: "url(/logo.png)",
-            maskImage: "url(/logo.png)",
-            WebkitMaskSize: "100% 100%",
-            maskSize: "100% 100%",
-          }}
-        >
-          {/* Déplacement en transform (x) et non en `left` : composité GPU,
-              aucun recalcul de layout par frame */}
-          <motion.div
-            className="absolute top-0 bottom-0 left-0"
-            style={{ width: "55%", background: "linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.95) 50%, transparent 100%)", willChange: "transform" }}
-            initial={{ x: "-110%" }}
-            animate={{ x: "300%" }}
-            transition={{ delay: 0.75, duration: 1.05, ease: "easeInOut" }}
-          />
-        </div>
-      </motion.div>
-
-      {/* Marque — lettre par lettre */}
-      <div className="mt-4 flex" aria-label={BRAND}>
-        {BRAND.split("").map((ch, i) => (
-          <motion.span
-            key={i}
-            aria-hidden
-            className="text-[19px] font-black uppercase"
-            style={{ color: "var(--ink)", letterSpacing: "0.24em" }}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45 + i * 0.045, duration: 0.5, ease: EASE }}
-          >
-            {ch === " " ? " " : ch}
-          </motion.span>
-        ))}
-      </div>
-
-      {/* Tagline */}
-      <motion.p
-        className="text-[9px] font-bold tracking-[0.26em] uppercase mt-2"
-        style={{ color: "var(--gold)" }}
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.5, duration: 0.55, ease: EASE }}
-      >
-        Un souvenir qui traverse le temps
-      </motion.p>
-    </motion.div>
-  );
-}
-
-// ── Splash : onde vocale → logo révélé → rideau qui se lève ──────────────────
-// Joué à chaque chargement complet de la page (les navigations internes via
-// <Link> ne le redéclenchent pas).
 export default function SplashScreen({ children }: { children: React.ReactNode }) {
-  // null = pas encore décidé (SSR + premier rendu client)
-  const [show, setShow] = useState<boolean | null>(null);
-  const [phase, setPhase] = useState<"wave" | "logo">("wave");
-  const reducedMotion = useReducedMotion();
+  const [status, setStatus] = useState<Status>("pending");
 
   useEffect(() => {
-    setShow(true);
+    if (sessionStorage.getItem("nj_splash_seen")) {
+      setStatus("done");
+      return;
+    }
+    sessionStorage.setItem("nj_splash_seen", "1");
     document.body.style.overflow = "hidden";
 
-    const finish = () => {
-      setShow(false);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const total = reduced ? 1500 : TOTAL_MS;
+
+    setStatus(reduced ? "logo" : "wave");
+
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    if (!reduced) timers.push(setTimeout(() => setStatus("logo"), WAVE_MS));
+    timers.push(setTimeout(() => setStatus("lifting"), total));
+    timers.push(
+      setTimeout(() => {
+        setStatus("done");
+        document.body.style.overflow = "";
+        // Arrivée avec une ancre (#faq…) : rejouer la navigation après le rideau.
+        const hash = window.location.hash;
+        if (hash) {
+          setTimeout(() => document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: "smooth" }), 150);
+        }
+      }, total + CURTAIN_MS)
+    );
+
+    return () => {
+      timers.forEach(clearTimeout);
       document.body.style.overflow = "";
-      // Arrivée avec une ancre (#faq…) : le scroll natif a été bloqué pendant
-      // le splash, on rejoue la navigation vers la section après le rideau.
-      const hash = window.location.hash;
-      if (hash) {
-        setTimeout(() => {
-          document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: "smooth" });
-        }, 400);
-      }
     };
-
-    // Accessibilité : animation raccourcie si l'utilisateur préfère
-    // les mouvements réduits.
-    if (reducedMotion) {
-      setPhase("logo");
-      const t = setTimeout(finish, 1600);
-      return () => { clearTimeout(t); document.body.style.overflow = ""; };
-    }
-
-    const t1 = setTimeout(() => setPhase("logo"), 1300);
-    const t2 = setTimeout(finish, 3900);
-    return () => { clearTimeout(t1); clearTimeout(t2); document.body.style.overflow = ""; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const splashPlayed = show !== null && !show;
+  const splashVisible = status === "wave" || status === "logo" || status === "lifting";
+  const contentRevealed = status === "lifting" || status === "done";
 
   return (
     <>
-      <AnimatePresence>
-        {show && (
-          <motion.div
-            className="fixed inset-0 z-999 flex flex-col items-center justify-center"
-            style={{ background: "var(--cream)" }}
-            initial={{ y: 0 }}
-            exit={{ y: "-100%" }}
-            transition={{ duration: 0.85, ease: CURTAIN_EASE }}
-          >
-            {/* Halo ambiant */}
-            <div
-              className="absolute pointer-events-none"
-              style={{ width: 520, height: 520, background: "radial-gradient(ellipse, rgba(184,134,26,0.10) 0%, transparent 65%)", filter: "blur(50px)" }}
-            />
+      {splashVisible && (
+        <div
+          className={`nj-curtain fixed inset-0 z-999 flex flex-col items-center justify-center${status === "lifting" ? " up" : ""}`}
+          style={{ background: "var(--cream)" }}
+        >
+          <style>{CSS}</style>
 
-            <AnimatePresence mode="wait">
-              {phase === "wave" ? (
-                <motion.div key="wave">
-                  <WavePhase />
-                </motion.div>
-              ) : (
-                <motion.div key="logo">
-                  <LogoPhase />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          {/* Halo ambiant */}
+          <div
+            className="absolute pointer-events-none"
+            style={{ width: 520, height: 520, background: "radial-gradient(ellipse, rgba(184,134,26,0.10) 0%, transparent 65%)" }}
+          />
 
-      {/* Contenu du site — invisible ET non peint pendant le splash
-          (visibility:hidden évite de rendre la page et ses animations
-          derrière l'overlay), puis simple fondu à la levée du rideau.
-          Pas de translate sur la page entière : trop lourd à composer. */}
-      <motion.div
-        initial={false}
-        style={{ visibility: show ? "hidden" : "visible" }}
-        animate={splashPlayed ? { opacity: 1 } : show ? { opacity: 0 } : {}}
-        transition={{ duration: 0.7, ease: EASE }}
+          {status === "wave" ? (
+            /* ── Phase 1 : onde vocale ── */
+            <div className="flex items-center justify-center gap-2" style={{ height: 80 }}>
+              {[16, 30, 46, 62, 46, 30, 16].map((h, i) => (
+                <div
+                  key={i}
+                  className="rounded-full nj-anim"
+                  style={{
+                    width: 6,
+                    height: h,
+                    background: "linear-gradient(180deg, var(--gold-light), var(--gold-dark))",
+                    transformOrigin: "center",
+                    animation: `nj-bar 0.85s ease-in-out ${i * 0.09}s infinite`,
+                  }}
+                />
+              ))}
+            </div>
+          ) : (
+            /* ── Phase 2 : logo + reflet + lettres ── */
+            <div className="relative flex flex-col items-center">
+              <Sparkle x="-14%" y="12%" size={16} delay={1.15} />
+              <Sparkle x="100%" y="30%" size={12} delay={1.4} />
+              <Sparkle x="-6%" y="72%" size={10} delay={1.65} />
+              <Sparkle x="92%" y="80%" size={14} delay={1.9} />
+
+              <div className="relative nj-anim" style={{ animation: "nj-zoom-in 0.85s cubic-bezier(0.22,1,0.36,1) both" }}>
+                {/* Halo pulsant */}
+                <div
+                  className="absolute pointer-events-none nj-anim"
+                  style={{
+                    inset: "-30%",
+                    background: "radial-gradient(ellipse, rgba(212,168,50,0.20) 0%, transparent 62%)",
+                    animation: "nj-glow 2.4s ease-in-out 0.4s infinite",
+                  }}
+                />
+                <Image src="/logo.png" alt="N'OUBLIE JAMAIS" width={216} height={215} priority />
+
+                {/* Reflet lumineux masqué par le logo lui-même */}
+                <div
+                  className="absolute inset-0 overflow-hidden pointer-events-none"
+                  style={{
+                    WebkitMaskImage: "url(/logo.png)",
+                    maskImage: "url(/logo.png)",
+                    WebkitMaskSize: "100% 100%",
+                    maskSize: "100% 100%",
+                  }}
+                >
+                  <div
+                    className="absolute top-0 bottom-0 left-0 nj-anim"
+                    style={{
+                      width: "55%",
+                      background: "linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.95) 50%, transparent 100%)",
+                      transform: "translateX(-130%)",
+                      animation: "nj-shine 1.05s ease-in-out 0.75s both",
+                      willChange: "transform",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Marque — lettre par lettre */}
+              <div className="mt-4 flex" aria-label={BRAND}>
+                {BRAND.split("").map((ch, i) => (
+                  <span
+                    key={i}
+                    aria-hidden
+                    className="text-[19px] font-black uppercase nj-anim"
+                    style={{
+                      color: "var(--ink)",
+                      letterSpacing: "0.24em",
+                      opacity: 0,
+                      animation: `nj-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) ${0.45 + i * 0.045}s both`,
+                    }}
+                  >
+                    {ch === " " ? " " : ch}
+                  </span>
+                ))}
+              </div>
+
+              {/* Tagline */}
+              <p
+                className="text-[9px] font-bold tracking-[0.26em] uppercase mt-2 nj-anim"
+                style={{ color: "var(--gold)", opacity: 0, animation: "nj-fade-up 0.55s cubic-bezier(0.22,1,0.36,1) 1.5s both" }}
+              >
+                Un souvenir qui traverse le temps
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Contenu du site — non peint pendant le splash, révélé en fondu quand
+          le rideau se lève. */}
+      <div
+        className="nj-content"
+        style={{
+          visibility: status === "wave" || status === "logo" ? "hidden" : "visible",
+          opacity: splashVisible && !contentRevealed ? 0 : 1,
+        }}
       >
         {children}
-      </motion.div>
+      </div>
     </>
   );
 }
