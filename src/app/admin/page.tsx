@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Logo from "@/components/Logo";
+import DeleteOrderButton from "@/components/DeleteOrderButton";
+import MarkShippedButton from "@/components/MarkShippedButton";
 import Link from "next/link";
 import { isAdminSession } from "@/lib/admin-auth";
 import { getPlanById } from "@/lib/plans";
@@ -103,6 +105,7 @@ export default async function AdminPage({
 
   const total = messages.length;
   const paid = messages.filter((m) => m.paid).length;
+  const toShip = messages.filter((m) => m.paid && !m.shippedAt).length;
   const revenue = messages
     .filter((m) => m.paid)
     .reduce((sum, m) => {
@@ -111,6 +114,11 @@ export default async function AdminPage({
         : getPlanById(m.plan)?.price ?? 0;
       return sum + price;
     }, 0);
+
+  const fmtDateTime = (d: Date) =>
+    new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) +
+    " à " +
+    new Date(d).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
 
   return (
     <div className="min-h-screen" style={{ background: "var(--cream)" }}>
@@ -134,13 +142,14 @@ export default async function AdminPage({
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
           {[
-            { label: "Cartes créées", value: total },
-            { label: "Payées", value: paid },
-            { label: "Revenus", value: `${revenue.toFixed(2)}€` },
+            { label: "Cartes créées", value: total, alert: false },
+            { label: "Payées", value: paid, alert: false },
+            { label: "À expédier", value: toShip, alert: toShip > 0 },
+            { label: "Revenus", value: `${revenue.toFixed(2)}€`, alert: false },
           ].map((s) => (
-            <div key={s.label} className="rounded-2xl p-4 text-center" style={{ background: "white", border: "1px solid rgba(184,134,26,0.12)", boxShadow: "0 2px 12px rgba(184,134,26,0.06)" }}>
+            <div key={s.label} className="rounded-2xl p-4 text-center" style={{ background: "white", border: s.alert ? "1.5px solid rgba(184,134,26,0.45)" : "1px solid rgba(184,134,26,0.12)", boxShadow: "0 2px 12px rgba(184,134,26,0.06)" }}>
               <p className="text-2xl font-black" style={{ color: "var(--gold)" }}>{s.value}</p>
               <p className="text-xs mt-1" style={{ color: "var(--ink-muted)" }}>{s.label}</p>
             </div>
@@ -159,54 +168,97 @@ export default async function AdminPage({
               <div className="divide-y" style={{ borderColor: "rgba(184,134,26,0.08)" }}>
                 {messages.map((m) => {
                   const hasShipping = m.shipAddress || m.shipCity;
+                  const shipped = !!m.shippedAt;
                   return (
-                  <div key={m.id} className="px-5 py-3 flex flex-col gap-2">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate" style={{ color: "var(--ink)" }}>
-                          {m.fromName} → {m.toName}
-                        </p>
-                        <p className="text-[11px] mt-0.5" style={{ color: "var(--ink-muted)" }}>
-                          {new Date(m.createdAt).toLocaleDateString("fr-FR")}
-                          {m.productName ? ` · ${m.productName}${m.productSize ? ` (${m.productSize})` : ""}` : ` · ${m.plan}`}
-                          {m.buyerEmail && ` · ${m.buyerEmail}`}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        {m.accessCode && (
-                          <span className="px-2 py-0.5 rounded-md text-[11px] font-black tracking-widest" style={{ background: "rgba(184,134,26,0.10)", color: "var(--gold-dark)" }}>
-                            {m.accessCode}
-                          </span>
-                        )}
-                        <span
-                          className="px-2 py-0.5 rounded-full text-[10px] font-bold"
-                          style={{
-                            background: m.paid ? "rgba(22,163,74,0.12)" : "rgba(184,134,26,0.10)",
-                            color: m.paid ? "#16a34a" : "var(--gold-dark)",
-                          }}
-                        >
-                          {m.paid ? "Payé" : "En attente"}
+                  <div key={m.id} className="px-5 py-4 flex flex-col gap-3">
+                    {/* En-tête : qui, badges, suppression */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-[15px] font-bold" style={{ color: "var(--ink)" }}>
+                        {m.fromName} → {m.toName}
+                      </p>
+                      {m.accessCode && (
+                        <span className="px-2 py-0.5 rounded-md text-[11px] font-black tracking-widest" style={{ background: "rgba(184,134,26,0.10)", color: "var(--gold-dark)" }}>
+                          {m.accessCode}
                         </span>
-                        <Link href={`/listen/${m.slug}`} className="text-[11px] font-semibold" style={{ color: "var(--gold)" }}>
-                          Écouter →
-                        </Link>
-                        <Link href={`/api/pdf/${m.slug}`} className="text-[11px] font-semibold" style={{ color: "var(--gold)" }}>
-                          Carte →
-                        </Link>
-                        <a href={`/api/qr/${m.slug}?download=1`} className="text-[11px] font-semibold" style={{ color: "var(--gold)" }}>
-                          QR →
-                        </a>
+                      )}
+                      <span
+                        className="px-2 py-0.5 rounded-full text-[10px] font-bold"
+                        style={{
+                          background: m.paid ? "rgba(22,163,74,0.12)" : "rgba(184,134,26,0.10)",
+                          color: m.paid ? "#16a34a" : "var(--gold-dark)",
+                        }}
+                      >
+                        {m.paid ? "Payée" : "En attente"}
+                      </span>
+                      {shipped && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(22,163,74,0.12)", color: "#16a34a" }}>
+                          ✓ Expédiée
+                        </span>
+                      )}
+                      <div className="ml-auto">
+                        <DeleteOrderButton slug={m.slug} label={`${m.fromName} → ${m.toName}`} />
                       </div>
                     </div>
-                    {hasShipping && (
-                      <div className="rounded-lg px-3 py-2 flex items-start gap-2" style={{ background: "var(--cream)" }}>
-                        <svg viewBox="0 0 24 24" width={13} height={13} fill="none" style={{ marginTop: 1, flexShrink: 0 }}>
-                          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="var(--gold)" strokeWidth="1.5"/>
-                        </svg>
-                        <p className="text-[11px] leading-snug" style={{ color: "var(--ink-muted)" }}>
-                          <strong style={{ color: "var(--ink)" }}>{m.shipName}</strong> — {m.shipAddress}
-                          {m.shipComplement ? `, ${m.shipComplement}` : ""}, {m.shipPostalCode} {m.shipCity} · {m.shipCountry}
+
+                    {/* Détails commande */}
+                    <p className="text-[12px] -mt-1" style={{ color: "var(--ink-muted)" }}>
+                      Commandée le <strong style={{ color: "var(--ink)" }}>{fmtDateTime(m.createdAt)}</strong>
+                      {" · "}{m.productName ? `${m.productName}${m.productSize ? ` (${m.productSize})` : ""}` : getPlanById(m.plan)?.name ?? m.plan}
+                      {" · "}{m.source === "boutique" ? "Vente boutique" : "Commande web"}
+                      {m.buyerEmail && <>{" · "}{m.buyerEmail}</>}
+                    </p>
+
+                    {/* Bloc préparation & expédition */}
+                    {shipped ? (
+                      <div className="rounded-xl px-4 py-3 flex items-center justify-between gap-3" style={{ background: "rgba(22,163,74,0.06)", border: "1px solid rgba(22,163,74,0.18)" }}>
+                        <p className="text-[12px]" style={{ color: "#15803d" }}>
+                          ✓ Coffret expédié le <strong>{fmtDateTime(m.shippedAt!)}</strong>
                         </p>
+                        <MarkShippedButton slug={m.slug} shipped />
+                      </div>
+                    ) : (
+                      <div className="rounded-xl overflow-hidden" style={{ border: "1.5px solid rgba(184,134,26,0.30)" }}>
+                        <div className="px-4 py-2 flex items-center gap-2" style={{ background: "rgba(184,134,26,0.08)" }}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold-dark)" strokeWidth="1.6" width={14} height={14}>
+                            <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z" /><path d="M3 8l9 5 9-5M12 13v8" />
+                          </svg>
+                          <p className="text-[11px] font-black tracking-widest uppercase" style={{ color: "var(--gold-dark)" }}>
+                            À préparer — bracelet + carte imprimée
+                          </p>
+                        </div>
+                        <div className="px-4 py-3 flex flex-col gap-3" style={{ background: "white" }}>
+                          {hasShipping ? (
+                            <div className="flex items-start gap-2.5">
+                              <svg viewBox="0 0 24 24" width={14} height={14} fill="none" style={{ marginTop: 2, flexShrink: 0 }}>
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z" stroke="var(--gold)" strokeWidth="1.6"/>
+                                <circle cx="12" cy="10" r="3" stroke="var(--gold)" strokeWidth="1.6"/>
+                              </svg>
+                              <p className="text-[13px] leading-relaxed" style={{ color: "var(--ink)" }}>
+                                <strong>{m.shipName}</strong><br />
+                                {m.shipAddress}{m.shipComplement ? `, ${m.shipComplement}` : ""}<br />
+                                {m.shipPostalCode} {m.shipCity} · {m.shipCountry}
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-[12px] italic" style={{ color: "var(--ink-muted)" }}>
+                              Pas d&rsquo;adresse — remise en main propre (vente boutique).
+                            </p>
+                          )}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Link href={`/api/pdf/${m.slug}`} target="_blank" className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] text-white transition-all active:scale-95" style={{ background: "var(--ink)" }}>
+                              🖨 Imprimer la carte
+                            </Link>
+                            <a href={`/api/qr/${m.slug}?download=1`} className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] transition-all active:scale-95" style={{ background: "white", color: "var(--gold-dark)", border: "1.5px solid rgba(184,134,26,0.35)" }}>
+                              ⤓ QR code
+                            </a>
+                            <Link href={`/listen/${m.slug}`} target="_blank" className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] transition-all active:scale-95" style={{ background: "white", color: "var(--gold-dark)", border: "1.5px solid rgba(184,134,26,0.35)" }}>
+                              ▶ Page d&rsquo;écoute
+                            </Link>
+                            <div className="ml-auto">
+                              <MarkShippedButton slug={m.slug} shipped={false} />
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>

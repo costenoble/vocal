@@ -14,19 +14,17 @@ export async function GET(
 
   const fromName = message?.fromName ?? "Sophie";
   const toName = message?.toName ?? "Maman";
-  const date = message?.date
-    ? (() => {
-        try {
-          return new Date(message.date).toLocaleDateString("fr-FR", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          });
-        } catch {
-          return message.date;
-        }
-      })()
-    : "";
+  // Texte libre affiché tel quel ; seul l'ancien format ISO est reformaté.
+  const date = (() => {
+    if (!message?.date) return "";
+    if (/^\d{4}-\d{2}-\d{2}/.test(message.date)) {
+      const d = new Date(message.date);
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+      }
+    }
+    return message.date;
+  })();
 
   return new ImageResponse(
     (

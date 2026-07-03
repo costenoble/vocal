@@ -57,11 +57,13 @@ export async function GET(
     errorCorrectionLevel: "H",
   });
 
-  const dateFormatted = (() => {
-    try {
-      return new Date(message.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
-    } catch { return message.date; }
-  })();
+  // "Créé le" = vraie date de création de la commande (le champ `date` est un
+  // texte libre "Date ou occasion", il n'est pas convertible en date).
+  const dateFormatted = new Date(message.createdAt).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   const shimmer = paper.shimmer
     ? `<div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0) 40%,rgba(255,255,255,0.22) 55%,rgba(255,255,255,0) 70%);pointer-events:none;z-index:2;"></div>`

@@ -71,14 +71,22 @@ export default function DemoClient() {
       micAnalyserRef.current = analyser;
       tickMic();
 
-      // Start recording
-      const recorder = new MediaRecorder(stream);
+      // Start recording — laisser le navigateur choisir son format natif
+      // (Safari/iOS enregistre en MP4/AAC, pas en WebM) et le respecter pour
+      // le blob final, sinon le lecteur ne peut pas décoder l'audio ensuite.
+      const mimeType = [
+        "audio/webm;codecs=opus",
+        "audio/webm",
+        "audio/mp4",
+      ].find((t) => MediaRecorder.isTypeSupported(t));
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      const recordedType = recorder.mimeType || "audio/webm";
       chunksRef.current = [];
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
       recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        const blob = new Blob(chunksRef.current, { type: recordedType });
         setAudioUrl(URL.createObjectURL(blob));
         setStep("done");
       };

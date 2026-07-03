@@ -59,3 +59,6 @@ CREATE TABLE IF NOT EXISTS "ContactMessage" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "ContactMessage_pkey" PRIMARY KEY ("id")
 );
+
+-- ── Migration 20260703 : suivi d'expédition ───────────────────────────────────
+ALTER TABLE "Message" ADD COLUMN IF NOT EXISTS "shippedAt" TIMESTAMP(3);

@@ -55,16 +55,17 @@ export default async function ListenPage({ params }: Props) {
     });
   }
 
+  // Le champ `date` est un texte libre ("Notre mariage · 25 juin 2026") : on
+  // l'affiche tel quel. Seul l'ancien format ISO (yyyy-mm-dd) est reformaté.
   const dateFormatted = (() => {
-    try {
-      return new Date(message.date).toLocaleDateString("fr-FR", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      });
-    } catch {
-      return message.date;
+    if (!message.date) return "";
+    if (/^\d{4}-\d{2}-\d{2}/.test(message.date)) {
+      const d = new Date(message.date);
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+      }
     }
+    return message.date;
   })();
 
   // If the message is protected by an access code, do NOT ship the audio URL

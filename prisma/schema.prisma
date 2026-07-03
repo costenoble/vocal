@@ -41,6 +41,7 @@ model Message {
   replyFromName   String?
   replyAt         DateTime?
   followupSentAt  DateTime?
+  shippedAt       DateTime?
 }
 
 model ContactMessage {

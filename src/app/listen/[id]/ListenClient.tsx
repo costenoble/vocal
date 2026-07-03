@@ -23,6 +23,10 @@ interface Props {
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
+// Réponse vocale du destinataire : fonctionnalité prête mais désactivée —
+// elle sera proposée en option payante. Passer à true pour la réactiver.
+const REPLY_ENABLED = false;
+
 const fmtTime = (s: number) =>
   !isFinite(s) || isNaN(s) ? "0:00" : `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
@@ -436,7 +440,8 @@ export default function ListenClient({ slug, fromName, toName, date, audioUrl, d
               </motion.div>
             </div>
 
-            {/* Date pill */}
+            {/* Date pill — masquée si aucune date/occasion saisie */}
+            {date && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -454,6 +459,7 @@ export default function ListenClient({ slug, fromName, toName, date, audioUrl, d
                 </span>
               </div>
             </motion.div>
+            )}
 
             {/* Divider */}
             <motion.div
@@ -525,8 +531,8 @@ export default function ListenClient({ slug, fromName, toName, date, audioUrl, d
               )}
             </motion.div>
 
-            {/* ── Réponse vocale ── */}
-            {!demo && !expired && unlocked && slug && (
+            {/* ── Réponse vocale (désactivée — option à venir) ── */}
+            {REPLY_ENABLED && !demo && !expired && unlocked && slug && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
