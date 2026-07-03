@@ -176,7 +176,7 @@ export async function sendContactNotification(params: {
     from: FROM,
     to,
     replyTo: email,
-    subject: `📩 Contact — ${subject} — ${name}`,
+    subject: `Contact — ${subject} — ${name}`,
     html: emailShell(`
       <h1 style="font-size:22px;color:#1C1410;margin:24px 0 8px;">Nouveau message de contact</h1>
       <p style="font-size:14px;color:#4A3728;line-height:1.7;margin:0 0 6px;"><strong>De :</strong> ${escapeHtml(name)} &lt;${escapeHtml(email)}&gt;</p>

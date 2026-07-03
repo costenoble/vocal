@@ -198,13 +198,25 @@ export default async function AdminPage({
 
         {/* ═══ À expédier ═══ */}
         <div className="rounded-2xl overflow-hidden mb-6" style={{ border: toShipList.length > 0 ? "1.5px solid rgba(184,134,26,0.35)" : "1px solid rgba(184,134,26,0.12)", boxShadow: "0 2px 12px rgba(184,134,26,0.06)" }}>
-          <div className="px-5 py-3 flex items-center justify-between" style={{ background: "white", borderBottom: "1px solid rgba(184,134,26,0.10)" }}>
-            <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--gold-dark)" }}>📦 À expédier</h2>
-            <span className="text-[11px] font-bold" style={{ color: "var(--ink-muted)" }}>{toShipList.length}</span>
+          <div className="px-5 py-3 flex items-center justify-between gap-3" style={{ background: "white", borderBottom: "1px solid rgba(184,134,26,0.10)" }}>
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--gold-dark)" }}>À expédier</h2>
+              <span className="text-[11px] font-bold" style={{ color: "var(--ink-muted)" }}>{toShipList.length}</span>
+            </div>
+            {toShipList.length > 0 && (
+              <a
+                href="/api/admin/export-shipping"
+                className="px-3 py-1.5 rounded-lg font-bold text-[11px] transition-all active:scale-95"
+                style={{ background: "var(--cream)", color: "var(--gold-dark)", border: "1px solid rgba(184,134,26,0.30)" }}
+                title="Fichier CSV à importer dans ColiShip (coliship.laposte.fr → Import de commandes)"
+              >
+                Exporter pour ColiShip
+              </a>
+            )}
           </div>
           <div style={{ background: "white" }}>
             {toShipList.length === 0 ? (
-              <p className="text-center py-10 text-sm" style={{ color: "var(--ink-muted)" }}>Tout est expédié — aucune commande en attente. ✓</p>
+              <p className="text-center py-10 text-sm" style={{ color: "var(--ink-muted)" }}>Tout est expédié — aucune commande en attente.</p>
             ) : (
               <div className="divide-y" style={{ borderColor: "rgba(184,134,26,0.08)" }}>
                 {toShipList.map((m) => {
@@ -218,7 +230,7 @@ export default async function AdminPage({
                       </p>
                       {isNew && (
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-black tracking-wide" style={{ background: "var(--gold)", color: "white" }}>
-                          🆕 NOUVEAU
+                          NOUVEAU
                         </span>
                       )}
                       {m.accessCode && (
@@ -267,13 +279,13 @@ export default async function AdminPage({
                         )}
                         <div className="flex items-center gap-2 flex-wrap">
                           <Link href={`/api/pdf/${m.slug}`} target="_blank" className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] text-white transition-all active:scale-95" style={{ background: "var(--ink)" }}>
-                            🖨 Imprimer la carte
+                            Imprimer la carte
                           </Link>
                           <a href={`/api/qr/${m.slug}?download=1`} className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] transition-all active:scale-95" style={{ background: "white", color: "var(--gold-dark)", border: "1.5px solid rgba(184,134,26,0.35)" }}>
-                            ⤓ QR code
+                            QR code
                           </a>
                           <Link href={`/listen/${m.slug}`} target="_blank" className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] transition-all active:scale-95" style={{ background: "white", color: "var(--gold-dark)", border: "1.5px solid rgba(184,134,26,0.35)" }}>
-                            ▶ Page d&rsquo;écoute
+                            Page d&rsquo;écoute
                           </Link>
                           <div className="ml-auto">
                             <MarkShippedButton slug={m.slug} shipped={false} />
@@ -292,7 +304,7 @@ export default async function AdminPage({
         {/* ═══ Expédiées ═══ */}
         <div className="rounded-2xl overflow-hidden mb-6" style={{ border: "1px solid rgba(184,134,26,0.12)", boxShadow: "0 2px 12px rgba(184,134,26,0.06)" }}>
           <div className="px-5 py-3 flex items-center justify-between" style={{ background: "white", borderBottom: "1px solid rgba(184,134,26,0.10)" }}>
-            <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--gold)" }}>✓ Expédiées</h2>
+            <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--gold)" }}>Expédiées</h2>
             <span className="text-[11px] font-bold" style={{ color: "var(--ink-muted)" }}>{shippedList.length}</span>
           </div>
           <div style={{ background: "white" }}>
