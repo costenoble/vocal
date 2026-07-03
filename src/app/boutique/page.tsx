@@ -1,187 +1,97 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import Logo from "@/components/Logo";
-import { PRODUCTS } from "@/lib/products";
+import ProductDetail from "@/components/ProductDetail";
+import type { Product } from "@/lib/products";
 
 const OCCASIONS = [
   "Naissance", "Mariage", "Anniversaire", "Famille",
   "Amitié", "Je t'aime", "Grand-parent", "Remerciement",
 ];
 
+function ProductCard({ product }: { product: Product }) {
+  return (
+    <Link
+      href={`/boutique/${product.slug}`}
+      className="rounded-2xl overflow-hidden flex flex-col transition-all hover:-translate-y-1"
+      style={{ background: "white", border: "1px solid rgba(184,134,26,0.14)", boxShadow: "0 3px 16px rgba(184,134,26,0.06)" }}
+    >
+      <div className="relative aspect-square" style={{ background: "#F5EED5" }}>
+        {product.imageUrl ? (
+          <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+            <Logo size={48} />
+          </div>
+        )}
+        <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider" style={{ background: "var(--gold)", color: "white" }}>
+          {product.category}
+        </div>
+      </div>
+      <div className="p-4 flex flex-col gap-1">
+        <p className="text-[14px] font-bold" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{product.name}</p>
+        {product.tagline && <p className="text-[11px]" style={{ color: "var(--ink-muted)" }}>{product.tagline}</p>}
+        <p className="text-[16px] font-black mt-1" style={{ color: "var(--gold)" }}>{product.price} €</p>
+      </div>
+    </Link>
+  );
+}
+
 export default function BoutiquePage() {
-  const [selectedSize, setSelectedSize] = useState<string>("");
-  const product = PRODUCTS[0];
-  const SIZES = product.sizes;
+  const [products, setProducts] = useState<Product[] | null>(null);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((json) => setProducts(json.products ?? []))
+      .catch(() => setProducts([]));
+  }, []);
 
   return (
     <div className="min-h-screen" style={{ background: "var(--cream)" }}>
       <SiteHeader />
 
       <div className="max-w-5xl mx-auto px-5 py-16">
-
-        {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-10 text-[11px]" style={{ color: "var(--ink-muted)" }}>
           <Link href="/" style={{ color: "var(--ink-muted)" }}>Accueil</Link>
           <span>/</span>
           <span style={{ color: "var(--ink)" }}>Boutique</span>
         </div>
 
-        {/* Product */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-
-          {/* Image */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className="relative rounded-3xl overflow-hidden aspect-square"
-            style={{ background: "#F5EED5" }}
-          >
-            <Image
-              src={product.imageUrl}
-              alt={product.name}
-              fill
-              className="object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
-              }}
-            />
-            {/* Placeholder if no image */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: -1 }}>
-              <Logo size={80} />
-              <p className="text-[11px] font-bold tracking-widest uppercase" style={{ color: "var(--gold)" }}>N&rsquo;OUBLIE JAMAIS</p>
-            </div>
-
-            {/* Badge */}
-            <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
-              style={{ background: "var(--gold)", color: "white" }}>
-              Édition limitée
-            </div>
-          </motion.div>
-
-          {/* Details */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="flex flex-col gap-6"
-          >
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2" style={{ color: "var(--gold)" }}>
-                Coffret cadeau · Carte vocale incluse
-              </p>
-              <h1 className="text-[36px] font-black leading-tight mb-3" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
-                {product.name}
+        {products === null ? (
+          <div className="py-24 text-center">
+            <p className="text-sm" style={{ color: "var(--ink-muted)" }}>Chargement…</p>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="py-24 text-center">
+            <Logo size={64} />
+            <p className="text-sm mt-4" style={{ color: "var(--ink-muted)" }}>Notre boutique ouvre très bientôt.</p>
+          </div>
+        ) : products.length === 1 ? (
+          <ProductDetail product={products[0]} />
+        ) : (
+          <>
+            <div className="mb-10 text-center">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3" style={{ color: "var(--gold)" }}>Nos collections</p>
+              <h1 className="text-[32px] font-black" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
+                Chaque pierre, une histoire.
               </h1>
-              <p className="text-[15px] leading-relaxed" style={{ color: "var(--ink-muted)" }}>
-                {product.description}
-              </p>
             </div>
-
-            {/* Price */}
-            <div className="flex items-baseline gap-3">
-              <span className="text-[42px] font-black" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
-                {product.price} €
-              </span>
-              <span className="text-[13px]" style={{ color: "var(--ink-muted)" }}>TTC · Livraison incluse</span>
-            </div>
-
-            {/* Divider */}
-            <div className="h-px w-full" style={{ background: "rgba(184,134,26,0.15)" }} />
-
-            {/* Size selector */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-[12px] font-bold uppercase tracking-wider" style={{ color: "var(--ink)" }}>
-                  Tour de poignet
-                </p>
-                {selectedSize && (
-                  <span className="text-[12px]" style={{ color: "var(--gold)" }}>{selectedSize}</span>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {SIZES.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className="px-4 py-2 rounded-xl text-[13px] font-semibold transition-all"
-                    style={{
-                      background: selectedSize === size ? "var(--ink)" : "white",
-                      color: selectedSize === size ? "white" : "var(--ink)",
-                      border: selectedSize === size ? "1.5px solid transparent" : "1.5px solid rgba(28,20,16,0.12)",
-                    }}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-              <p className="text-[11px] mt-2" style={{ color: "var(--ink-muted)" }}>
-                Mesurez votre poignet avec un ruban ou une ficelle pour trouver votre taille.
-              </p>
-            </div>
-
-            {/* CTA */}
-            <div className="flex flex-col gap-3">
-              {selectedSize ? (
-                <Link
-                  href={`/composer?product=${product.slug}&size=${encodeURIComponent(selectedSize)}`}
-                  className="block w-full py-4 rounded-2xl font-bold text-white text-center text-[15px] tracking-wide transition-all"
-                  style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 4px 24px rgba(184,134,26,0.28)" }}
-                >
-                  Créer ma carte vocale
-                </Link>
-              ) : (
-                <button
-                  disabled
-                  className="w-full py-4 rounded-2xl font-bold text-[15px] tracking-wide cursor-not-allowed"
-                  style={{ background: "rgba(28,20,16,0.06)", color: "rgba(28,20,16,0.35)" }}
-                >
-                  Choisissez une taille pour continuer
-                </button>
-              )}
-              {/* Réassurance */}
-              <div className="grid grid-cols-3 gap-2 mt-1">
-                {[
-                  { icon: <><rect x="4" y="10" width="16" height="11" rx="2" /><path d="M8 10V7a4 4 0 1 1 8 0v3" /></>, t: "Paiement sécurisé", d: "Stripe · CB, Apple Pay" },
-                  { icon: <><rect x="1" y="6" width="14" height="12" rx="1.5" /><path d="M15 10h4l3 3v5h-7zM5.5 21a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6zM18 21a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6z" /></>, t: "Livraison 3-5 jours", d: "Suivie, en France" },
-                  { icon: <><path d="M3 12a9 9 0 1 0 3-6.7" /><path d="M3 4v4h4" /></>, t: "Retour 14 jours", d: "Satisfait ou remboursé" },
-                ].map((r) => (
-                  <div key={r.t} className="rounded-xl px-2.5 py-3 flex flex-col items-center text-center gap-1.5" style={{ background: "white", border: "1px solid rgba(184,134,26,0.10)" }}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width={17} height={17}>{r.icon}</svg>
-                    <p className="text-[11px] font-bold leading-tight" style={{ color: "var(--ink)" }}>{r.t}</p>
-                    <p className="text-[10px] leading-tight" style={{ color: "var(--ink-muted)" }}>{r.d}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Divider */}
-            <div className="h-px w-full" style={{ background: "rgba(184,134,26,0.15)" }} />
-
-            {/* Includes */}
-            <div>
-              <p className="text-[12px] font-bold uppercase tracking-wider mb-3" style={{ color: "var(--ink)" }}>
-                Ce coffret comprend
-              </p>
-              <ul className="flex flex-col gap-2">
-                {product.details.map((detail) => (
-                  <li key={detail} className="flex items-center gap-3 text-[13px]" style={{ color: "var(--ink-muted)" }}>
-                    <svg viewBox="0 0 16 16" fill="none" width={14} height={14} style={{ flexShrink: 0 }}>
-                      <circle cx="8" cy="8" r="7" stroke="var(--gold)" strokeWidth="1.2" />
-                      <path d="M5 8l2 2 4-4" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    {detail}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </motion.div>
-        </div>
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="grid grid-cols-2 sm:grid-cols-3 gap-4"
+            >
+              {products.map((p) => <ProductCard key={p.slug} product={p} />)}
+            </motion.div>
+          </>
+        )}
 
         {/* Occasions section */}
         <div className="mt-24">
@@ -213,9 +123,9 @@ export default function BoutiquePage() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {[
-              { step: "01", label: "Choisissez votre taille", desc: "Sélectionnez votre tour de poignet pour un ajustement parfait." },
+              { step: "01", label: "Choisissez votre modèle", desc: "Sélectionnez la pièce et la taille qui vous correspondent." },
               { step: "02", label: "Créez votre carte vocale", desc: "Enregistrez votre message, personnalisez la carte et prévisualisez le résultat." },
-              { step: "03", label: "Recevez votre coffret", desc: "Le bracelet et la carte imprimée avec son QR code arrivent chez vous sous 3 à 5 jours." },
+              { step: "03", label: "Recevez votre coffret", desc: "Le bijou et la carte imprimée avec son QR code arrivent chez vous sous 3 à 5 jours." },
             ].map((s) => (
               <div key={s.step} className="flex flex-col items-center gap-3">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center text-[12px] font-black"
@@ -228,10 +138,8 @@ export default function BoutiquePage() {
             ))}
           </div>
         </div>
-
       </div>
 
-      {/* Footer minimal */}
       <footer className="text-center py-10">
         <p className="text-[11px]" style={{ color: "var(--ink-muted)" }}>
           N&rsquo;OUBLIE JAMAIS · Les mots du cœur méritent d&rsquo;être conservés.

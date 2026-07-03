@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import Logo from "@/components/Logo";
 import Link from "next/link";
 import { THEMES, getTheme, type ThemeId } from "@/lib/themes";
-import { getProductBySlug, type Product } from "@/lib/products";
+import type { Product } from "@/lib/products";
 
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6;
 type RecordState = "idle" | "requesting" | "recording" | "uploading" | "done";
@@ -653,11 +653,16 @@ export default function ComposerClient() {
     const slug = params.get("product");
     const size = params.get("size");
     if (slug) {
-      const p = getProductBySlug(slug);
-      if (p) {
-        setProduct(p);
-        setProductSize(size && p.sizes.includes(size) ? size : "");
-      }
+      fetch(`/api/products/${slug}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((json) => {
+          const p: Product | undefined = json?.product;
+          if (p) {
+            setProduct(p);
+            setProductSize(size && p.sizes.includes(size) ? size : "");
+          }
+        })
+        .catch(() => {});
     }
     if (params.get("mode") === "boutique") {
       setBoutiqueMode(true);

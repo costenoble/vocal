@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Champs manquants (prénoms + audio requis)" }, { status: 400 });
     }
 
-    const product = productSlug ? getProductBySlug(productSlug) : undefined;
+    const product = productSlug ? await getProductBySlug(productSlug) : undefined;
     const slug = nanoid(8);
     const accessCode = genAccessCode();
 

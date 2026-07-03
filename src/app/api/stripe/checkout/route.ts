@@ -33,11 +33,14 @@ export async function POST(req: NextRequest) {
     const { planId, productSlug, productSize, email, fromName, toName, date, audioUrl, theme, paper, cardFont, message, shipping } = body;
 
     // Two pricing paths: a physical product (bracelet) or a legacy card plan.
-    const product = productSlug ? getProductBySlug(productSlug) : undefined;
+    const product = productSlug ? await getProductBySlug(productSlug) : undefined;
     const plan = product ? undefined : getPlanById(planId);
 
     if (!product && !plan) {
       return NextResponse.json({ error: "Produit ou formule invalide" }, { status: 400 });
+    }
+    if (product && !product.active) {
+      return NextResponse.json({ error: "Ce produit n'est plus disponible" }, { status: 400 });
     }
 
     const lineName = product ? product.name : `N'OUBLIE JAMAIS — ${plan!.name}`;

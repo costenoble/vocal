@@ -6,7 +6,7 @@ import Logo from "@/components/Logo";
 import SiteHeader from "@/components/SiteHeader";
 import StorySketch from "@/components/StorySketch";
 import ContactModal from "@/components/ContactModal";
-import { PRODUCTS } from "@/lib/products";
+import type { Product } from "@/lib/products";
 import Link from "next/link";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -96,6 +96,14 @@ const POUR_QUI = [
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [contactOpen, setContactOpen] = useState(false);
+  const [featuredProduct, setFeaturedProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((json) => setFeaturedProduct(json.products?.[0] ?? null))
+      .catch(() => {});
+  }, []);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
   const handleCheckout = async (planId: string) => {
@@ -601,17 +609,17 @@ export default function LandingPage() {
             </div>
 
             <div className="p-7 flex flex-col gap-1">
-              <h3 className="text-[20px] font-bold" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{PRODUCTS[0].name}</h3>
+              <h3 className="text-[20px] font-bold" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{featuredProduct?.name ?? "Bracelet N'OUBLIE JAMAIS"}</h3>
               <p className="text-[12px] mb-2" style={{ color: "var(--ink-muted)" }}>Bracelet + carte + message vocal privé</p>
 
               <div className="flex items-baseline gap-1 mb-5">
-                <span className="text-[40px] font-black leading-none" style={{ color: "var(--gold)" }}>{PRODUCTS[0].price}</span>
+                <span className="text-[40px] font-black leading-none" style={{ color: "var(--gold)" }}>{featuredProduct?.price ?? "—"}</span>
                 <span className="text-[18px] font-bold" style={{ color: "var(--gold)" }}>€</span>
                 <span className="text-[12px] ml-2" style={{ color: "var(--ink-muted)" }}>Livraison incluse</span>
               </div>
 
               <ul className="flex flex-col gap-3 mb-6">
-                {PRODUCTS[0].details.map((f) => (
+                {(featuredProduct?.details ?? []).map((f) => (
                   <li key={f} className="flex items-start gap-2.5">
                     <svg viewBox="0 0 10 10" width={11} height={11} fill="none" className="shrink-0 mt-0.5">
                       <path d="M1.5 5.5L3.5 7.5L8.5 2.5" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>

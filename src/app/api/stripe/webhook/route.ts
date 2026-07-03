@@ -35,6 +35,8 @@ export async function POST(req: NextRequest) {
       null;
 
     if (meta.slug && meta.fromName && meta.toName && meta.audioUrl) {
+      const purchasedProduct = meta.productSlug ? await getProductBySlug(meta.productSlug) : undefined;
+
       // Composer flow — create Message record directly from metadata.
       // Shipping address is collected in the composer (step 5) and passed via metadata.
       await prisma.message.upsert({
@@ -52,7 +54,7 @@ export async function POST(req: NextRequest) {
           message: meta.message || null,
           accessCode: meta.accessCode || null,
           productSlug: meta.productSlug || null,
-          productName: meta.productSlug ? getProductBySlug(meta.productSlug)?.name ?? null : null,
+          productName: purchasedProduct?.name ?? null,
           productSize: meta.productSize || null,
           shipName: meta.shipName || null,
           shipAddress: meta.shipAddress || null,

@@ -5,7 +5,7 @@ import MarkShippedButton from "@/components/MarkShippedButton";
 import Link from "next/link";
 import { isAdminSession } from "@/lib/admin-auth";
 import { getPlanById } from "@/lib/plans";
-import { getProductBySlug } from "@/lib/products";
+import { getAllProductsAdmin } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
 
@@ -103,8 +103,10 @@ export default async function AdminPage({
     take: 30,
   });
 
+  const allProducts = await getAllProductsAdmin();
+  const productPriceBySlug = new Map(allProducts.map((p) => [p.slug, p.price]));
   const priceOf = (m: (typeof messages)[number]) =>
-    m.productSlug ? getProductBySlug(m.productSlug)?.price ?? 0 : getPlanById(m.plan)?.price ?? 0;
+    m.productSlug ? productPriceBySlug.get(m.productSlug) ?? 0 : getPlanById(m.plan)?.price ?? 0;
 
   const now = new Date();
   const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
@@ -144,6 +146,13 @@ export default async function AdminPage({
             </h1>
             <p className="text-xs" style={{ color: "var(--ink-muted)" }}>N&rsquo;OUBLIE JAMAIS</p>
           </div>
+          <Link
+            href="/admin/products"
+            className="px-4 py-2.5 rounded-xl font-bold text-[13px] transition-all active:scale-95"
+            style={{ background: "white", color: "var(--gold-dark)", border: "1.5px solid rgba(184,134,26,0.30)" }}
+          >
+            Produits
+          </Link>
           <Link
             href="/composer?mode=boutique"
             className="px-4 py-2.5 rounded-xl font-bold text-[13px] text-white transition-all active:scale-95"

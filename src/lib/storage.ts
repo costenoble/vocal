@@ -1,11 +1,11 @@
 import { nanoid } from "nanoid";
 
-// Stockage audio : Supabase Storage (bucket public "audio"), via l'API REST —
-// aucune dépendance client, fonctionne sur n'importe quelle version de Node.
-// Nécessite SUPABASE_URL + SUPABASE_API_KEY (clé secrète sb_secret_…, celle
-// que l'intégration Hostinger injecte ; serveur uniquement, jamais exposée
-// au client — l'upload passe par /api/upload).
-const BUCKET = "audio";
+// Stockage fichiers : Supabase Storage, via l'API REST — aucune dépendance
+// client, fonctionne sur n'importe quelle version de Node. Nécessite
+// SUPABASE_URL + SUPABASE_API_KEY (clé secrète sb_secret_…, celle que
+// l'intégration Hostinger injecte ; serveur uniquement).
+const AUDIO_BUCKET = "audio";
+const PRODUCTS_BUCKET = "products";
 
 function config() {
   const url = process.env.SUPABASE_URL;
@@ -16,27 +16,20 @@ function config() {
   return { url: url.replace(/\/$/, ""), key };
 }
 
-// Préfixe public des fichiers du bucket — sert aussi à valider qu'une URL
-// audio nous appartient (voir /api/listen/reply).
-export function audioPublicPrefix(): string | null {
+function publicPrefix(bucket: string): string | null {
   const url = process.env.SUPABASE_URL;
-  return url ? `${url.replace(/\/$/, "")}/storage/v1/object/public/${BUCKET}/` : null;
+  return url ? `${url.replace(/\/$/, "")}/storage/v1/object/public/${bucket}/` : null;
 }
 
-export async function uploadAudio(
-  file: Blob,
-  originalName: string
-): Promise<string> {
+async function uploadToBucket(bucket: string, file: Blob, path: string, contentType: string): Promise<string> {
   const { url, key } = config();
-  const ext = originalName.split(".").pop() || "webm";
-  const path = `${nanoid(14)}.${ext}`;
 
-  const res = await fetch(`${url}/storage/v1/object/${BUCKET}/${path}`, {
+  const res = await fetch(`${url}/storage/v1/object/${bucket}/${path}`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${key}`,
       apikey: key,
-      "Content-Type": file.type || "audio/webm",
+      "Content-Type": contentType,
       "x-upsert": "false",
     },
     body: file,
@@ -47,20 +40,47 @@ export async function uploadAudio(
     throw new Error(`Upload Supabase échoué (${res.status}): ${body.slice(0, 200)}`);
   }
 
-  return `${url}/storage/v1/object/public/${BUCKET}/${path}`;
+  return `${url}/storage/v1/object/public/${bucket}/${path}`;
 }
 
-export async function deleteAudio(fileUrl: string): Promise<void> {
+async function deleteFromBucket(bucket: string, fileUrl: string): Promise<void> {
   try {
-    const prefix = audioPublicPrefix();
+    const prefix = publicPrefix(bucket);
     if (!prefix || !fileUrl.startsWith(prefix)) return;
     const { url, key } = config();
     const path = fileUrl.slice(prefix.length);
-    await fetch(`${url}/storage/v1/object/${BUCKET}/${path}`, {
+    await fetch(`${url}/storage/v1/object/${bucket}/${path}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${key}`, apikey: key },
     });
   } catch {
     // Silently ignore deletion errors
   }
+}
+
+// ── Audio (messages vocaux) ───────────────────────────────────────────────────
+
+// Sert aussi à valider qu'une URL audio nous appartient (voir /api/listen/reply).
+export function audioPublicPrefix(): string | null {
+  return publicPrefix(AUDIO_BUCKET);
+}
+
+export async function uploadAudio(file: Blob, originalName: string): Promise<string> {
+  const ext = originalName.split(".").pop() || "webm";
+  return uploadToBucket(AUDIO_BUCKET, file, `${nanoid(14)}.${ext}`, file.type || "audio/webm");
+}
+
+export async function deleteAudio(fileUrl: string): Promise<void> {
+  return deleteFromBucket(AUDIO_BUCKET, fileUrl);
+}
+
+// ── Images produit (catalogue admin) ──────────────────────────────────────────
+
+export async function uploadProductImage(file: Blob, originalName: string): Promise<string> {
+  const ext = (originalName.split(".").pop() || "jpg").toLowerCase();
+  return uploadToBucket(PRODUCTS_BUCKET, file, `${nanoid(14)}.${ext}`, file.type || "image/jpeg");
+}
+
+export async function deleteProductImage(fileUrl: string): Promise<void> {
+  return deleteFromBucket(PRODUCTS_BUCKET, fileUrl);
 }
