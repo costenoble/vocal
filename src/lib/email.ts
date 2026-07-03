@@ -163,6 +163,32 @@ export async function sendReplyNotification(params: {
   });
 }
 
+// Message du formulaire de contact → boîte SAV (reply-to = le visiteur).
+export async function sendContactNotification(params: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}) {
+  const { name, email, subject, message } = params;
+  const to = process.env.CONTACT_EMAIL ?? "contact@noubliejamais.fr";
+  await resend.emails.send({
+    from: FROM,
+    to,
+    replyTo: email,
+    subject: `📩 Contact — ${subject} — ${name}`,
+    html: emailShell(`
+      <h1 style="font-size:22px;color:#1C1410;margin:24px 0 8px;">Nouveau message de contact</h1>
+      <p style="font-size:14px;color:#4A3728;line-height:1.7;margin:0 0 6px;"><strong>De :</strong> ${escapeHtml(name)} &lt;${escapeHtml(email)}&gt;</p>
+      <p style="font-size:14px;color:#4A3728;line-height:1.7;margin:0 0 16px;"><strong>Sujet :</strong> ${escapeHtml(subject)}</p>
+      <div style="background:rgba(184,134,26,0.07);border-radius:12px;padding:16px 20px;border:1px solid rgba(184,134,26,0.15);">
+        <p style="font-size:14px;color:#4A3728;line-height:1.7;margin:0;white-space:pre-wrap;">${escapeHtml(message)}</p>
+      </div>
+      <p style="font-size:12px;color:#7A6455;margin-top:16px;">Répondez directement à cet email pour répondre à ${escapeHtml(name)}.</p>
+    `),
+  });
+}
+
 // Email J+3 : "votre proche a-t-il écouté ?" avec le compteur d'écoutes.
 export async function sendFollowupEmail(params: {
   to: string;

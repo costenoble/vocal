@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Logo from "@/components/Logo";
 import SiteHeader from "@/components/SiteHeader";
 import StorySketch from "@/components/StorySketch";
+import ContactModal from "@/components/ContactModal";
 import { PRODUCTS } from "@/lib/products";
 import Link from "next/link";
 
@@ -94,6 +95,7 @@ const POUR_QUI = [
 
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [contactOpen, setContactOpen] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
   const handleCheckout = async (planId: string) => {
@@ -894,18 +896,18 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              {/* Contact SAV — adresse en clair, obligatoire en e-commerce FR */}
+              {/* Contact SAV — ouvre le formulaire en overlay */}
               <p className="text-[9px] font-black tracking-[0.22em] uppercase mb-3" style={{ color: "var(--gold)" }}>Une question ?</p>
-              <a
-                href="mailto:contact@noubliejamais.fr"
-                className="inline-flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all"
+              <button
+                onClick={() => setContactOpen(true)}
+                className="inline-flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all active:scale-95 cursor-pointer"
                 style={{ background: "rgba(250,246,239,0.06)", border: "1px solid rgba(212,168,50,0.25)" }}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5" width={15} height={15}>
                   <rect x="2" y="4" width="20" height="16" rx="2" /><path d="m2 7 10 6 10-6" />
                 </svg>
-                <span className="text-[13px] font-semibold" style={{ color: "var(--cream)" }}>contact@noubliejamais.fr</span>
-              </a>
+                <span className="text-[13px] font-semibold" style={{ color: "var(--cream)" }}>Nous contacter</span>
+              </button>
               <p className="text-[11px] mt-2" style={{ color: "rgba(250,246,239,0.4)" }}>Réponse sous 24 h ouvrées</p>
             </div>
           </div>
@@ -925,6 +927,8 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
     </div>
   );
 }

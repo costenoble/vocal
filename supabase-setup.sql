@@ -48,3 +48,14 @@ ALTER TABLE "Message" ADD COLUMN IF NOT EXISTS "replyAudioUrl" TEXT;
 ALTER TABLE "Message" ADD COLUMN IF NOT EXISTS "replyFromName" TEXT;
 ALTER TABLE "Message" ADD COLUMN IF NOT EXISTS "replyAt" TIMESTAMP(3);
 ALTER TABLE "Message" ADD COLUMN IF NOT EXISTS "followupSentAt" TIMESTAMP(3);
+
+-- ── Migration 20260702b : formulaire de contact ───────────────────────────────
+CREATE TABLE IF NOT EXISTS "ContactMessage" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "subject" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "ContactMessage_pkey" PRIMARY KEY ("id")
+);

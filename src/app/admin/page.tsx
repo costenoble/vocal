@@ -96,6 +96,11 @@ export default async function AdminPage({
     take: 100,
   });
 
+  const contacts = await prisma.contactMessage.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 30,
+  });
+
   const total = messages.length;
   const paid = messages.filter((m) => m.paid).length;
   const revenue = messages
@@ -207,6 +212,35 @@ export default async function AdminPage({
                   </div>
                   );
                 })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Messages du formulaire de contact */}
+        <div className="rounded-2xl overflow-hidden mt-8" style={{ border: "1px solid rgba(184,134,26,0.12)", boxShadow: "0 2px 12px rgba(184,134,26,0.06)" }}>
+          <div className="px-5 py-3 flex items-center justify-between" style={{ background: "white", borderBottom: "1px solid rgba(184,134,26,0.10)" }}>
+            <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--gold)" }}>Messages de contact</h2>
+            <span className="text-[11px] font-bold" style={{ color: "var(--ink-muted)" }}>{contacts.length}</span>
+          </div>
+          <div style={{ background: "white" }}>
+            {contacts.length === 0 ? (
+              <p className="text-center py-8 text-sm" style={{ color: "var(--ink-muted)" }}>Aucun message pour l&rsquo;instant.</p>
+            ) : (
+              <div className="divide-y" style={{ borderColor: "rgba(184,134,26,0.08)" }}>
+                {contacts.map((c) => (
+                  <div key={c.id} className="px-5 py-4 flex flex-col gap-1.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{c.name}</p>
+                      <a href={`mailto:${c.email}`} className="text-[12px] font-semibold" style={{ color: "var(--gold)" }}>{c.email}</a>
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold" style={{ background: "rgba(184,134,26,0.10)", color: "var(--gold-dark)" }}>{c.subject}</span>
+                      <span className="text-[11px] ml-auto" style={{ color: "var(--ink-muted)" }}>
+                        {new Date(c.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                    <p className="text-[13px] leading-relaxed whitespace-pre-wrap" style={{ color: "var(--ink-muted)" }}>{c.message}</p>
+                  </div>
+                ))}
               </div>
             )}
           </div>
