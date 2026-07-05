@@ -145,7 +145,10 @@ export default function ContactModal({ open, onClose }: Props) {
                     </div>
                   </div>
 
-                  <form onSubmit={send} className="flex flex-col gap-4">
+                  {/* noValidate : la validation native du navigateur (Safari
+                      notamment) affiche des messages en anglais non
+                      maîtrisés ; le serveur valide déjà proprement. */}
+                  <form onSubmit={send} noValidate className="flex flex-col gap-4">
                     <div className="grid grid-cols-2 gap-3">
                       <div className="flex flex-col gap-1.5">
                         <label htmlFor="ct-name" className={labelCls} style={{ color: "var(--ink-muted)" }}>Votre nom *</label>

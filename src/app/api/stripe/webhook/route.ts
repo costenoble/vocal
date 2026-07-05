@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
-import { sendOrderConfirmation } from "@/lib/email";
+import { sendOrderConfirmation, sendNewOrderNotification } from "@/lib/email";
 import { getProductBySlug } from "@/lib/products";
+import { getPlanById } from "@/lib/plans";
 import Stripe from "stripe";
 
 export const dynamic = "force-dynamic";
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest) {
         update: { paid: true },
       });
 
-      // Send confirmation email
+      // Send confirmation email (acheteur)
       if (buyerEmail) {
         try {
           await sendOrderConfirmation({
@@ -85,6 +86,27 @@ export async function POST(req: NextRequest) {
         } catch (err) {
           console.error("[webhook] Email send failed", err);
         }
+      }
+
+      // Notification au vendeur — nouvelle vente en ligne
+      try {
+        const price = purchasedProduct?.price ?? getPlanById(meta.planId)?.price ?? 0;
+        await sendNewOrderNotification({
+          fromName: meta.fromName,
+          toName: meta.toName,
+          buyerEmail,
+          productLabel: purchasedProduct?.name ?? meta.planId ?? "Commande",
+          price,
+          shipName: meta.shipName,
+          shipAddress: meta.shipAddress,
+          shipComplement: meta.shipComplement,
+          shipPostalCode: meta.shipPostalCode,
+          shipCity: meta.shipCity,
+          shipCountry: meta.shipCountry,
+          adminUrl: `${origin}/admin`,
+        });
+      } catch (err) {
+        console.error("[webhook] Vendor notification failed", err);
       }
     } else if (session.id) {
       // Legacy flow — mark existing pre-created record as paid

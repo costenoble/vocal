@@ -217,3 +217,61 @@ export async function sendFollowupEmail(params: {
     `),
   });
 }
+
+// Notification au vendeur : "nouvelle commande de X" — envoyée à l'adresse
+// de gestion (ORDER_NOTIFICATION_EMAIL, ou CONTACT_EMAIL à défaut) à chaque
+// vente en ligne payée via Stripe.
+export async function sendNewOrderNotification(params: {
+  fromName: string;
+  toName: string;
+  buyerEmail: string | null;
+  productLabel: string;
+  price: number;
+  shipName?: string | null;
+  shipAddress?: string | null;
+  shipComplement?: string | null;
+  shipPostalCode?: string | null;
+  shipCity?: string | null;
+  shipCountry?: string | null;
+  adminUrl: string;
+}) {
+  const {
+    fromName, toName, buyerEmail, productLabel, price,
+    shipName, shipAddress, shipComplement, shipPostalCode, shipCity, shipCountry, adminUrl,
+  } = params;
+
+  const to = process.env.ORDER_NOTIFICATION_EMAIL ?? process.env.CONTACT_EMAIL ?? "contact@oubliejamaisbijoux.fr";
+
+  const hasShipping = !!(shipAddress || shipCity);
+
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: `Nouvelle commande de ${fromName} — ${price.toFixed(2).replace(".", ",")} €`,
+    html: emailShell(`
+      <h1 style="font-size:22px;color:#1C1410;margin:24px 0 8px;">Nouvelle commande reçue</h1>
+      <p style="font-size:14px;color:#4A3728;line-height:1.7;margin:0 0 16px;">
+        <strong>${escapeHtml(fromName)}</strong> vient de commander pour <strong>${escapeHtml(toName)}</strong>.
+      </p>
+      <div style="background:rgba(184,134,26,0.07);border-radius:12px;padding:16px 20px;margin:0 0 16px;border:1px solid rgba(184,134,26,0.15);">
+        <p style="font-size:14px;color:#4A3728;line-height:1.8;margin:0;">
+          <strong>Produit :</strong> ${escapeHtml(productLabel)}<br/>
+          <strong>Montant :</strong> ${price.toFixed(2).replace(".", ",")} €<br/>
+          ${buyerEmail ? `<strong>Email acheteur :</strong> ${escapeHtml(buyerEmail)}<br/>` : ""}
+        </p>
+      </div>
+      ${hasShipping ? `
+      <div style="background:rgba(184,134,26,0.07);border-radius:12px;padding:16px 20px;margin:0 0 16px;border:1px solid rgba(184,134,26,0.15);">
+        <p style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#7A6455;margin:0 0 6px;">Adresse de livraison</p>
+        <p style="font-size:14px;color:#4A3728;line-height:1.7;margin:0;">
+          ${escapeHtml(shipName ?? "")}<br/>
+          ${escapeHtml(shipAddress ?? "")}${shipComplement ? `, ${escapeHtml(shipComplement)}` : ""}<br/>
+          ${escapeHtml(shipPostalCode ?? "")} ${escapeHtml(shipCity ?? "")} · ${escapeHtml(shipCountry ?? "")}
+        </p>
+      </div>` : `<p style="font-size:12px;color:#7A6455;margin:0 0 16px;">Pas d'adresse — vente boutique ou remise en main propre.</p>`}
+      <p style="text-align:center;margin:24px 0;">
+        <a href="${adminUrl}" style="${BTN}">Voir dans l'espace admin</a>
+      </p>
+    `),
+  });
+}
