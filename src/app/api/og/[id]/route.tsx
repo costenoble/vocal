@@ -82,7 +82,7 @@ export async function GET(
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={`${process.env.NEXT_PUBLIC_APP_URL ?? "https://noubliejamais.fr"}/logo.png`}
+              src={`${process.env.NEXT_PUBLIC_APP_URL ?? "https://oubliejamaisbijoux.fr"}/logo.png`}
               width={110}
               height={109}
               alt=""

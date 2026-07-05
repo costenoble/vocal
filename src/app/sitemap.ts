@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE = process.env.NEXT_PUBLIC_APP_URL || "https://noubliejamais.fr";
+const BASE = process.env.NEXT_PUBLIC_APP_URL || "https://oubliejamaisbijoux.fr";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

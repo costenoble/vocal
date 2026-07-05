@@ -5,7 +5,7 @@ const resend = new Resend(process.env.RESEND_API_KEY ?? "re_placeholder");
 const FROM =
   process.env.EMAIL_FROM ??
   process.env.RESEND_FROM ??
-  "N'OUBLIE JAMAIS <noreply@noubliejamais.fr>";
+  "N'OUBLIE JAMAIS <noreply@oubliejamaisbijoux.fr>";
 
 interface OrderEmailParams {
   to: string;
@@ -171,7 +171,7 @@ export async function sendContactNotification(params: {
   message: string;
 }) {
   const { name, email, subject, message } = params;
-  const to = process.env.CONTACT_EMAIL ?? "contact@noubliejamais.fr";
+  const to = process.env.CONTACT_EMAIL ?? "contact@oubliejamaisbijoux.fr";
   await resend.emails.send({
     from: FROM,
     to,

@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const meta = session.metadata ?? {};
-    const origin = process.env.NEXT_PUBLIC_APP_URL ?? "https://noubliejamais.fr";
+    const origin = process.env.NEXT_PUBLIC_APP_URL ?? "https://oubliejamaisbijoux.fr";
 
     const buyerEmail =
       session.customer_email ??

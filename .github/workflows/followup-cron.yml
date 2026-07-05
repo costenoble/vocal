@@ -18,4 +18,4 @@ jobs:
         run: |
           curl -fsS \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            "${{ vars.APP_URL || 'https://beige-crab-487480.hostingersite.com' }}/api/cron/followup"
+            "${{ vars.APP_URL || 'https://oubliejamaisbijoux.fr' }}/api/cron/followup"
