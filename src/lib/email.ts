@@ -55,8 +55,10 @@ export async function sendOrderConfirmation(params: OrderEmailParams) {
     : `<a href="${listenUrl}" class="btn">Voir la page d'écoute</a>
        <a href="${pdfUrl}" class="btn btn-outline">Télécharger la carte PDF</a>`;
 
+  // Pour une commande physique, le lien d'écoute est déjà proposé via le
+  // bouton ci-dessus — pas besoin de le répéter en clair ici.
   const footerDetail = isPhysical
-    ? `<strong>Produit :</strong> ${escapeHtml(productName!)} · <strong>Lien d'écoute :</strong> <a href="${listenUrl}" style="color:#B8861A;">${listenUrl}</a>`
+    ? `<strong>Produit :</strong> ${escapeHtml(productName!)}`
     : `<strong>Plan :</strong> ${plan} · <strong>Lien d'écoute :</strong> <a href="${listenUrl}" style="color:#B8861A;">${listenUrl}</a>`;
 
   await resend.emails.send({
