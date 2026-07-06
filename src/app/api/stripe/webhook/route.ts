@@ -82,6 +82,8 @@ export async function POST(req: NextRequest) {
             pdfUrl: `${origin}/api/pdf/${meta.slug}`,
             plan: meta.planId || "bracelet",
             accessCode: meta.accessCode || undefined,
+            productName: purchasedProduct?.name,
+            shipped: !!(meta.shipAddress || meta.shipCity),
           });
         } catch (err) {
           console.error("[webhook] Email send failed", err);

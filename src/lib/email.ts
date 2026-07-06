@@ -15,15 +15,54 @@ interface OrderEmailParams {
   pdfUrl: string;
   plan: string;
   accessCode?: string;
+  /** Nom du produit physique commandé (ex. "Bracelet N'OUBLIE JAMAIS") —
+   *  présent uniquement pour les commandes avec un bijou. Change le
+   *  contenu de l'email : la carte est imprimée par nos soins, l'acheteur
+   *  n'a rien à imprimer lui-même. */
+  productName?: string;
+  /** true si une adresse de livraison a été renseignée (expédition postale) ;
+   *  false pour une remise en main propre (vente boutique). */
+  shipped?: boolean;
 }
 
 export async function sendOrderConfirmation(params: OrderEmailParams) {
-  const { to, fromName, toName, listenUrl, pdfUrl, plan, accessCode } = params;
+  const { to, fromName, toName, listenUrl, pdfUrl, plan, accessCode, productName, shipped } = params;
+  const isPhysical = !!productName;
+
+  const subject = isPhysical
+    ? `Merci pour votre commande — ${productName}`
+    : `✦ Votre carte N'OUBLIE JAMAIS est prête`;
+
+  const physicalDelivery = shipped
+    ? `Votre <strong>${escapeHtml(productName!)}</strong> et sa carte vocale imprimée vont être préparés avec soin et expédiés sous <strong>3 à 5 jours ouvrés</strong> à l'adresse indiquée lors de la commande.`
+    : `Votre <strong>${escapeHtml(productName!)}</strong> et sa carte vocale imprimée vous attendent en boutique.`;
+
+  const intro = isPhysical
+    ? `<h1>Merci pour votre commande !</h1>
+      <p>Bonjour,</p>
+      <p>Nous confirmons la réception de votre commande. Le message vocal que vous avez enregistré pour <strong>${escapeHtml(toName)}</strong> a été précieusement conservé.</p>
+      <p>${physicalDelivery}</p>`
+    : `<h1>Votre carte est prête ✦</h1>
+      <p>Bonjour,</p>
+      <p>Votre message vocal personnalisé a bien été créé. Il suffit maintenant d'imprimer votre carte et de l'offrir à <strong>${escapeHtml(toName)}</strong>.</p>`;
+
+  const accessCodeNote = isPhysical
+    ? `Ce code sera imprimé sur la carte glissée dans votre coffret — il protège l'écoute du message et sera demandé à ${escapeHtml(toName)}.`
+    : `Ce code est demandé au destinataire avant l'écoute du message. Il figure aussi sur la carte imprimée.`;
+
+  const actionButtons = isPhysical
+    ? `<a href="${listenUrl}" class="btn">Aperçu de la page d'écoute</a>`
+    : `<a href="${listenUrl}" class="btn">Voir la page d'écoute</a>
+       <a href="${pdfUrl}" class="btn btn-outline">Télécharger la carte PDF</a>`;
+
+  const footerDetail = isPhysical
+    ? `<strong>Produit :</strong> ${escapeHtml(productName!)} · <strong>Lien d'écoute :</strong> <a href="${listenUrl}" style="color:#B8861A;">${listenUrl}</a>`
+    : `<strong>Plan :</strong> ${plan} · <strong>Lien d'écoute :</strong> <a href="${listenUrl}" style="color:#B8861A;">${listenUrl}</a>`;
 
   await resend.emails.send({
     from: FROM,
     to,
-    subject: `✦ Votre carte N'OUBLIE JAMAIS est prête`,
+    subject,
     html: `
 <!DOCTYPE html>
 <html lang="fr">
@@ -59,10 +98,7 @@ export async function sendOrderConfirmation(params: OrderEmailParams) {
       <div class="logo-text">N'OUBLIE JAMAIS</div>
       <div class="tagline">Un souvenir qui traverse le temps</div>
 
-      <h1>Votre carte est prête ✦</h1>
-
-      <p>Bonjour,</p>
-      <p>Votre message vocal personnalisé a bien été créé. Il suffit maintenant d'imprimer votre carte et de l'offrir à <strong>${escapeHtml(toName)}</strong>.</p>
+      ${intro}
 
       <div class="names">
         <div class="names-row">
@@ -82,16 +118,15 @@ export async function sendOrderConfirmation(params: OrderEmailParams) {
       <div class="names" style="text-align:center;">
         <span class="name-label">Code d'accès confidentiel</span>
         <div style="font-size:26px; font-weight:900; letter-spacing:0.4em; color:#B8861A; font-family:sans-serif; margin-top:6px;">${escapeHtml(accessCode)}</div>
-        <p style="font-size:12px; color:#7A6455; margin:10px 0 0;">Ce code est demandé au destinataire avant l'écoute du message. Il figure aussi sur la carte imprimée.</p>
+        <p style="font-size:12px; color:#7A6455; margin:10px 0 0;">${accessCodeNote}</p>
       </div>` : ""}
 
       <p style="text-align:center; margin: 20px 0;">
-        <a href="${listenUrl}" class="btn">Voir la page d'écoute</a>
-        <a href="${pdfUrl}" class="btn btn-outline">Télécharger la carte PDF</a>
+        ${actionButtons}
       </p>
 
       <p style="font-size:13px; color:#7A6455;">
-        <strong>Plan :</strong> ${plan} · <strong>Lien d'écoute :</strong> <a href="${listenUrl}" style="color:#B8861A;">${listenUrl}</a>
+        ${footerDetail}
       </p>
     </div>
 

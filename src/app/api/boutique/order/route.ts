@@ -67,6 +67,8 @@ export async function POST(req: NextRequest) {
           pdfUrl: `${origin}/api/pdf/${slug}`,
           plan: product ? "bracelet" : "carte",
           accessCode,
+          productName: product?.name,
+          shipped: !!(shipping?.address || shipping?.city),
         });
       } catch (err) {
         console.error("[boutique/order] email failed", err);
