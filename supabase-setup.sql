@@ -93,3 +93,15 @@ VALUES (
   true, 0, CURRENT_TIMESTAMP
 )
 ON CONFLICT ("slug") DO NOTHING;
+
+-- ── Migration 20260706 : comptes d'administration ────────────────────────────
+CREATE TABLE IF NOT EXISTS "AdminUser" (
+    "id" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
+    "passwordHash" TEXT NOT NULL,
+    "name" TEXT NOT NULL DEFAULT '',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "AdminUser_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "AdminUser_username_key" ON "AdminUser"("username");

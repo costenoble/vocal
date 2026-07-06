@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { adminSessionToken, isValidAdminLogin, ADMIN_COOKIE } from "@/lib/admin-auth";
+import { verifyLogin, sessionTokenForUsername, ADMIN_COOKIE } from "@/lib/admin-auth";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -22,12 +22,18 @@ export async function POST(req: NextRequest) {
   const user = String(form.get("user") ?? "");
   const password = String(form.get("password") ?? "");
 
-  if (!isValidAdminLogin(user, password)) {
+  const identity = await verifyLogin(user, password);
+  if (!identity) {
+    return NextResponse.redirect(new URL("/admin?error=1", siteOrigin()), 303);
+  }
+
+  const token = await sessionTokenForUsername(identity.username);
+  if (!token) {
     return NextResponse.redirect(new URL("/admin?error=1", siteOrigin()), 303);
   }
 
   const store = await cookies();
-  store.set(ADMIN_COOKIE, adminSessionToken()!, {
+  store.set(ADMIN_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
