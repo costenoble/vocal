@@ -6,7 +6,6 @@ import Logo from "@/components/Logo";
 import SiteHeader from "@/components/SiteHeader";
 import StorySketch from "@/components/StorySketch";
 import ContactModal from "@/components/ContactModal";
-import type { Product } from "@/lib/products";
 import Link from "next/link";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -96,14 +95,6 @@ const POUR_QUI = [
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [contactOpen, setContactOpen] = useState(false);
-  const [featuredProduct, setFeaturedProduct] = useState<Product | null>(null);
-
-  useEffect(() => {
-    fetch("/api/products")
-      .then((r) => r.json())
-      .then((json) => setFeaturedProduct(json.products?.[0] ?? null))
-      .catch(() => {});
-  }, []);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
   const handleCheckout = async (planId: string) => {
@@ -585,14 +576,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════ PRICING ═══════════════════════════════ */}
-      <section id="tarifs" className="py-16 overflow-hidden" style={{ background: "white" }}>
-        <div className="px-5 max-w-lg mx-auto mb-8">
-          <Label>Nos formules</Label>
+      {/* ═══════════════════════════════ BOUTIQUE ═══════════════════════════════ */}
+      <section id="boutique" className="py-16 overflow-hidden" style={{ background: "white" }}>
+        <div className="px-5 max-w-lg mx-auto mb-8 text-center">
+          <Label>Notre boutique</Label>
           <h2 className="mt-2 mb-1 text-[22px] font-black leading-tight" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
-            Un prix juste. Un souvenir à vie.
+            Un bijou à porter, une voix à garder.
           </h2>
-          <p className="text-[12px]" style={{ color: "var(--ink-muted)" }}>Paiement unique · Aucun abonnement · Lien actif pour toujours</p>
+          <p className="text-[13px]" style={{ color: "var(--ink-muted)" }}>Découvrez nos bijoux en pierre naturelle, chacun livré avec sa carte vocale personnalisée.</p>
         </div>
 
         <div className="px-5 max-w-md mx-auto">
@@ -609,17 +600,16 @@ export default function LandingPage() {
             </div>
 
             <div className="p-7 flex flex-col gap-1">
-              <h3 className="text-[20px] font-bold" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{featuredProduct?.name ?? "Bracelet N'OUBLIE JAMAIS"}</h3>
-              <p className="text-[12px] mb-2" style={{ color: "var(--ink-muted)" }}>Bracelet + carte + message vocal privé</p>
-
-              <div className="flex items-baseline gap-1 mb-5">
-                <span className="text-[40px] font-black leading-none" style={{ color: "var(--gold)" }}>{featuredProduct?.price ?? "—"}</span>
-                <span className="text-[18px] font-bold" style={{ color: "var(--gold)" }}>€</span>
-                <span className="text-[12px] ml-2" style={{ color: "var(--ink-muted)" }}>Livraison incluse</span>
-              </div>
+              <h3 className="text-[20px] font-bold" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>Un coffret, un souvenir pour toujours</h3>
+              <p className="text-[12px] mb-4" style={{ color: "var(--ink-muted)" }}>Chaque coffret comprend&nbsp;:</p>
 
               <ul className="flex flex-col gap-3 mb-6">
-                {(featuredProduct?.details ?? []).map((f) => (
+                {[
+                  "Un bijou en pierre naturelle, réglable",
+                  "Sa carte élégante avec QR code privé",
+                  "Un message vocal personnalisé, à vie",
+                  "Enveloppe premium · livraison soignée",
+                ].map((f) => (
                   <li key={f} className="flex items-start gap-2.5">
                     <svg viewBox="0 0 10 10" width={11} height={11} fill="none" className="shrink-0 mt-0.5">
                       <path d="M1.5 5.5L3.5 7.5L8.5 2.5" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
@@ -634,7 +624,7 @@ export default function LandingPage() {
                 className="w-full py-4 rounded-2xl font-bold text-[14px] tracking-wide transition-all active:scale-[0.98] text-center block text-white"
                 style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 4px 20px rgba(184,134,26,0.28)" }}
               >
-                Commander le bracelet
+                Visiter notre boutique
               </Link>
             </div>
           </motion.div>
@@ -878,7 +868,7 @@ export default function LandingPage() {
               <div className="flex flex-col gap-2.5">
                 {[
                   { href: "#comment-ca-marche", label: "Comment ça marche" },
-                  { href: "#tarifs", label: "Nos formules" },
+                  { href: "/boutique", label: "Notre boutique" },
                   { href: "#faq", label: "Questions fréquentes" },
                   { href: "/listen/demo", label: "Écouter un exemple" },
                 ].map((l) => (

@@ -137,7 +137,7 @@ export default function DemoClient() {
       >
         <p className="text-[11px] font-bold text-white tracking-wide">
           ✦ Démo interactive — essayez gratuitement ·{" "}
-          <Link href="/#tarifs" className="underline opacity-90 font-black">
+          <Link href="/boutique" className="underline opacity-90 font-black">
             Créer ma vraie carte
           </Link>
         </p>
@@ -350,7 +350,7 @@ export default function DemoClient() {
                   Vous aimez ? Créez votre vraie carte avec QR code imprimable.
                 </p>
                 <Link
-                  href="/#tarifs"
+                  href="/boutique"
                   className="w-full py-4 rounded-2xl font-bold text-white text-center text-[14px] tracking-wide block transition-all active:scale-[0.98]"
                   style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 6px 24px rgba(184,134,26,0.28)" }}
                 >

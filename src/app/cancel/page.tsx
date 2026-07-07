@@ -30,7 +30,7 @@ export default function CancelPage() {
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="flex flex-col gap-3 w-full">
           <Link
-            href="/#tarifs"
+            href="/boutique"
             className="w-full py-4 rounded-2xl font-bold text-white text-center text-sm block transition-all active:scale-95"
             style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))" }}
           >
