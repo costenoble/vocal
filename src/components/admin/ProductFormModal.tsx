@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import type { Product } from "@/lib/products";
+import { CATEGORY_OPTIONS } from "@/lib/categories";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-const CATEGORIES = ["bracelet", "collier", "autre"];
 
 interface Props {
   open: boolean;
@@ -28,7 +28,7 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
   const isEdit = !!product;
 
   const [name, setName] = useState("");
-  const [category, setCategory] = useState(CATEGORIES[0]);
+  const [category, setCategory] = useState(CATEGORY_OPTIONS[0].value);
   const [tagline, setTagline] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -45,7 +45,7 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
   useEffect(() => {
     if (!open) return;
     setName(product?.name ?? "");
-    setCategory(product?.category ?? CATEGORIES[0]);
+    setCategory(product?.category ?? CATEGORY_OPTIONS[0].value);
     setTagline(product?.tagline ?? "");
     setDescription(product?.description ?? "");
     setPrice(product ? String(product.price) : "");
@@ -220,7 +220,11 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
                 <div className="flex flex-col gap-1.5">
                   <label className={labelCls} style={{ color: "var(--ink-muted)" }}>Catégorie</label>
                   <select value={category} onChange={(e) => setCategory(e.target.value)} className="px-3.5 py-3 rounded-xl text-[14px] outline-none appearance-none" style={inputStyle}>
-                    {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                    {CATEGORY_OPTIONS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                    {/* Conserve une valeur héritée non listée (ex. ancien "bracelet") */}
+                    {!CATEGORY_OPTIONS.some((c) => c.value === category) && category && (
+                      <option value={category}>{category}</option>
+                    )}
                   </select>
                 </div>
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import type { Product } from "@/lib/products";
+import { categoryLabel } from "@/lib/categories";
 import ProductFormModal from "@/components/admin/ProductFormModal";
 
 export default function ProductsManager({ initialProducts }: { initialProducts: Product[] }) {
@@ -98,7 +99,7 @@ export default function ProductsManager({ initialProducts }: { initialProducts: 
                 <div className="flex items-center gap-2 flex-wrap">
                   <p className="text-[14px] font-bold truncate" style={{ color: "var(--ink)" }}>{p.name}</p>
                   <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase" style={{ background: "rgba(184,134,26,0.10)", color: "var(--gold-dark)" }}>
-                    {p.category}
+                    {categoryLabel(p.category)}
                   </span>
                   <span
                     className="px-2 py-0.5 rounded-full text-[10px] font-bold"

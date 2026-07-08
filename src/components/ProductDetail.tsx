@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import type { Product } from "@/lib/products";
+import { categoryLabel } from "@/lib/categories";
 
 const REASSURANCE = [
   { icon: <><rect x="4" y="10" width="16" height="11" rx="2" /><path d="M8 10V7a4 4 0 1 1 8 0v3" /></>, t: "Paiement sécurisé", d: "Stripe · CB, Apple Pay" },
@@ -38,7 +39,7 @@ export default function ProductDetail({ product }: { product: Product }) {
 
         <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
           style={{ background: "var(--gold)", color: "white" }}>
-          {product.category}
+          {categoryLabel(product.category)}
         </div>
       </motion.div>
 

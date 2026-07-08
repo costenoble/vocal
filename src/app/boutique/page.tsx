@@ -8,6 +8,7 @@ import SiteHeader from "@/components/SiteHeader";
 import Logo from "@/components/Logo";
 import ProductDetail from "@/components/ProductDetail";
 import type { Product } from "@/lib/products";
+import { categoryLabel, sortCategories } from "@/lib/categories";
 
 const OCCASIONS = [
   "Naissance", "Mariage", "Anniversaire", "Famille",
@@ -30,7 +31,7 @@ function ProductCard({ product }: { product: Product }) {
           </div>
         )}
         <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider" style={{ background: "var(--gold)", color: "white" }}>
-          {product.category}
+          {categoryLabel(product.category)}
         </div>
       </div>
       <div className="p-4 flex flex-col gap-1">
@@ -44,6 +45,7 @@ function ProductCard({ product }: { product: Product }) {
 
 export default function BoutiquePage() {
   const [products, setProducts] = useState<Product[] | null>(null);
+  const [activeCat, setActiveCat] = useState<string>("all");
 
   useEffect(() => {
     fetch("/api/products")
@@ -51,6 +53,15 @@ export default function BoutiquePage() {
       .then((json) => setProducts(json.products ?? []))
       .catch(() => setProducts([]));
   }, []);
+
+  // Catégories réellement présentes dans le catalogue → onglets de filtre.
+  const categories = products
+    ? sortCategories([...new Set(products.map((p) => (p.category || "").toLowerCase()).filter(Boolean))])
+    : [];
+  const showTabs = categories.length > 1;
+  const visibleProducts = products
+    ? products.filter((p) => activeCat === "all" || (p.category || "").toLowerCase() === activeCat)
+    : [];
 
   return (
     <div className="min-h-screen" style={{ background: "var(--cream)" }}>
@@ -76,19 +87,44 @@ export default function BoutiquePage() {
           <ProductDetail product={products[0]} />
         ) : (
           <>
-            <div className="mb-10 text-center">
+            <div className="mb-8 text-center">
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3" style={{ color: "var(--gold)" }}>Nos collections</p>
               <h1 className="text-[32px] font-black" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
                 Chaque pierre, une histoire.
               </h1>
             </div>
+
+            {/* Onglets de filtre par collection */}
+            {showTabs && (
+              <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+                {[{ value: "all", label: "Tous" }, ...categories.map((c) => ({ value: c, label: categoryLabel(c) }))].map((tab) => {
+                  const active = activeCat === tab.value;
+                  return (
+                    <button
+                      key={tab.value}
+                      onClick={() => setActiveCat(tab.value)}
+                      className="px-4 py-2 rounded-full text-[13px] font-semibold transition-all active:scale-95"
+                      style={{
+                        background: active ? "var(--ink)" : "white",
+                        color: active ? "white" : "var(--ink-muted)",
+                        border: active ? "1.5px solid transparent" : "1.5px solid rgba(28,20,16,0.12)",
+                      }}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             <motion.div
+              key={activeCat}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
+              transition={{ duration: 0.3 }}
               className="grid grid-cols-2 sm:grid-cols-3 gap-4"
             >
-              {products.map((p) => <ProductCard key={p.slug} product={p} />)}
+              {visibleProducts.map((p) => <ProductCard key={p.slug} product={p} />)}
             </motion.div>
           </>
         )}
