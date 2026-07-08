@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "@/components/Logo";
+import { useCart } from "@/lib/cart";
 
 // Navigation client (pas de rechargement complet, donc pas de splash) tout en
 // gardant les animations d'entrée des liens du menu.
@@ -21,6 +22,7 @@ const NAV_LINKS = [
 export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const cartCount = useCart().length;
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 24);
@@ -56,23 +58,34 @@ export default function SiteHeader() {
             </span>
           </Link>
 
-          {/* Hamburger — 2 bars */}
-          <button
-            onClick={() => setOpen(true)}
-            className="flex flex-col justify-center items-end gap-1.5 w-8 h-8 shrink-0"
-            aria-label="Ouvrir le menu"
-          >
-            {/* Bar 1 — full */}
-            <span
-              className="block rounded-full transition-all duration-300"
-              style={{ height: 1.5, width: 24, background: "var(--ink)" }}
-            />
-            {/* Bar 2 — shorter, right-aligned for asymmetric style */}
-            <span
-              className="block rounded-full transition-all duration-300"
-              style={{ height: 1.5, width: 16, background: "var(--gold)" }}
-            />
-          </button>
+          <div className="flex items-center gap-4 shrink-0">
+            {/* Panier */}
+            <Link href="/panier" className="relative flex items-center justify-center w-8 h-8" aria-label="Voir le panier">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width={22} height={22}>
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                <path d="M3 6h18" />
+                <path d="M16 10a4 4 0 0 1-8 0" />
+              </svg>
+              {cartCount > 0 && (
+                <span
+                  className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full flex items-center justify-center text-[10px] font-black text-white"
+                  style={{ background: "var(--gold-dark)" }}
+                >
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+
+            {/* Hamburger — 2 bars */}
+            <button
+              onClick={() => setOpen(true)}
+              className="flex flex-col justify-center items-end gap-1.5 w-8 h-8"
+              aria-label="Ouvrir le menu"
+            >
+              <span className="block rounded-full transition-all duration-300" style={{ height: 1.5, width: 24, background: "var(--ink)" }} />
+              <span className="block rounded-full transition-all duration-300" style={{ height: 1.5, width: 16, background: "var(--gold)" }} />
+            </button>
+          </div>
         </div>
       </header>
 

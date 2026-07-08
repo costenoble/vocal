@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
-import { sendOrderConfirmation, sendNewOrderNotification } from "@/lib/email";
+import { sendOrderConfirmation, sendNewOrderNotification, sendCartConfirmation } from "@/lib/email";
 import { getProductBySlug } from "@/lib/products";
 import { getPlanById } from "@/lib/plans";
 import Stripe from "stripe";
@@ -35,7 +35,60 @@ export async function POST(req: NextRequest) {
       (session.customer_details as { email?: string } | null)?.email ??
       null;
 
-    if (meta.slug && meta.fromName && meta.toName && meta.audioUrl) {
+    if (meta.orderId) {
+      // Commande panier — plusieurs articles partageant un orderId, créés
+      // (non payés) avant le paiement. On les bascule en payés puis on notifie.
+      await prisma.message.updateMany({
+        where: { orderId: meta.orderId },
+        data: { paid: true, stripeSessionId: session.id },
+      });
+
+      const orderItems = await prisma.message.findMany({
+        where: { orderId: meta.orderId },
+        orderBy: { createdAt: "asc" },
+      });
+
+      if (orderItems.length > 0) {
+        const to = orderItems[0].buyerEmail ?? buyerEmail;
+        if (to) {
+          try {
+            await sendCartConfirmation({
+              to,
+              origin,
+              items: orderItems.map((m) => ({
+                toName: m.toName,
+                productName: m.productName ?? "Bijou N'OUBLIE JAMAIS",
+                slug: m.slug,
+                accessCode: m.accessCode ?? undefined,
+              })),
+            });
+          } catch (err) {
+            console.error("[webhook] Cart confirmation email failed", err);
+          }
+        }
+        // Notification vendeur : une par commande, récapitulant le nombre d'articles.
+        try {
+          const first = orderItems[0];
+          const total = (session.amount_total ?? 0) / 100;
+          await sendNewOrderNotification({
+            fromName: `${orderItems.length} article${orderItems.length > 1 ? "s" : ""}`,
+            toName: orderItems.map((m) => m.toName).join(", "),
+            buyerEmail: to,
+            productLabel: orderItems.map((m) => m.productName).filter(Boolean).join(" · "),
+            price: total,
+            shipName: first.shipName,
+            shipAddress: first.shipAddress,
+            shipComplement: first.shipComplement,
+            shipPostalCode: first.shipPostalCode,
+            shipCity: first.shipCity,
+            shipCountry: first.shipCountry,
+            adminUrl: `${origin}/admin`,
+          });
+        } catch (err) {
+          console.error("[webhook] Vendor notification (cart) failed", err);
+        }
+      }
+    } else if (meta.slug && meta.fromName && meta.toName && meta.audioUrl) {
       const purchasedProduct = meta.productSlug ? await getProductBySlug(meta.productSlug) : undefined;
 
       // Composer flow — create Message record directly from metadata.

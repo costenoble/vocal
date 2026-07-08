@@ -174,6 +174,43 @@ function emailShell(inner: string) {
 
 const BTN = `display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#D4A832,#8B6510);color:white !important;text-decoration:none;border-radius:30px;font-family:sans-serif;font-weight:700;font-size:14px;letter-spacing:0.05em;`;
 
+// Confirmation d'une commande panier (plusieurs bijoux) : un récapitulatif
+// listant chaque article avec son destinataire et son code d'accès.
+export async function sendCartConfirmation(params: {
+  to: string;
+  origin: string;
+  items: { toName: string; productName: string; slug: string; accessCode?: string }[];
+}) {
+  const { to, origin, items } = params;
+
+  const rows = items
+    .map(
+      (i) => `
+    <div style="background:rgba(184,134,26,0.06);border:1px solid rgba(184,134,26,0.15);border-radius:12px;padding:14px 18px;margin:0 0 10px;">
+      <p style="font-size:14px;color:#1C1410;margin:0 0 2px;font-family:sans-serif;"><strong>${escapeHtml(i.productName)}</strong> — pour ${escapeHtml(i.toName)}</p>
+      ${i.accessCode ? `<p style="font-size:12px;color:#7A6455;margin:0;font-family:sans-serif;">Code d'accès : <strong style="letter-spacing:0.15em;color:#B8861A;">${escapeHtml(i.accessCode)}</strong></p>` : ""}
+      <p style="font-size:12px;margin:6px 0 0;"><a href="${origin}/listen/${i.slug}" style="color:#B8861A;">Aperçu de la page d'écoute</a></p>
+    </div>`
+    )
+    .join("");
+
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: `Merci pour votre commande — ${items.length} bijou${items.length > 1 ? "x" : ""}`,
+    html: emailShell(`
+      <h1 style="font-size:24px;color:#1C1410;margin:24px 0 8px;">Merci pour votre commande !</h1>
+      <p style="font-size:15px;color:#4A3728;line-height:1.7;margin:0 0 16px;">
+        Nous confirmons la réception de votre commande de <strong>${items.length} bijou${items.length > 1 ? "x" : ""}</strong>.
+        Chaque pièce, avec sa carte vocale imprimée, sera préparée avec soin et expédiée sous
+        <strong>3 à 5 jours ouvrés</strong> à l'adresse indiquée.
+      </p>
+      ${rows}
+      <p style="font-size:12px;color:#7A6455;margin:16px 0 0;">Les codes d'accès figureront aussi sur chaque carte imprimée, à remettre à leurs destinataires.</p>
+    `),
+  });
+}
+
 // Le destinataire a répondu par un message vocal → on prévient l'acheteur.
 export async function sendReplyNotification(params: {
   to: string;

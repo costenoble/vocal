@@ -42,6 +42,7 @@ model Message {
   replyAt         DateTime?
   followupSentAt  DateTime?
   shippedAt       DateTime?
+  orderId         String?
 }
 
 model ContactMessage {

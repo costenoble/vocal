@@ -105,3 +105,7 @@ CREATE TABLE IF NOT EXISTS "AdminUser" (
     CONSTRAINT "AdminUser_pkey" PRIMARY KEY ("id")
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "AdminUser_username_key" ON "AdminUser"("username");
+
+-- ── Migration 20260708 : commandes groupées (panier) ─────────────────────────
+ALTER TABLE "Message" ADD COLUMN IF NOT EXISTS "orderId" TEXT;
+CREATE INDEX IF NOT EXISTS "Message_orderId_idx" ON "Message"("orderId");

@@ -12,7 +12,9 @@ function SuccessContent() {
   const params = useSearchParams();
   const sessionId = params.get("session_id");
   const boutiqueSlug = params.get("slug");
+  const orderId = params.get("order");
   const isBoutique = !!boutiqueSlug && params.get("boutique") === "1";
+  const isCart = !!orderId;
 
   type Status = "verifying" | "waiting" | "ready" | "error";
   const [status, setStatus] = useState<Status>("verifying");
@@ -22,6 +24,14 @@ function SuccessContent() {
   const stripeSlugRef = useRef<string>("");
 
   useEffect(() => {
+    // Commande panier : le paiement est validé, on vide le panier et on
+    // confirme (les cartes sont créées côté serveur par le webhook).
+    if (isCart) {
+      try { localStorage.removeItem("nj_cart_v1"); window.dispatchEvent(new Event("nj-cart-changed")); } catch {}
+      setStatus("ready");
+      return;
+    }
+
     // Boutique mode: the order already exists, no Stripe verification needed.
     if (isBoutique && boutiqueSlug) {
       setSlug(boutiqueSlug);
@@ -67,7 +77,7 @@ function SuccessContent() {
       .catch(() => setStatus("error"));
 
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
-  }, [sessionId, isBoutique, boutiqueSlug]);
+  }, [sessionId, isBoutique, boutiqueSlug, isCart]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: "var(--cream)" }}>
@@ -104,10 +114,12 @@ function SuccessContent() {
 
             <div>
               <h1 className="text-[24px] font-black" style={{ color: "var(--ink)" }}>
-                {isBoutique ? "Commande créée !" : "Votre carte est prête !"}
+                {isCart ? "Merci pour votre commande !" : isBoutique ? "Commande créée !" : "Votre carte est prête !"}
               </h1>
               <p className="text-[13px] mt-2 leading-relaxed" style={{ color: "var(--ink-muted)" }}>
-                {isBoutique
+                {isCart
+                  ? "Votre paiement est confirmé. Vos bijoux et leurs cartes vocales seront préparés et expédiés sous 3 à 5 jours ouvrés. Un récapitulatif vient de vous être envoyé par email."
+                  : isBoutique
                   ? "Imprimez la carte (avec son QR code et son code d'accès) à glisser dans le coffret."
                   : toName
                   ? `${toName} peut maintenant écouter votre message en scannant le QR code.`
@@ -115,7 +127,15 @@ function SuccessContent() {
               </p>
             </div>
 
-            {slug ? (
+            {isCart ? (
+              <Link
+                href="/"
+                className="w-full py-4 rounded-2xl font-bold text-white text-center text-[15px] block transition-all active:scale-95"
+                style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 4px 20px rgba(184,134,26,0.28)" }}
+              >
+                Retour à l&apos;accueil
+              </Link>
+            ) : slug ? (
               <>
                 {isBoutique && (
                   <a

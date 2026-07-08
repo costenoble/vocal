@@ -6,6 +6,7 @@ import Logo from "@/components/Logo";
 import Link from "next/link";
 import { THEMES, getTheme, type ThemeId } from "@/lib/themes";
 import type { Product } from "@/lib/products";
+import { addToCart } from "@/lib/cart";
 
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6;
 type RecordState = "idle" | "requesting" | "recording" | "uploading" | "done";
@@ -832,6 +833,31 @@ export default function ComposerClient() {
     }
   };
 
+  // Parcours client normal : l'article personnalisé est ajouté au panier,
+  // la livraison et le paiement se font ensuite sur la page /panier.
+  const handleAddToCart = () => {
+    if (!product || !uploadedAudioUrl) {
+      setCheckoutError("Veuillez enregistrer votre message avant de continuer.");
+      return;
+    }
+    addToCart({
+      productSlug: product.slug,
+      productName: product.name,
+      productSize,
+      price: product.price,
+      imageUrl: product.imageUrl,
+      fromName: card.fromName.trim(),
+      toName: card.toName.trim(),
+      date: card.date,
+      theme: card.theme,
+      paper: card.paper,
+      cardFont: card.cardFont,
+      message: card.message,
+      audioUrl: uploadedAudioUrl,
+    });
+    window.location.href = "/panier";
+  };
+
   const goNext = () => setStep(s => Math.min(6, s + 1) as WizardStep);
   const goPrev = () => setStep(s => Math.max(1, s - 1) as WizardStep);
 
@@ -860,9 +886,9 @@ export default function ComposerClient() {
             </span>
           </Link>
 
-          {/* Step indicator — dots */}
+          {/* Step indicator — dots (4 étapes en parcours normal, 6 en boutique) */}
           <div className="flex items-center gap-1.5">
-            {([1, 2, 3, 4, 5, 6] as WizardStep[]).map((s) => (
+            {(boutiqueMode ? [1, 2, 3, 4, 5, 6] : [1, 2, 3, 4]).map((s) => (
               <div
                 key={s}
                 className="rounded-full transition-all duration-300"
@@ -1191,7 +1217,14 @@ export default function ComposerClient() {
             </div>
 
             <div className="w-full max-w-sm">
-              <Nav onPrev={goPrev} onNext={goNext} prevLabel="Retour" nextLabel="Adresse de livraison" />
+              {boutiqueMode ? (
+                <Nav onPrev={goPrev} onNext={goNext} prevLabel="Retour" nextLabel="Adresse de livraison" />
+              ) : (
+                <Nav onPrev={goPrev} onNext={handleAddToCart} prevLabel="Retour" nextLabel="Ajouter au panier" />
+              )}
+              {checkoutError && (
+                <p className="text-center text-[12px] mt-3" style={{ color: "#C0392B" }}>{checkoutError}</p>
+              )}
             </div>
           </motion.div>
         )}

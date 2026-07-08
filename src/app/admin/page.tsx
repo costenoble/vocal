@@ -118,6 +118,12 @@ export default async function AdminPage({
   const shippedList = paidMessages.filter((m) => m.shippedAt);
   const unpaidList = messages.filter((m) => !m.paid);
 
+  // Nombre d'articles par commande groupée (panier) → badge "même colis".
+  const orderCounts = new Map<string, number>();
+  for (const m of messages) {
+    if (m.orderId) orderCounts.set(m.orderId, (orderCounts.get(m.orderId) ?? 0) + 1);
+  }
+
   const total = messages.length;
   const paid = paidMessages.length;
   const newLast24h = messages.filter((m) => m.createdAt >= last24h).length;
@@ -248,6 +254,11 @@ export default async function AdminPage({
                       <p className="text-[15px] font-bold" style={{ color: "var(--ink)" }}>
                         {m.fromName} → {m.toName}
                       </p>
+                      {m.orderId && (orderCounts.get(m.orderId) ?? 0) > 1 && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(139,101,16,0.12)", color: "var(--gold-dark)" }}>
+                          Même colis · {orderCounts.get(m.orderId)} articles
+                        </span>
+                      )}
                       {isNew && (
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-black tracking-wide" style={{ background: "var(--gold)", color: "white" }}>
                           NOUVEAU
