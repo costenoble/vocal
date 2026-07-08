@@ -953,7 +953,16 @@ export default function ComposerClient() {
               nextLabel="Continuer"
             />
             <div className="mt-4 text-center">
-              <Link href="/" className="text-[12px]" style={{ color: "rgba(28,20,16,0.3)" }}>Annuler</Link>
+              <Link
+                href={product ? "/boutique" : "/"}
+                className="inline-flex items-center gap-1.5 text-[12px]"
+                style={{ color: "rgba(28,20,16,0.45)" }}
+              >
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width={12} height={12}>
+                  <path d="M10 12L6 8l4-4" />
+                </svg>
+                {product ? "Retour à la boutique" : "Annuler"}
+              </Link>
             </div>
           </motion.div>
         )}
