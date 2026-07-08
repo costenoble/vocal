@@ -14,7 +14,7 @@ const MotionLink = motion.create(Link);
 // ramène à l'accueil sur la bonne section ; depuis l'accueil, simple scroll.
 const NAV_LINKS = [
   { href: "/#comment-ca-marche", label: "Comment ça marche" },
-  { href: "/#boutique", label: "Notre boutique" },
+  { href: "/boutique", label: "Notre boutique" },
   { href: "/#faq", label: "Questions fréquentes" },
   { href: "/boutique", label: "Commander" },
 ];
