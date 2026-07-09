@@ -21,6 +21,10 @@ export async function GET(
   const m = await prisma.message.findUnique({ where: { slug } });
   if (!m) return NextResponse.json({ error: "Commande introuvable" }, { status: 404 });
 
+  // Référence produit (pour la préparation), récupérée depuis le catalogue.
+  const product = m.productSlug ? await prisma.product.findUnique({ where: { slug: m.productSlug } }) : null;
+  const reference = product?.reference || "";
+
   const created = new Date(m.createdAt).toLocaleString("fr-FR", {
     day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
   });
@@ -57,6 +61,7 @@ export async function GET(
         <h2>Bijou à préparer</h2>
         <table>
           ${row("Produit", esc(m.productName) || "—")}
+          ${reference ? row("Référence", esc(reference)) : ""}
           ${row("Taille", esc(m.productSize) || "Taille unique")}
         </table>
       </div>

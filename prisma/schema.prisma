@@ -60,13 +60,16 @@ model Product {
   id          String   @id @default(cuid())
   slug        String   @unique
   name        String
+  reference   String   @default("")
   category    String   @default("bracelet")
   tagline     String   @default("")
   description String   @default("")
   price       Float
   imageUrl    String   @default("")
+  images      String[] @default([])
   sizes       String[] @default([])
   details     String[] @default([])
+  stock       Int?
   active      Boolean  @default(true)
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())

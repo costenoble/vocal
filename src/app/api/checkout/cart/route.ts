@@ -56,6 +56,7 @@ export async function POST(req: NextRequest) {
 
     // Résolution + validation de chaque article côté serveur (prix de confiance).
     const resolved = [];
+    const qtyBySlug = new Map<string, number>();
     for (const it of items) {
       const product = it.productSlug ? await getProductBySlug(it.productSlug) : undefined;
       if (!product || !product.active) {
@@ -64,7 +65,18 @@ export async function POST(req: NextRequest) {
       if (!it.fromName || !it.toName || !it.audioUrl || !isOwnAudio(it.audioUrl)) {
         return NextResponse.json({ error: "Un article est incomplet" }, { status: 400 });
       }
+      qtyBySlug.set(product.slug, (qtyBySlug.get(product.slug) ?? 0) + 1);
       resolved.push({ it, product });
+    }
+
+    // Contrôle du stock (par produit, quantité cumulée demandée).
+    for (const { product } of resolved) {
+      if (product.stock !== null && product.stock < (qtyBySlug.get(product.slug) ?? 0)) {
+        return NextResponse.json(
+          { error: `Stock insuffisant pour « ${product.name} ». Ajustez votre panier.` },
+          { status: 409 }
+        );
+      }
     }
 
     const origin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";

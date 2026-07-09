@@ -109,7 +109,13 @@ export default function ProductsManager({ initialProducts }: { initialProducts: 
                   </span>
                 </div>
                 <p className="text-[12px] mt-0.5" style={{ color: "var(--ink-muted)" }}>
-                  {p.price.toFixed(2).replace(".", ",")} € · {p.sizes.length > 0 ? `${p.sizes.length} taille(s)` : "sans taille"}
+                  {p.reference ? `${p.reference} · ` : ""}{p.price.toFixed(2).replace(".", ",")} €
+                  {" · "}
+                  {p.stock === null
+                    ? "stock illimité"
+                    : p.stock > 0
+                      ? <span style={{ color: p.stock <= 3 ? "#C0392B" : "var(--ink-muted)" }}>{p.stock} en stock</span>
+                      : <span style={{ color: "#C0392B", fontWeight: 700 }}>Rupture de stock</span>}
                 </p>
               </div>
 

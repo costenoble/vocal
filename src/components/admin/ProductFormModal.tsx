@@ -28,31 +28,39 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
   const isEdit = !!product;
 
   const [name, setName] = useState("");
+  const [reference, setReference] = useState("");
   const [category, setCategory] = useState(CATEGORY_OPTIONS[0].value);
   const [tagline, setTagline] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [stock, setStock] = useState("");
   const [sizesText, setSizesText] = useState("");
   const [detailsText, setDetailsText] = useState("");
   const [active, setActive] = useState(true);
   const [imageUrl, setImageUrl] = useState("");
+  const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   // Recharge le formulaire à chaque ouverture / changement de produit édité.
   useEffect(() => {
     if (!open) return;
     setName(product?.name ?? "");
+    setReference(product?.reference ?? "");
     setCategory(product?.category ?? CATEGORY_OPTIONS[0].value);
     setTagline(product?.tagline ?? "");
     setDescription(product?.description ?? "");
     setPrice(product ? String(product.price) : "");
+    setStock(product && product.stock !== null && product.stock !== undefined ? String(product.stock) : "");
     setSizesText(product?.sizes.join(", ") ?? "");
     setDetailsText(product?.details.join("\n") ?? "");
     setActive(product?.active ?? true);
     setImageUrl(product?.imageUrl ?? "");
+    setImages(product?.images ?? []);
     setError("");
   }, [open, product]);
 
@@ -64,22 +72,43 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
     return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
   }, [open, onClose]);
 
+  const doUpload = async (file: File): Promise<string> => {
+    const fd = new FormData();
+    fd.append("image", file);
+    const res = await fetch("/api/admin/products/upload-image", { method: "POST", body: fd });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "Échec de l'upload");
+    return json.imageUrl as string;
+  };
+
   const uploadImage = async (file: File) => {
     setUploading(true);
     setError("");
     try {
-      const fd = new FormData();
-      fd.append("image", file);
-      const res = await fetch("/api/admin/products/upload-image", { method: "POST", body: fd });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Échec de l'upload");
-      setImageUrl(json.imageUrl);
+      setImageUrl(await doUpload(file));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Échec de l'upload");
     } finally {
       setUploading(false);
     }
   };
+
+  // Photos additionnelles (galerie de la fiche produit).
+  const uploadGalleryImages = async (files: FileList) => {
+    setUploadingGallery(true);
+    setError("");
+    try {
+      const urls: string[] = [];
+      for (const f of Array.from(files).slice(0, 8)) urls.push(await doUpload(f));
+      setImages((prev) => [...prev, ...urls].slice(0, 8));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Échec de l'upload");
+    } finally {
+      setUploadingGallery(false);
+    }
+  };
+
+  const removeGalleryImage = (url: string) => setImages((prev) => prev.filter((u) => u !== url));
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,11 +122,14 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
 
     const payload = {
       name: name.trim(),
+      reference: reference.trim(),
       category,
       tagline: tagline.trim(),
       description: description.trim(),
       price: priceNum,
       imageUrl,
+      images,
+      stock: stock.trim() === "" ? null : Math.max(0, Math.floor(Number(stock))),
       sizes: sizesText.split(",").map((s) => s.trim()).filter(Boolean),
       details: detailsText.split("\n").map((s) => s.trim()).filter(Boolean),
       active,
@@ -206,6 +238,32 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
                   </div>
                 </div>
 
+                {/* Galerie — photos supplémentaires (vue portée, gros plan…) */}
+                <div className="flex flex-col gap-1.5">
+                  <label className={labelCls} style={{ color: "var(--ink-muted)" }}>Photos supplémentaires (galerie)</label>
+                  <div className="flex flex-wrap gap-2 items-center">
+                    {images.map((url) => (
+                      <div key={url} className="relative w-16 h-16 rounded-lg overflow-hidden" style={{ border: "1px solid rgba(184,134,26,0.2)" }}>
+                        <Image src={url} alt="" fill className="object-cover" />
+                        <button type="button" onClick={() => removeGalleryImage(url)} aria-label="Retirer" className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "rgba(28,20,16,0.7)" }}>
+                          <svg viewBox="0 0 16 16" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" width={9} height={9}><path d="M3 3l10 10M13 3L3 13" /></svg>
+                        </button>
+                      </div>
+                    ))}
+                    {images.length < 8 && (
+                      <button type="button" onClick={() => galleryInputRef.current?.click()} disabled={uploadingGallery} className="w-16 h-16 rounded-lg flex items-center justify-center transition-all active:scale-95 disabled:opacity-50" style={{ background: "var(--cream)", border: "1.5px dashed rgba(184,134,26,0.4)" }}>
+                        {uploadingGallery ? (
+                          <span className="text-[9px]" style={{ color: "var(--gold-dark)" }}>Envoi…</span>
+                        ) : (
+                          <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold-dark)" strokeWidth="1.6" strokeLinecap="round" width={18} height={18}><path d="M12 5v14M5 12h14" /></svg>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[10px]" style={{ color: "var(--ink-muted)" }}>Jusqu&rsquo;à 8 photos · vue portée, gros plan, détails…</p>
+                  <input ref={galleryInputRef} type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={(e) => { if (e.target.files?.length) uploadGalleryImages(e.target.files); e.target.value = ""; }} />
+                </div>
+
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1.5">
                     <label className={labelCls} style={{ color: "var(--ink-muted)" }}>Nom *</label>
@@ -214,6 +272,17 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
                   <div className="flex flex-col gap-1.5">
                     <label className={labelCls} style={{ color: "var(--ink-muted)" }}>Prix (€) *</label>
                     <input required inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="35" className="px-3.5 py-3 rounded-xl text-[14px] outline-none" style={inputStyle} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1.5">
+                    <label className={labelCls} style={{ color: "var(--ink-muted)" }}>Référence</label>
+                    <input maxLength={60} value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Ex : BR-AME-001" className="px-3.5 py-3 rounded-xl text-[14px] outline-none" style={inputStyle} />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className={labelCls} style={{ color: "var(--ink-muted)" }}>Stock disponible</label>
+                    <input inputMode="numeric" value={stock} onChange={(e) => setStock(e.target.value)} placeholder="Illimité si vide" className="px-3.5 py-3 rounded-xl text-[14px] outline-none" style={inputStyle} />
                   </div>
                 </div>
 

@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import type { Product } from "@/lib/products";
+import { isPurchasable } from "@/lib/product-utils";
 import { categoryLabel } from "@/lib/categories";
 
 const REASSURANCE = [
@@ -17,30 +18,57 @@ const REASSURANCE = [
 export default function ProductDetail({ product }: { product: Product }) {
   const [selectedSize, setSelectedSize] = useState<string>("");
   const hasSizes = product.sizes.length > 0;
+  const inStock = isPurchasable(product);
+
+  // Galerie : photo de couverture + photos supplémentaires (dédupliquées).
+  const gallery = [product.imageUrl, ...product.images].filter((u, i, arr) => u && arr.indexOf(u) === i);
+  const [mainImage, setMainImage] = useState<string>(gallery[0] ?? "");
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-      {/* Image */}
+      {/* Galerie photos */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative rounded-3xl overflow-hidden aspect-square"
-        style={{ background: "#F5EED5" }}
+        className="flex flex-col gap-3"
       >
-        {product.imageUrl ? (
-          <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
-        ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-            <Logo size={80} />
-            <p className="text-[11px] font-bold tracking-widest uppercase" style={{ color: "var(--gold)" }}>N&rsquo;OUBLIE JAMAIS</p>
+        <div className="relative rounded-3xl overflow-hidden aspect-square" style={{ background: "#F5EED5" }}>
+          {mainImage ? (
+            <Image src={mainImage} alt={product.name} fill className="object-cover" />
+          ) : (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <Logo size={80} />
+              <p className="text-[11px] font-bold tracking-widest uppercase" style={{ color: "var(--gold)" }}>N&rsquo;OUBLIE JAMAIS</p>
+            </div>
+          )}
+          <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider" style={{ background: "var(--gold)", color: "white" }}>
+            {categoryLabel(product.category)}
+          </div>
+          {!inStock && (
+            <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(28,20,16,0.45)" }}>
+              <span className="px-5 py-2.5 rounded-full text-[13px] font-black uppercase tracking-widest text-white" style={{ background: "rgba(28,20,16,0.85)" }}>
+                Rupture de stock
+              </span>
+            </div>
+          )}
+        </div>
+
+        {gallery.length > 1 && (
+          <div className="flex gap-2.5 flex-wrap">
+            {gallery.map((url) => (
+              <button
+                key={url}
+                onClick={() => setMainImage(url)}
+                className="relative w-16 h-16 rounded-xl overflow-hidden transition-all"
+                style={{ border: mainImage === url ? "2px solid var(--gold)" : "2px solid rgba(28,20,16,0.08)" }}
+                aria-label="Voir cette photo"
+              >
+                <Image src={url} alt="" fill className="object-cover" />
+              </button>
+            ))}
           </div>
         )}
-
-        <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
-          style={{ background: "var(--gold)", color: "white" }}>
-          {categoryLabel(product.category)}
-        </div>
       </motion.div>
 
       {/* Details */}
@@ -72,6 +100,19 @@ export default function ProductDetail({ product }: { product: Product }) {
           </span>
           <span className="text-[13px]" style={{ color: "var(--ink-muted)" }}>TTC · Livraison incluse</span>
         </div>
+
+        {(product.reference || (product.stock !== null && product.stock > 0 && product.stock <= 5)) && (
+          <div className="flex items-center gap-3 -mt-2 flex-wrap">
+            {product.reference && (
+              <span className="text-[11px]" style={{ color: "var(--ink-muted)" }}>Réf. {product.reference}</span>
+            )}
+            {product.stock !== null && product.stock > 0 && product.stock <= 5 && (
+              <span className="text-[11px] font-semibold" style={{ color: "#C0392B" }}>
+                Plus que {product.stock} en stock
+              </span>
+            )}
+          </div>
+        )}
 
         <div className="h-px w-full" style={{ background: "rgba(184,134,26,0.15)" }} />
 
@@ -108,7 +149,15 @@ export default function ProductDetail({ product }: { product: Product }) {
         )}
 
         <div className="flex flex-col gap-3">
-          {!hasSizes || selectedSize ? (
+          {!inStock ? (
+            <button
+              disabled
+              className="w-full py-4 rounded-2xl font-bold text-[15px] tracking-wide cursor-not-allowed"
+              style={{ background: "rgba(28,20,16,0.06)", color: "rgba(28,20,16,0.4)" }}
+            >
+              Rupture de stock
+            </button>
+          ) : !hasSizes || selectedSize ? (
             <Link
               href={`/composer?product=${product.slug}${selectedSize ? `&size=${encodeURIComponent(selectedSize)}` : ""}`}
               className="block w-full py-4 rounded-2xl font-bold text-white text-center text-[15px] tracking-wide transition-all"

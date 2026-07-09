@@ -113,3 +113,8 @@ CREATE INDEX IF NOT EXISTS "Message_orderId_idx" ON "Message"("orderId");
 -- ── Migration 20260709 : suivi de colis ──────────────────────────────────────
 ALTER TABLE "Message" ADD COLUMN IF NOT EXISTS "trackingNumber" TEXT;
 ALTER TABLE "Message" ADD COLUMN IF NOT EXISTS "trackingCarrier" TEXT;
+
+-- ── Migration 20260709b : reference, stock, galerie photos ───────────────────
+ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "reference" TEXT NOT NULL DEFAULT '';
+ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "images" TEXT[] DEFAULT ARRAY[]::TEXT[];
+ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "stock" INTEGER;

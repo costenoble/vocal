@@ -52,17 +52,29 @@ export async function POST(req: NextRequest) {
     ? body.details.map((s: unknown) => String(s).trim()).filter(Boolean).slice(0, 20)
     : [];
 
+  const images = Array.isArray(body.images)
+    ? body.images.map((s: unknown) => String(s).trim()).filter(Boolean).slice(0, 8)
+    : [];
+  const stockRaw = body.stock;
+  const stock =
+    stockRaw === null || stockRaw === "" || stockRaw === undefined
+      ? null
+      : Math.max(0, Math.floor(Number(stockRaw)));
+
   const product = await prisma.product.create({
     data: {
       slug,
       name,
+      reference: String(body.reference ?? "").trim().slice(0, 60),
       category: String(body.category ?? "bracelet").trim().slice(0, 40) || "bracelet",
       tagline: String(body.tagline ?? "").trim().slice(0, 160),
       description: String(body.description ?? "").trim().slice(0, 2000),
       price,
       imageUrl: String(body.imageUrl ?? "").trim(),
+      images,
       sizes,
       details,
+      stock: Number.isFinite(stock as number) ? stock : null,
       active: body.active !== false,
       sortOrder: Number.isFinite(Number(body.sortOrder)) ? Number(body.sortOrder) : 0,
     },

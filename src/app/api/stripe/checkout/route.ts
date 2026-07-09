@@ -42,6 +42,9 @@ export async function POST(req: NextRequest) {
     if (product && !product.active) {
       return NextResponse.json({ error: "Ce produit n'est plus disponible" }, { status: 400 });
     }
+    if (product && product.stock !== null && product.stock <= 0) {
+      return NextResponse.json({ error: "Ce produit est en rupture de stock" }, { status: 409 });
+    }
 
     const lineName = product ? product.name : `N'OUBLIE JAMAIS — ${plan!.name}`;
     const lineDesc = product

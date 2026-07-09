@@ -30,8 +30,13 @@ export async function PATCH(
     data.price = price;
   }
   if (typeof body.imageUrl === "string") data.imageUrl = body.imageUrl.trim();
+  if (typeof body.reference === "string") data.reference = body.reference.trim().slice(0, 60);
+  if (Array.isArray(body.images)) data.images = body.images.map((s: unknown) => String(s).trim()).filter(Boolean).slice(0, 8);
   if (Array.isArray(body.sizes)) data.sizes = body.sizes.map((s: unknown) => String(s).trim()).filter(Boolean).slice(0, 20);
   if (Array.isArray(body.details)) data.details = body.details.map((s: unknown) => String(s).trim()).filter(Boolean).slice(0, 20);
+  if (body.stock !== undefined) {
+    data.stock = body.stock === null || body.stock === "" ? null : Math.max(0, Math.floor(Number(body.stock)));
+  }
   if (typeof body.active === "boolean") data.active = body.active;
   if (body.sortOrder !== undefined && Number.isFinite(Number(body.sortOrder))) data.sortOrder = Number(body.sortOrder);
 

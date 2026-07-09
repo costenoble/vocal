@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { sendOrderConfirmation, sendNewOrderNotification, sendCartConfirmation } from "@/lib/email";
-import { getProductBySlug } from "@/lib/products";
+import { getProductBySlug, decrementStock } from "@/lib/products";
 import { getPlanById } from "@/lib/plans";
 import Stripe from "stripe";
 
@@ -47,6 +47,15 @@ export async function POST(req: NextRequest) {
         where: { orderId: meta.orderId },
         orderBy: { createdAt: "asc" },
       });
+
+      // Décrément du stock : une unité par article, regroupé par produit.
+      const qtyBySlug = new Map<string, number>();
+      for (const m of orderItems) {
+        if (m.productSlug) qtyBySlug.set(m.productSlug, (qtyBySlug.get(m.productSlug) ?? 0) + 1);
+      }
+      for (const [slug, qty] of qtyBySlug) {
+        try { await decrementStock(slug, qty); } catch (err) { console.error("[webhook] stock decrement failed", err); }
+      }
 
       if (orderItems.length > 0) {
         const to = orderItems[0].buyerEmail ?? buyerEmail;
@@ -123,6 +132,11 @@ export async function POST(req: NextRequest) {
         },
         update: { paid: true },
       });
+
+      // Décrément du stock (une unité) pour l'achat unique.
+      if (meta.productSlug) {
+        try { await decrementStock(meta.productSlug, 1); } catch (err) { console.error("[webhook] stock decrement failed", err); }
+      }
 
       // Send confirmation email (acheteur)
       if (buyerEmail) {

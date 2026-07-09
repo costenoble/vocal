@@ -8,6 +8,7 @@ import SiteHeader from "@/components/SiteHeader";
 import Logo from "@/components/Logo";
 import ProductDetail from "@/components/ProductDetail";
 import type { Product } from "@/lib/products";
+import { isPurchasable } from "@/lib/product-utils";
 import { categoryLabel, sortCategories } from "@/lib/categories";
 
 const OCCASIONS = [
@@ -33,6 +34,13 @@ function ProductCard({ product }: { product: Product }) {
         <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider" style={{ background: "var(--gold)", color: "white" }}>
           {categoryLabel(product.category)}
         </div>
+        {!isPurchasable(product) && (
+          <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(28,20,16,0.42)" }}>
+            <span className="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white" style={{ background: "rgba(28,20,16,0.85)" }}>
+              Rupture de stock
+            </span>
+          </div>
+        )}
       </div>
       <div className="p-4 flex flex-col gap-1">
         <p className="text-[14px] font-bold" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{product.name}</p>
