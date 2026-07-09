@@ -89,13 +89,9 @@ export async function GET(
     <div style="z-index:3;padding:6px;background:${paper.darkQr ? "rgba(255,255,255,0.94)" : "rgba(255,255,255,0.88)"};border-radius:6px;">
       <img src="${qrDataUrl}" width="150" height="150" style="display:block;" alt="QR"/>
     </div>
-    ${message.accessCode ? `<div style="z-index:3;text-align:center;">
-      <p style="${label}margin:0;">Code d'accès</p>
-      <p style="font-size:20px;font-weight:900;letter-spacing:0.34em;color:${paper.accent};font-family:'Inter',sans-serif;margin:2px 0 0;">${escapeHtml(message.accessCode)}</p>
-    </div>` : ""}
     <div style="display:flex;align-items:center;gap:5px;z-index:3;">
       <svg viewBox="0 0 24 24" width="11" height="11" fill="none"><rect x="5" y="2" width="14" height="20" rx="3" stroke="${paper.accent}" stroke-width="1.4"/><rect x="9" y="18" width="6" height="1.5" rx="0.75" fill="${paper.accent}"/></svg>
-      <p style="font-size:8px;color:${paper.text};opacity:0.5;font-family:'Inter',sans-serif;letter-spacing:0.04em;margin:0;">Scannez pour écouter votre message</p>
+      <p style="font-size:8px;color:${paper.text};opacity:0.5;font-family:'Inter',sans-serif;letter-spacing:0.04em;margin:0;">Scannez, puis saisissez le code au dos</p>
     </div>
     <div style="z-index:3;width:60%;padding-bottom:4px;">${heartLine(paper.accent, 100)}</div>
   </div>`;
@@ -117,6 +113,10 @@ export async function GET(
     ${dateFormatted ? `<div style="text-align:center;z-index:3;">
       <p style="${label}margin:0;">Créé le</p>
       <p style="font-size:10px;font-family:'Playfair Display',serif;font-style:italic;color:${paper.text};opacity:0.7;margin:2px 0 0;">${escapeHtml(dateFormatted)}</p>
+    </div>` : ""}
+    ${message.accessCode ? `<div style="z-index:3;text-align:center;padding:6px 14px;border:1px solid ${paper.accent};border-radius:8px;opacity:0.95;">
+      <p style="${label}margin:0;">Code d'accès confidentiel</p>
+      <p style="font-size:20px;font-weight:900;letter-spacing:0.34em;color:${paper.accent};font-family:'Inter',sans-serif;margin:2px 0 0;">${escapeHtml(message.accessCode)}</p>
     </div>` : ""}
     <div style="z-index:3;">${logoImg(38, baseUrl)}</div>
     <div style="text-align:center;z-index:3;padding:0 6px;">

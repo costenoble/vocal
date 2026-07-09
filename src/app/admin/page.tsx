@@ -291,6 +291,16 @@ export default async function AdminPage({
                         </p>
                       </div>
                       <div className="px-4 py-3 flex flex-col gap-3" style={{ background: "white" }}>
+                        {/* Bijou à préparer — bien en évidence */}
+                        <div className="flex items-center gap-2.5 rounded-lg px-3 py-2" style={{ background: "rgba(184,134,26,0.06)" }}>
+                          <svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="var(--gold-dark)" strokeWidth="1.6" style={{ flexShrink: 0 }}>
+                            <circle cx="12" cy="13" r="6" /><path d="M9 4h6l1.5 3H7.5z" />
+                          </svg>
+                          <p className="text-[14px] font-bold" style={{ color: "var(--ink)" }}>
+                            {m.productName ?? getPlanById(m.plan)?.name ?? "Bijou"}
+                            {m.productSize && <span style={{ color: "var(--gold-dark)" }}> · Taille {m.productSize}</span>}
+                          </p>
+                        </div>
                         {hasShipping ? (
                           <div className="flex items-start gap-2.5">
                             <svg viewBox="0 0 24 24" width={14} height={14} fill="none" style={{ marginTop: 2, flexShrink: 0 }}>
@@ -309,6 +319,9 @@ export default async function AdminPage({
                           </p>
                         )}
                         <div className="flex items-center gap-2 flex-wrap">
+                          <a href={`/api/order-sheet/${m.slug}`} target="_blank" rel="noreferrer" className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] text-white transition-all active:scale-95" style={{ background: "var(--gold-dark)" }}>
+                            Bon de commande
+                          </a>
                           <Link href={`/api/pdf/${m.slug}`} target="_blank" className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] text-white transition-all active:scale-95" style={{ background: "var(--ink)" }}>
                             Imprimer la carte
                           </Link>
@@ -318,9 +331,9 @@ export default async function AdminPage({
                           <Link href={`/listen/${m.slug}`} target="_blank" className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] transition-all active:scale-95" style={{ background: "white", color: "var(--gold-dark)", border: "1.5px solid rgba(184,134,26,0.35)" }}>
                             Page d&rsquo;écoute
                           </Link>
-                          <div className="ml-auto">
-                            <MarkShippedButton slug={m.slug} shipped={false} />
-                          </div>
+                        </div>
+                        <div className="pt-1">
+                          <MarkShippedButton slug={m.slug} shipped={false} />
                         </div>
                       </div>
                     </div>

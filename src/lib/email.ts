@@ -211,6 +211,35 @@ export async function sendCartConfirmation(params: {
   });
 }
 
+// Expédition : on prévient l'acheteur avec son numéro de suivi.
+export async function sendShippingNotification(params: {
+  to: string;
+  toName: string;
+  productName?: string;
+  trackingNumber: string;
+  carrier?: string;
+}) {
+  const { to, toName, productName, trackingNumber, carrier } = params;
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: `Votre commande N'OUBLIE JAMAIS a été expédiée`,
+    html: emailShell(`
+      <h1 style="font-size:24px;color:#1C1410;margin:24px 0 8px;">Votre commande est en route !</h1>
+      <p style="font-size:15px;color:#4A3728;line-height:1.7;margin:0 0 16px;">
+        Bonne nouvelle : ${productName ? `votre <strong>${escapeHtml(productName)}</strong>` : "votre commande"}${toName ? ` pour <strong>${escapeHtml(toName)}</strong>` : ""} vient d'être expédié${productName ? "" : "e"}.
+      </p>
+      <div style="background:rgba(184,134,26,0.07);border-radius:12px;padding:16px 20px;margin:0 0 16px;border:1px solid rgba(184,134,26,0.15);text-align:center;">
+        <p style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#7A6455;margin:0 0 4px;font-family:sans-serif;">Numéro de suivi${carrier ? ` · ${escapeHtml(carrier)}` : ""}</p>
+        <p style="font-size:20px;font-weight:900;letter-spacing:0.08em;color:#B8861A;margin:0;font-family:sans-serif;">${escapeHtml(trackingNumber)}</p>
+      </div>
+      <p style="font-size:13px;color:#7A6455;line-height:1.7;margin:0;">
+        Vous pouvez suivre votre colis avec ce numéro sur le site du transporteur. Livraison estimée sous 3 à 5 jours ouvrés.
+      </p>
+    `),
+  });
+}
+
 // Le destinataire a répondu par un message vocal → on prévient l'acheteur.
 export async function sendReplyNotification(params: {
   to: string;

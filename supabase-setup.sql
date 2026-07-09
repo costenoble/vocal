@@ -109,3 +109,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS "AdminUser_username_key" ON "AdminUser"("usern
 -- ── Migration 20260708 : commandes groupées (panier) ─────────────────────────
 ALTER TABLE "Message" ADD COLUMN IF NOT EXISTS "orderId" TEXT;
 CREATE INDEX IF NOT EXISTS "Message_orderId_idx" ON "Message"("orderId");
+
+-- ── Migration 20260709 : suivi de colis ──────────────────────────────────────
+ALTER TABLE "Message" ADD COLUMN IF NOT EXISTS "trackingNumber" TEXT;
+ALTER TABLE "Message" ADD COLUMN IF NOT EXISTS "trackingCarrier" TEXT;
