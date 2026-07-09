@@ -101,16 +101,13 @@ export default function ProductDetail({ product }: { product: Product }) {
           <span className="text-[13px]" style={{ color: "var(--ink-muted)" }}>TTC · Livraison incluse</span>
         </div>
 
-        {(product.reference || (product.stock !== null && product.stock > 0 && product.stock <= 5)) && (
-          <div className="flex items-center gap-3 -mt-2 flex-wrap">
-            {product.reference && (
-              <span className="text-[11px]" style={{ color: "var(--ink-muted)" }}>Réf. {product.reference}</span>
-            )}
-            {product.stock !== null && product.stock > 0 && product.stock <= 5 && (
-              <span className="text-[11px] font-semibold" style={{ color: "#C0392B" }}>
-                Plus que {product.stock} en stock
-              </span>
-            )}
+        {/* La référence produit est réservée à l'admin (préparation) — non
+            affichée côté client. Seule l'alerte de stock faible reste visible. */}
+        {product.stock !== null && product.stock > 0 && product.stock <= 5 && (
+          <div className="-mt-2">
+            <span className="text-[11px] font-semibold" style={{ color: "#C0392B" }}>
+              Plus que {product.stock} en stock
+            </span>
           </div>
         )}
 

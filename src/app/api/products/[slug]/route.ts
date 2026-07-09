@@ -17,5 +17,7 @@ export async function GET(
     return NextResponse.json({ error: "Produit introuvable" }, { status: 404 });
   }
 
-  return NextResponse.json({ product });
+  // La référence produit reste interne (admin) : non exposée publiquement.
+  const { reference: _r, ...publicProduct } = product;
+  return NextResponse.json({ product: publicProduct });
 }
