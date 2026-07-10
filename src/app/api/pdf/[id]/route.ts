@@ -71,33 +71,33 @@ export async function GET(
 
   const cardBase = `position:relative;width:105mm;height:148mm;background:${paper.bg};display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:9mm 8mm;overflow:hidden;box-shadow:0 16px 48px rgba(28,20,16,0.16);`;
   const inset = `<div style="position:absolute;inset:5mm;border:0.5px solid ${paper.accent};opacity:0.4;pointer-events:none;z-index:1;"></div>`;
-  const label = `font-size:8px;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;color:${paper.text};opacity:0.4;font-family:'Inter',sans-serif;`;
+  const label = `font-size:9.5px;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;color:${paper.text};opacity:0.45;font-family:'Inter',sans-serif;`;
 
   // ── RECTO ──
   const recto = `<div style="${cardBase}">
     ${inset}${shimmer}
-    <div style="z-index:3;margin-top:4px;">${logoImg(66, baseUrl)}</div>
+    <div style="z-index:3;margin-top:4px;">${logoImg(80, baseUrl)}</div>
     <div style="text-align:center;z-index:3;">
-      <p style="font-size:12px;font-weight:900;letter-spacing:0.28em;text-transform:uppercase;color:${paper.text};font-family:'Inter',sans-serif;margin:0;">N'OUBLIE JAMAIS</p>
+      <p style="font-size:14.5px;font-weight:900;letter-spacing:0.28em;text-transform:uppercase;color:${paper.text};font-family:'Inter',sans-serif;margin:0;">N'OUBLIE JAMAIS</p>
       <div style="height:0.5px;background:${paper.accent};opacity:0.35;margin-top:5px;"></div>
     </div>
     <div style="z-index:3;width:72%;">${heartLine(paper.accent, 100)}</div>
     <div style="text-align:center;z-index:3;">
-      <p style="font-size:11px;color:${paper.text};opacity:0.65;font-family:'Playfair Display',serif;line-height:1.5;margin:0;">Certains messages<br/>ne s'oublient pas.</p>
-      <p style="font-size:13px;font-family:${nameFamily};font-style:italic;color:${paper.accent};margin:4px 0 0;">Ils se portent.</p>
+      <p style="font-size:13px;color:${paper.text};opacity:0.7;font-family:'Playfair Display',serif;line-height:1.5;margin:0;">Certains messages<br/>ne s'oublient pas.</p>
+      <p style="font-size:15.5px;font-family:${nameFamily};font-style:italic;color:${paper.accent};margin:5px 0 0;">Ils se portent.</p>
     </div>
-    <div style="z-index:3;padding:6px;background:${paper.darkQr ? "rgba(255,255,255,0.94)" : "rgba(255,255,255,0.88)"};border-radius:6px;">
-      <img src="${qrDataUrl}" width="150" height="150" style="display:block;" alt="QR"/>
+    <div style="z-index:3;padding:7px;background:${paper.darkQr ? "rgba(255,255,255,0.94)" : "rgba(255,255,255,0.88)"};border-radius:6px;">
+      <img src="${qrDataUrl}" width="172" height="172" style="display:block;" alt="QR"/>
     </div>
     <div style="display:flex;align-items:center;gap:5px;z-index:3;">
-      <svg viewBox="0 0 24 24" width="11" height="11" fill="none"><rect x="5" y="2" width="14" height="20" rx="3" stroke="${paper.accent}" stroke-width="1.4"/><rect x="9" y="18" width="6" height="1.5" rx="0.75" fill="${paper.accent}"/></svg>
-      <p style="font-size:8px;color:${paper.text};opacity:0.5;font-family:'Inter',sans-serif;letter-spacing:0.04em;margin:0;">Scannez, puis saisissez le code au dos</p>
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none"><rect x="5" y="2" width="14" height="20" rx="3" stroke="${paper.accent}" stroke-width="1.4"/><rect x="9" y="18" width="6" height="1.5" rx="0.75" fill="${paper.accent}"/></svg>
+      <p style="font-size:9.5px;color:${paper.text};opacity:0.55;font-family:'Inter',sans-serif;letter-spacing:0.04em;margin:0;">Scannez, puis saisissez le code au dos</p>
     </div>
     <div style="z-index:3;width:60%;padding-bottom:4px;">${heartLine(paper.accent, 100)}</div>
   </div>`;
 
   // ── VERSO ──
-  const nameStyle = `font-size:20px;font-family:${nameFamily};font-style:${nameItalic};color:${paper.accent};line-height:1.2;margin:0;`;
+  const nameStyle = `font-size:25px;font-family:${nameFamily};font-style:${nameItalic};color:${paper.accent};line-height:1.2;margin:0;`;
   const verso = `<div style="${cardBase}">
     ${inset}
     <div style="z-index:3;width:65%;padding-top:4px;">${heartLine(paper.accent, 100)}</div>
@@ -112,18 +112,18 @@ export async function GET(
     </div>
     ${dateFormatted ? `<div style="text-align:center;z-index:3;">
       <p style="${label}margin:0;">Créé le</p>
-      <p style="font-size:10px;font-family:'Playfair Display',serif;font-style:italic;color:${paper.text};opacity:0.7;margin:2px 0 0;">${escapeHtml(dateFormatted)}</p>
+      <p style="font-size:12px;font-family:'Playfair Display',serif;font-style:italic;color:${paper.text};opacity:0.7;margin:2px 0 0;">${escapeHtml(dateFormatted)}</p>
     </div>` : ""}
-    ${message.accessCode ? `<div style="z-index:3;text-align:center;padding:6px 14px;border:1px solid ${paper.accent};border-radius:8px;opacity:0.95;">
+    ${message.accessCode ? `<div style="z-index:3;text-align:center;padding:7px 18px;border:1px solid ${paper.accent};border-radius:8px;opacity:0.95;">
       <p style="${label}margin:0;">Code d'accès confidentiel</p>
-      <p style="font-size:20px;font-weight:900;letter-spacing:0.34em;color:${paper.accent};font-family:'Inter',sans-serif;margin:2px 0 0;">${escapeHtml(message.accessCode)}</p>
+      <p style="font-size:24px;font-weight:900;letter-spacing:0.34em;color:${paper.accent};font-family:'Inter',sans-serif;margin:3px 0 0;">${escapeHtml(message.accessCode)}</p>
     </div>` : ""}
-    <div style="z-index:3;">${logoImg(38, baseUrl)}</div>
+    <div style="z-index:3;">${logoImg(48, baseUrl)}</div>
     <div style="text-align:center;z-index:3;padding:0 6px;">
       ${message.message
-        ? `<p style="font-size:10px;font-family:${nameFamily};font-style:italic;color:${paper.text};opacity:0.72;line-height:1.6;white-space:pre-wrap;margin:0;">${escapeHtml(message.message)}</p>`
+        ? `<p style="font-size:12px;font-family:${nameFamily};font-style:italic;color:${paper.text};opacity:0.75;line-height:1.6;white-space:pre-wrap;margin:0;">${escapeHtml(message.message)}</p>`
         : ""}
-      <p style="font-size:12px;margin:6px 0 0;font-family:${nameFamily};font-style:italic;color:${paper.accent};">N'oublie jamais.</p>
+      <p style="font-size:14.5px;margin:7px 0 0;font-family:${nameFamily};font-style:italic;color:${paper.accent};">N'oublie jamais.</p>
     </div>
     <div style="z-index:3;padding-bottom:4px;">
       <svg viewBox="0 0 16 16" fill="${paper.accent}" width="10" height="10" style="opacity:0.6;"><path d="M8 14l-1-0.9C3.5 10.2 1 8.1 1 5.5 1 3.4 2.7 2 4.5 2c1.2 0 2.4.6 3.5 1.7C9.1 2.6 10.3 2 11.5 2 13.3 2 15 3.4 15 5.5c0 2.6-2.5 4.7-6 8.6L8 14z"/></svg>
