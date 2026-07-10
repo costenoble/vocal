@@ -163,7 +163,7 @@ export default function DemoClient() {
                 N&rsquo;OUBLIE JAMAIS
               </h1>
               <p className="text-[9px] font-bold tracking-[0.22em] uppercase text-shimmer mt-0.5">
-                UN SOUVENIR QUI TRAVERSE LE TEMPS
+                LES ÉMOTIONS PRENNENT UNE VOIX
               </p>
             </div>
           </motion.div>

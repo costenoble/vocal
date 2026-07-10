@@ -212,7 +212,7 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
                 className="text-[9px] font-bold tracking-[0.26em] uppercase mt-2 nj-anim"
                 style={{ color: "var(--gold)", opacity: 0, animation: "nj-fade-up 0.55s cubic-bezier(0.22,1,0.36,1) 1.5s both" }}
               >
-                Un souvenir qui traverse le temps
+                Les émotions prennent une voix
               </p>
             </div>
           )}

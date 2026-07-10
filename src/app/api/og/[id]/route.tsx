@@ -91,7 +91,7 @@ export async function GET(
               N'OUBLIE JAMAIS
             </span>
             <span style={{ fontSize: 10, fontFamily: "sans-serif", letterSpacing: "0.18em", textTransform: "uppercase", color: "#B8861A" }}>
-              Un souvenir qui traverse le temps
+              Les émotions prennent une voix
             </span>
           </div>
 

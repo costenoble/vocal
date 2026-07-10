@@ -353,7 +353,7 @@ export default function ListenClient({ slug, fromName, toName, date, audioUrl, d
               N&rsquo;OUBLIE JAMAIS
             </h1>
             <p className="text-[9px] font-bold tracking-[0.22em] uppercase mt-0.5" style={{ color: t.accent }}>
-              UN SOUVENIR QUI TRAVERSE LE TEMPS
+              LES ÉMOTIONS PRENNENT UNE VOIX
             </p>
           </div>
         </motion.div>

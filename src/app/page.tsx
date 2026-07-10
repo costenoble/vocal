@@ -10,10 +10,19 @@ import Link from "next/link";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-const OCCASIONS = [
-  "Je t'aime", "Joyeux anniversaire", "Merci",
-  "Je suis fier de toi", "Ne baisse jamais les bras", "Bienvenue dans la famille",
-  "Veux-tu m'épouser ?", "À nos grands-parents", "Pour un ami",
+// Occasions avec icône (traits dorés, style de la marque).
+const OCCASIONS: { label: string; icon: React.ReactNode }[] = [
+  { label: "Je t'aime", icon: <path d="M12 21l-1.45-1.32C5.4 15 2 12 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2 1.1-1.2 2.8-2 4.5-2C19.6 3 22 5.4 22 8.5c0 3.5-3.4 6.5-8.55 11.18L12 21z" /> },
+  { label: "Joyeux anniversaire", icon: <><path d="M4 21h16v-8H4z" /><path d="M4 13c1.3-1.5 2.7-1.5 4 0s2.7 1.5 4 0 2.7-1.5 4 0 2.7 1.5 4 0" /><path d="M12 8V4M12 3.5l1 1-1 1-1-1z" /></> },
+  { label: "Merci", icon: <><rect x="3" y="8" width="18" height="13" rx="1" /><path d="M3 8h18M12 8v13M12 8c-2-4-6-4-6-1 0 2 3 1 6 1zM12 8c2-4 6-4 6-1 0 2-3 1-6 1z" /></> },
+  { label: "Je suis fier de toi", icon: <path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z" /> },
+  { label: "Ne baisse jamais les bras", icon: <path d="M6 13V9a2 2 0 0 1 4 0v3m0 0V6a2 2 0 0 1 4 0v6m0-4a2 2 0 0 1 4 0v6a6 6 0 0 1-6 6H9a5 5 0 0 1-5-5c0-2 2-2 2-3z" /> },
+  { label: "Bienvenue dans la famille", icon: <><path d="M4 11l8-6 8 6v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z" /><path d="M12 18c-2-1.5-3-2.5-3-4 0-1 1-1.5 1.5-1 .5.4 1 .8 1.5 1.4.5-.6 1-1 1.5-1.4.5-.5 1.5 0 1.5 1 0 1.5-1 2.5-3 4z" /></> },
+  { label: "Veux-tu m'épouser ?", icon: <><circle cx="12" cy="14" r="6" /><path d="M9 6l1.5-3h3L15 6l-3 2z" /></> },
+  { label: "À nos grands-parents", icon: <path d="M12 20c0-6 3-11 8-13-1 6-4 9-8 9m0 4c0-5-3-9-7-10 1 5 3 8 7 8" /> },
+  { label: "Pour un ami", icon: <path d="M8 13l2 2 3-3 3 3 2-2M3 12l4-4 3 2 3-3 4 4M3 12v4a2 2 0 0 0 2 2h2M21 12v4a2 2 0 0 1-2 2h-2" /> },
+  { label: "Maman, je t'aime", icon: <><circle cx="12" cy="8" r="3" /><path d="M6 21v-1a6 6 0 0 1 12 0v1M12 14v3M10.5 15.5l1.5 1.5 1.5-1.5" /></> },
+  { label: "Papa, je t'aime", icon: <><circle cx="12" cy="8" r="3" /><path d="M6 21v-1a6 6 0 0 1 12 0v1M12 14v3M10.5 15.5l1.5 1.5 1.5-1.5" /></> },
 ];
 
 const STEPS = [
@@ -195,11 +204,26 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.68, duration: 0.5, ease: EASE }}
-                className="text-[14px] leading-relaxed mb-8"
-                style={{ color: "var(--ink-muted)", maxWidth: 340 }}
+                className="text-[14px] leading-relaxed mb-5"
+                style={{ color: "var(--ink-muted)", maxWidth: 360 }}
               >
-                Un bracelet en pierre naturelle, sa carte et son message vocal. Une attention qui restera dans les mémoires.
+                Un bracelet en pierre naturelle accompagné d&rsquo;une carte personnalisée permettant d&rsquo;écouter un message vocal privé.
               </motion.p>
+
+              {/* Points clés */}
+              <motion.ul
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.74, duration: 0.5, ease: EASE }}
+                className="flex flex-col gap-2 mb-8"
+              >
+                {[["Une émotion", " à offrir."], ["Une voix", " à conserver."]].map(([a, b]) => (
+                  <li key={a} className="flex items-center gap-2.5 text-[14px]" style={{ color: "var(--ink)" }}>
+                    <span style={{ width: 18, height: 1.5, background: "var(--gold)", flexShrink: 0 }} />
+                    <span>{a}<span style={{ color: "var(--gold)" }}>{b}</span></span>
+                  </li>
+                ))}
+              </motion.ul>
 
               {/* CTAs */}
               <motion.div
@@ -268,7 +292,7 @@ export default function LandingPage() {
                   <div style={{ padding: "10px 18px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
                     <Logo size={44} />
                     <p style={{ fontSize: 8, fontWeight: 900, letterSpacing: "0.18em", color: "var(--ink)", marginTop: 4, marginBottom: 2 }}>N&rsquo;OUBLIE JAMAIS</p>
-                    <p style={{ fontSize: 6.5, fontWeight: 700, letterSpacing: "0.14em", color: "var(--gold)", marginBottom: 8 }}>UN SOUVENIR QUI TRAVERSE LE TEMPS</p>
+                    <p style={{ fontSize: 6.5, fontWeight: 700, letterSpacing: "0.14em", color: "var(--gold)", marginBottom: 8 }}>LES ÉMOTIONS PRENNENT UNE VOIX</p>
 
                     <div style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                       <div style={{ flex: 1, height: 1, background: "linear-gradient(to right, transparent, rgba(184,134,26,0.4))" }} />
@@ -416,20 +440,29 @@ export default function LandingPage() {
             Ces mots qui méritent d&rsquo;être conservés.
           </h2>
           <div className="grid grid-cols-3 gap-3 mb-4">
-            {OCCASIONS.map((label, i) => (
+            {OCCASIONS.map((occ, i) => (
               <motion.div
-                key={label}
+                key={occ.label}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
-                transition={{ delay: i * 0.05, duration: 0.45, ease: EASE }}
+                transition={{ delay: i * 0.04, duration: 0.45, ease: EASE }}
                 whileHover={{ y: -6, scale: 1.04, boxShadow: "0 10px 30px rgba(184,134,26,0.14)", transition: { duration: 0.2, ease: "easeOut" } }}
-                className="rounded-2xl py-6 px-3 flex items-center justify-center text-center cursor-default min-h-[76px]"
+                className="rounded-2xl py-5 px-2 flex flex-col items-center justify-center text-center gap-2.5 cursor-default min-h-[100px]"
                 style={{ background: "var(--cream)", border: "1px solid rgba(184,134,26,0.14)" }}
               >
-                <span className="text-[13px] font-semibold leading-tight" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{label}</span>
+                <svg viewBox="0 0 24 24" width={26} height={26} fill="none" stroke="var(--gold)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                  {occ.icon}
+                </svg>
+                <span className="text-[12px] font-semibold leading-tight" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{occ.label}</span>
               </motion.div>
             ))}
+          </div>
+          <div className="flex items-center justify-center gap-2.5 mt-6">
+            <div style={{ flex: 1, maxWidth: 60, height: 1, background: "rgba(184,134,26,0.3)" }} />
+            <p className="text-[12px]" style={{ color: "var(--ink-muted)" }}>Chaque message est unique, comme votre lien.</p>
+            <svg viewBox="0 0 24 24" fill="var(--gold)" width={12} height={12}><path d="M12 21l-1.45-1.32C5.4 15 2 12 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2 1.1-1.2 2.8-2 4.5-2C19.6 3 22 5.4 22 8.5c0 3.5-3.4 6.5-8.55 11.18L12 21z"/></svg>
+            <div style={{ flex: 1, maxWidth: 60, height: 1, background: "rgba(184,134,26,0.3)" }} />
           </div>
         </div>
 
@@ -714,24 +747,53 @@ export default function LandingPage() {
               Les photos gardent les visages.<br />
               <span style={{ color: "var(--gold)", fontStyle: "italic" }}>Rien ne gardait les voix.</span>
             </h2>
-            <div className="grid sm:grid-cols-2 gap-5 sm:gap-12 max-w-3xl text-left">
-              <p className="text-[14px] sm:text-[15px] leading-relaxed" style={{ color: "rgba(240,232,216,0.75)" }}>
+
+            <div className="flex flex-col gap-5 max-w-xl">
+              <p className="text-[14px] sm:text-[15px] leading-relaxed" style={{ color: "rgba(240,232,216,0.78)" }}>
                 N&rsquo;OUBLIE JAMAIS est né d&rsquo;un constat simple : un jour, on donnerait tout
                 pour réécouter trois mots d&rsquo;une personne qu&rsquo;on aime. Son rire au téléphone.
                 Sa façon de dire notre prénom.
               </p>
-              <p className="text-[14px] sm:text-[15px] leading-relaxed" style={{ color: "rgba(240,232,216,0.75)" }}>
-                Alors nous avons créé ce bracelet et sa carte vocale : une voix, un QR code,
-                et un souvenir qui ne s&rsquo;efface pas. Chaque coffret est préparé à la main,
-                avec le soin qu&rsquo;on met aux choses qui comptent.
+              <p className="text-[14px] sm:text-[15px] leading-relaxed" style={{ color: "rgba(240,232,216,0.78)" }}>
+                Mais une voix peut transmettre bien plus que <span style={{ color: "var(--gold)" }}>des mots</span>.
+                Elle peut remercier, encourager, rassurer, féliciter ou simplement rappeler à
+                quelqu&rsquo;un combien il compte.
               </p>
             </div>
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-10 h-px" style={{ background: "rgba(212,168,50,0.5)" }} />
-              <p className="text-[12px] italic" style={{ color: "var(--gold)", fontFamily: "var(--font-playfair)" }}>
-                L&rsquo;équipe N&rsquo;OUBLIE JAMAIS
-              </p>
+
+            <div className="w-10 h-px" style={{ background: "rgba(212,168,50,0.5)" }} />
+
+            <p className="text-[14px] sm:text-[15px] leading-relaxed max-w-xl" style={{ color: "rgba(240,232,216,0.78)" }}>
+              <strong style={{ color: "var(--cream)" }}>C&rsquo;est pour cela qu&rsquo;est né <span style={{ color: "var(--gold)" }}>N&rsquo;OUBLIE JAMAIS</span></strong> :
+              un bracelet ou un collier en pierre naturelle accompagné d&rsquo;une carte personnalisée
+              donnant accès à un message vocal privé.
+            </p>
+
+            {/* Trois piliers */}
+            <div className="grid grid-cols-3 gap-4 sm:gap-10 w-full max-w-lg">
+              {[
+                { t: "Un souvenir", b: "à porter.", icon: <path d="M20 7h-3l-1.5-2h-7L7 7H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1zM3 11h18" /> },
+                { t: "Une voix", b: "à conserver.", icon: <path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4" /> },
+                { t: "Une émotion", b: "à transmettre.", icon: <path d="M12 21l-1.45-1.32C5.4 15 2 12 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2 1.1-1.2 2.8-2 4.5-2C19.6 3 22 5.4 22 8.5c0 3.5-3.4 6.5-8.55 11.18L12 21z" /> },
+              ].map((f) => (
+                <div key={f.t} className="flex flex-col items-center gap-2.5">
+                  <svg viewBox="0 0 24 24" width={26} height={26} fill="none" stroke="var(--gold)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">{f.icon}</svg>
+                  <p className="text-[12px] leading-tight" style={{ color: "rgba(240,232,216,0.85)" }}>{f.t}<br />{f.b}</p>
+                </div>
+              ))}
             </div>
+
+            <div className="w-10 h-px" style={{ background: "rgba(212,168,50,0.5)" }} />
+
+            <p className="text-[15px] leading-relaxed" style={{ color: "var(--cream)" }}>
+              Parce que certaines émotions
+              <br />
+              <span style={{ color: "var(--gold)", fontStyle: "italic", fontFamily: "var(--font-playfair)" }}>méritent d&rsquo;être entendues encore et encore.</span>
+            </p>
+
+            <p className="text-[12px] italic" style={{ color: "var(--gold)", fontFamily: "var(--font-playfair)" }}>
+              L&rsquo;équipe N&rsquo;OUBLIE JAMAIS
+            </p>
           </div>
         </motion.div>
       </section>
@@ -854,7 +916,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <p className="text-[15px] leading-relaxed" style={{ color: "rgba(250,246,239,0.6)", fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
-                &ldquo;Un souvenir qui traverse le temps.&rdquo;
+                &ldquo;Les émotions prennent une voix.&rdquo;
               </p>
               <div className="flex items-center gap-1.5">
                 {Array(5).fill(null).map((_, i) => <span key={i} style={{ color: "var(--gold)", fontSize: 15 }}>★</span>)}

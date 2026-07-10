@@ -15,7 +15,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "N'OUBLIE JAMAIS — Un souvenir qui traverse le temps",
+  title: "N'OUBLIE JAMAIS — Les émotions prennent une voix",
   description:
     "Enregistrez votre message vocal et offrez un souvenir unique à ceux que vous aimez.",
 };

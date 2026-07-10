@@ -6,6 +6,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import Logo from "@/components/Logo";
 import ProductDetail from "@/components/ProductDetail";
+import BackButton from "@/components/BackButton";
 import type { Product } from "@/lib/products";
 
 type Status = "loading" | "found" | "not-found";
@@ -27,11 +28,14 @@ export default function ProductPage() {
       <SiteHeader />
 
       <div className="max-w-5xl mx-auto px-5 py-16">
-        <div className="flex items-center gap-2 mb-10 text-[11px]" style={{ color: "var(--ink-muted)" }}>
-          <Link href="/" style={{ color: "var(--ink-muted)" }}>Accueil</Link>
-          <span>/</span>
-          <Link href="/boutique" style={{ color: "var(--ink-muted)" }}>Boutique</Link>
-          {product && <><span>/</span><span style={{ color: "var(--ink)" }}>{product.name}</span></>}
+        <div className="flex items-center justify-between gap-3 mb-10">
+          <div className="flex items-center gap-2 text-[11px]" style={{ color: "var(--ink-muted)" }}>
+            <Link href="/" style={{ color: "var(--ink-muted)" }}>Accueil</Link>
+            <span>/</span>
+            <Link href="/boutique" style={{ color: "var(--ink-muted)" }}>Boutique</Link>
+            {product && <><span>/</span><span style={{ color: "var(--ink)" }}>{product.name}</span></>}
+          </div>
+          <BackButton fallback="/boutique" />
         </div>
 
         {status === "loading" && (

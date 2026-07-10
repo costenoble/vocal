@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import SiteHeader from "@/components/SiteHeader";
 import Logo from "@/components/Logo";
+import BackButton from "@/components/BackButton";
 import { useCart, removeFromCart, cartTotal, type CartItem } from "@/lib/cart";
 
 const COUNTRIES = ["France", "Belgique", "Suisse", "Luxembourg", "Canada", "Autre"];
@@ -103,12 +104,15 @@ export default function CartPage() {
     <div className="min-h-screen" style={{ background: "var(--cream)" }}>
       <SiteHeader />
       <div className="max-w-2xl mx-auto px-5 py-14">
-        <div className="flex items-center gap-2 mb-8 text-[11px]" style={{ color: "var(--ink-muted)" }}>
-          <Link href="/" style={{ color: "var(--ink-muted)" }}>Accueil</Link>
-          <span>/</span>
-          <Link href="/boutique" style={{ color: "var(--ink-muted)" }}>Boutique</Link>
-          <span>/</span>
-          <span style={{ color: "var(--ink)" }}>Panier</span>
+        <div className="flex items-center justify-between gap-3 mb-8">
+          <div className="flex items-center gap-2 text-[11px]" style={{ color: "var(--ink-muted)" }}>
+            <Link href="/" style={{ color: "var(--ink-muted)" }}>Accueil</Link>
+            <span>/</span>
+            <Link href="/boutique" style={{ color: "var(--ink-muted)" }}>Boutique</Link>
+            <span>/</span>
+            <span style={{ color: "var(--ink)" }}>Panier</span>
+          </div>
+          <BackButton fallback="/boutique" />
         </div>
 
         <h1 className="text-[30px] font-black mb-8" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>

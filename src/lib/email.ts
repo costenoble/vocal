@@ -98,7 +98,7 @@ export async function sendOrderConfirmation(params: OrderEmailParams) {
     <div class="stripe"></div>
     <div class="content">
       <div class="logo-text">N'OUBLIE JAMAIS</div>
-      <div class="tagline">Un souvenir qui traverse le temps</div>
+      <div class="tagline">Les émotions prennent une voix</div>
 
       ${intro}
 
@@ -160,7 +160,7 @@ function emailShell(inner: string) {
     <div style="height:4px;background:linear-gradient(to right,#8B6510,#D4A832,#8B6510);"></div>
     <div style="padding:36px 32px;">
       <div style="font-size:18px;font-weight:900;letter-spacing:0.2em;text-transform:uppercase;color:#1C1410;font-family:sans-serif;">N'OUBLIE JAMAIS</div>
-      <div style="font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#B8861A;font-family:sans-serif;margin-top:4px;">Un souvenir qui traverse le temps</div>
+      <div style="font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#B8861A;font-family:sans-serif;margin-top:4px;">Les émotions prennent une voix</div>
       ${inner}
     </div>
     <div style="text-align:center;padding:20px;border-top:1px solid rgba(184,134,26,0.15);">

@@ -16,8 +16,13 @@ const REASSURANCE = [
 ];
 
 export default function ProductDetail({ product }: { product: Product }) {
-  const [selectedSize, setSelectedSize] = useState<string>("");
+  // Si une seule taille existe (ex. "Ajustable"), on la présélectionne pour
+  // que le bouton "Commander" soit actif immédiatement.
+  const [selectedSize, setSelectedSize] = useState<string>(
+    product.sizes.length === 1 ? product.sizes[0] : ""
+  );
   const hasSizes = product.sizes.length > 0;
+  const singleSize = product.sizes.length === 1;
   const inStock = isPurchasable(product);
 
   // Galerie : photo de couverture + photos supplémentaires (dédupliquées).
@@ -113,7 +118,14 @@ export default function ProductDetail({ product }: { product: Product }) {
 
         <div className="h-px w-full" style={{ background: "rgba(184,134,26,0.15)" }} />
 
-        {hasSizes && (
+        {hasSizes && singleSize ? (
+          <div className="flex items-center gap-2.5">
+            <p className="text-[12px] font-bold uppercase tracking-wider" style={{ color: "var(--ink)" }}>Taille</p>
+            <span className="px-3.5 py-1.5 rounded-xl text-[13px] font-semibold" style={{ background: "var(--ink)", color: "white" }}>
+              {product.sizes[0]}
+            </span>
+          </div>
+        ) : hasSizes ? (
           <div>
             <div className="flex items-center justify-between mb-3">
               <p className="text-[12px] font-bold uppercase tracking-wider" style={{ color: "var(--ink)" }}>
@@ -143,7 +155,7 @@ export default function ProductDetail({ product }: { product: Product }) {
               Mesurez votre poignet avec un ruban ou une ficelle pour trouver votre taille.
             </p>
           </div>
-        )}
+        ) : null}
 
         <div className="flex flex-col gap-3">
           {!inStock ? (
