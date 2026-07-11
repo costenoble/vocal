@@ -119,8 +119,9 @@ export default function OrderBell({ initialTimestamps }: { initialTimestamps: nu
           {newCount}
         </span>
       )}
-      {/* Pastille ambrée : notifications pas encore activées */}
-      {newCount === 0 && needsPermission && permission !== "unsupported" && (
+      {/* Pastille ambrée : notifications pas encore activées (needsPermission
+          n'est vrai que pour "default"/"denied", donc jamais "unsupported"). */}
+      {newCount === 0 && needsPermission && (
         <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full" style={{ background: "var(--gold)", border: "1.5px solid white" }} />
       )}
     </button>
