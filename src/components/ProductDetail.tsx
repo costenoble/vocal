@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import type { Product } from "@/lib/products";
-import { isPurchasable } from "@/lib/product-utils";
+import { isPurchasable, formatPrice } from "@/lib/product-utils";
 import { categoryLabel } from "@/lib/categories";
 
 const REASSURANCE = [
@@ -101,7 +101,7 @@ export default function ProductDetail({ product }: { product: Product }) {
 
         <div className="flex items-baseline gap-3">
           <span className="text-[42px] font-black" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
-            {product.price} €
+            {formatPrice(product.price)}
           </span>
           <span className="text-[13px]" style={{ color: "var(--ink-muted)" }}>TTC · Livraison incluse</span>
         </div>

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { THEMES, getTheme, type ThemeId } from "@/lib/themes";
 import type { Product } from "@/lib/products";
 import { addToCart } from "@/lib/cart";
+import { formatPrice } from "@/lib/product-utils";
 
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6;
 type RecordState = "idle" | "requesting" | "recording" | "uploading" | "done";
@@ -919,7 +920,7 @@ export default function ComposerClient() {
             <div className="flex-1 min-w-0">
               <p className="text-[13px] font-bold truncate" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{product.name}</p>
               <p className="text-[11px]" style={{ color: "var(--ink-muted)" }}>
-                {productSize ? `Taille ${productSize}` : "Taille à confirmer"} · {product.price},00 €
+                {productSize ? `Taille ${productSize}` : "Taille à confirmer"} · {formatPrice(product.price)}
               </p>
             </div>
             <Link href="/boutique" className="text-[11px] font-semibold shrink-0" style={{ color: "var(--gold)" }}>Modifier</Link>
@@ -1367,7 +1368,7 @@ export default function ComposerClient() {
                         {card.fromName || "—"} → {card.toName || "—"}
                       </p>
                       <p className="text-[11px]" style={{ color: "rgba(240,232,216,0.5)" }}>
-                        {product ? `${product.name}${productSize ? ` · ${productSize}` : ""} · ${product.price},00 €` : "Carte vocale"}
+                        {product ? `${product.name}${productSize ? ` · ${productSize}` : ""} · ${formatPrice(product.price)}` : "Carte vocale"}
                       </p>
                     </div>
                   </div>
@@ -1419,7 +1420,7 @@ export default function ComposerClient() {
                   {/* Total */}
                   <div className="px-5 py-4 flex items-center justify-between">
                     <span className="text-[13px] font-bold uppercase tracking-wider" style={{ color: "var(--ink)" }}>Total</span>
-                    <span className="text-[22px] font-black" style={{ color: "var(--ink)" }}>{product.price},00 €</span>
+                    <span className="text-[22px] font-black" style={{ color: "var(--ink)" }}>{formatPrice(product.price)}</span>
                   </div>
                 </div>
 
@@ -1434,7 +1435,7 @@ export default function ComposerClient() {
                         <span className="w-3.5 h-3.5 border-2 rounded-full animate-spin" style={{ borderColor: "rgba(255,255,255,0.3)", borderTopColor: "white" }} />
                         Redirection…
                       </span>
-                    : `Payer ${product.price},00 € · Commander`
+                    : `Payer ${formatPrice(product.price)} · Commander`
                   }
                 </button>
               </div>

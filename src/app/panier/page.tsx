@@ -8,6 +8,7 @@ import SiteHeader from "@/components/SiteHeader";
 import Logo from "@/components/Logo";
 import BackButton from "@/components/BackButton";
 import { useCart, removeFromCart, cartTotal, type CartItem } from "@/lib/cart";
+import { formatPrice } from "@/lib/product-utils";
 
 const COUNTRIES = ["France", "Belgique", "Suisse", "Luxembourg", "Canada", "Autre"];
 
@@ -26,7 +27,7 @@ function CartRow({ item }: { item: CartItem }) {
         <p className="text-[12px]" style={{ color: "var(--ink-muted)" }}>
           {item.productSize ? `Taille ${item.productSize} · ` : ""}De {item.fromName} pour {item.toName}
         </p>
-        <p className="text-[13px] font-black mt-0.5" style={{ color: "var(--gold)" }}>{item.price},00 €</p>
+        <p className="text-[13px] font-black mt-0.5" style={{ color: "var(--gold)" }}>{formatPrice(item.price)}</p>
       </div>
       <button
         onClick={() => removeFromCart(item.id)}
@@ -191,7 +192,7 @@ export default function CartPage() {
               </div>
               <div className="flex items-baseline justify-between mb-5">
                 <span className="text-[16px] font-bold" style={{ color: "var(--ink)" }}>Total</span>
-                <span className="text-[32px] font-black" style={{ color: "var(--gold)" }}>{total},00 €</span>
+                <span className="text-[32px] font-black" style={{ color: "var(--gold)" }}>{formatPrice(total)}</span>
               </div>
 
               {error && <p className="text-[12px] font-semibold mb-3 text-center" style={{ color: "#C0392B" }}>{error}</p>}

@@ -8,7 +8,7 @@ import SiteHeader from "@/components/SiteHeader";
 import Logo from "@/components/Logo";
 import ProductDetail from "@/components/ProductDetail";
 import type { Product } from "@/lib/products";
-import { isPurchasable } from "@/lib/product-utils";
+import { isPurchasable, formatPrice } from "@/lib/product-utils";
 import { categoryLabel, sortCategories } from "@/lib/categories";
 
 const OCCASIONS = [
@@ -45,7 +45,7 @@ function ProductCard({ product }: { product: Product }) {
       <div className="p-4 flex flex-col gap-1">
         <p className="text-[14px] font-bold" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>{product.name}</p>
         {product.tagline && <p className="text-[11px]" style={{ color: "var(--ink-muted)" }}>{product.tagline}</p>}
-        <p className="text-[16px] font-black mt-1" style={{ color: "var(--gold)" }}>{product.price} €</p>
+        <p className="text-[16px] font-black mt-1" style={{ color: "var(--gold)" }}>{formatPrice(product.price)}</p>
       </div>
     </Link>
   );
