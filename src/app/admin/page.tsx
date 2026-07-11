@@ -3,6 +3,7 @@ import Logo from "@/components/Logo";
 import DeleteOrderButton from "@/components/DeleteOrderButton";
 import MarkShippedButton from "@/components/MarkShippedButton";
 import LogoutButton from "@/components/admin/LogoutButton";
+import OrderBell from "@/components/admin/OrderBell";
 import Link from "next/link";
 import { isAdminSession } from "@/lib/admin-auth";
 import { getPlanById } from "@/lib/plans";
@@ -118,6 +119,11 @@ export default async function AdminPage({
   const shippedList = paidMessages.filter((m) => m.shippedAt);
   const unpaidList = messages.filter((m) => !m.paid);
 
+  // Horodatages des commandes payées → cloche de notification.
+  const paidTimestamps = paidMessages
+    .map((m) => new Date(m.createdAt).getTime())
+    .sort((a, b) => b - a);
+
   // Nombre d'articles par commande groupée (panier) → badge "même colis".
   const orderCounts = new Map<string, number>();
   for (const m of messages) {
@@ -154,6 +160,7 @@ export default async function AdminPage({
             <p className="text-xs" style={{ color: "var(--ink-muted)" }}>N&rsquo;OUBLIE JAMAIS</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+            <OrderBell initialTimestamps={paidTimestamps} />
             <Link
               href="/admin/account"
               className="px-4 py-2.5 rounded-xl font-bold text-[13px] transition-all active:scale-95"
@@ -223,7 +230,7 @@ export default async function AdminPage({
         </div>
 
         {/* ═══ À expédier ═══ */}
-        <div className="rounded-2xl overflow-hidden mb-6" style={{ border: toShipList.length > 0 ? "1.5px solid rgba(184,134,26,0.35)" : "1px solid rgba(184,134,26,0.12)", boxShadow: "0 2px 12px rgba(184,134,26,0.06)" }}>
+        <div id="commandes-a-expedier" className="rounded-2xl overflow-hidden mb-6" style={{ border: toShipList.length > 0 ? "1.5px solid rgba(184,134,26,0.35)" : "1px solid rgba(184,134,26,0.12)", boxShadow: "0 2px 12px rgba(184,134,26,0.06)" }}>
           <div className="px-5 py-3 flex items-center justify-between gap-3" style={{ background: "white", borderBottom: "1px solid rgba(184,134,26,0.10)" }}>
             <div className="flex items-center gap-2.5">
               <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--gold-dark)" }}>À expédier</h2>
