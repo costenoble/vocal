@@ -47,3 +47,6 @@ next-env.d.ts
 dev.db
 dev.db-journal
 /public/audio/
+
+# Maquettes de design (référence locale, pas des assets de code)
+/design-reference/
