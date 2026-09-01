@@ -1,6 +1,6 @@
 import LegalLayout from "@/components/LegalLayout";
 
-export const metadata = { title: "Conditions Générales de Vente — N'OUBLIE JAMAIS" };
+export const metadata = { title: "Conditions Générales de Vente" };
 
 export default function CGV() {
   return (

@@ -1,6 +1,6 @@
 import LegalLayout from "@/components/LegalLayout";
 
-export const metadata = { title: "Politique de Confidentialité — N'OUBLIE JAMAIS" };
+export const metadata = { title: "Politique de Confidentialité" };
 
 export default function Confidentialite() {
   return (

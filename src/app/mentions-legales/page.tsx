@@ -1,6 +1,6 @@
 import LegalLayout from "@/components/LegalLayout";
 
-export const metadata = { title: "Mentions Légales — N'OUBLIE JAMAIS" };
+export const metadata = { title: "Mentions Légales" };
 
 export default function MentionsLegales() {
   return (

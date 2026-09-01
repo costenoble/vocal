@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const origin = process.env.NEXT_PUBLIC_APP_URL ?? "https://votre-domaine.com";
 
   return {
-    title: `Message de ${msg.fromName} pour ${msg.toName} — N'OUBLIE JAMAIS`,
+    title: `Message de ${msg.fromName} pour ${msg.toName}`,
     description: `Un message vocal unique, enregistré avec amour.`,
     // Message privé : jamais indexé par les moteurs de recherche.
     robots: { index: false, follow: false },
