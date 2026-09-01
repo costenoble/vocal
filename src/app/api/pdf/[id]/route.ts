@@ -144,6 +144,7 @@ export async function GET(
   .toolbar { display:flex; align-items:center; gap:12px; margin-bottom:22px; }
   .toolbar span { font-size:12px; color:#6B5040; }
   .print-btn { padding:9px 22px; background:#B8861A; color:#fff; border:none; border-radius:22px; font-size:13px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; }
+  .back-link { padding:9px 18px; background:#fff; color:#6B5040; border:1.5px solid rgba(28,20,16,0.14); border-radius:22px; font-size:13px; font-weight:700; text-decoration:none; font-family:'Inter',sans-serif; }
   .cards { display:flex; gap:22px; flex-wrap:wrap; justify-content:center; }
   .card-wrap { display:flex; flex-direction:column; align-items:center; gap:8px; }
   .card-label { font-size:9px; font-weight:800; letter-spacing:0.22em; text-transform:uppercase; color:#8A7258; }
@@ -159,6 +160,7 @@ export async function GET(
 </head>
 <body>
   <div class="toolbar no-print">
+    <a class="back-link" href="/admin">← Retour à la liste des commandes</a>
     <span>Carte prête à imprimer — recto / verso, format A6</span>
     <button class="print-btn" onclick="window.print()">Imprimer</button>
   </div>

@@ -48,6 +48,7 @@ export async function GET(
   .box h2 { font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#B8861A; margin:0 0 8px; }
   .code { font-size:26px; font-weight:900; letter-spacing:0.3em; color:#B8861A; }
   .btn { display:inline-block; margin:16px 8px 0 0; padding:10px 20px; background:#1C1410; color:white; border-radius:10px; text-decoration:none; font-size:13px; font-weight:700; }
+  .btn-back { background:white; color:#6B5040; border:1.5px solid rgba(28,20,16,0.14); }
   table { width:100%; border-collapse:collapse; }
 </style></head>
 <body>
@@ -94,6 +95,7 @@ export async function GET(
       </div>
 
       <div class="noprint">
+        <a class="btn btn-back" href="/admin">← Retour à la liste des commandes</a>
         <a class="btn" href="/api/pdf/${esc(m.slug)}" target="_blank">Imprimer la carte</a>
         <a class="btn" href="#" onclick="window.print();return false;" style="background:#B8861A;">Imprimer / Enregistrer en PDF</a>
       </div>
