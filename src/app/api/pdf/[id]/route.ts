@@ -1,33 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
+import { renderToBuffer } from "@react-pdf/renderer";
+import fs from "node:fs";
+import path from "node:path";
 import { prisma } from "@/lib/prisma";
 import QRCode from "qrcode";
+import { registerCardFonts } from "@/lib/pdf/fonts";
+import { CardDocument } from "@/lib/pdf/CardDocument";
 
-// Paper + font tables mirror the composer preview (src/lib/products aside).
-const PAPERS: Record<string, { bg: string; text: string; accent: string; shimmer: boolean; darkQr: boolean }> = {
-  ivoire: { bg: "#F5EED5", text: "#1C1410", accent: "#8B6510", shimmer: false, darkQr: false },
-  nacre:  { bg: "#F9F8F3", text: "#1C1410", accent: "#8B6510", shimmer: true,  darkQr: false },
-  lin:    { bg: "#DFD0B4", text: "#2A1B0E", accent: "#6B4C1E", shimmer: false, darkQr: false },
-  noir:   { bg: "#18120C", text: "#F0E8D8", accent: "#D4A832", shimmer: false, darkQr: true },
-};
-
-const FONTS: Record<string, { family: string; italic: boolean }> = {
-  playfair: { family: "'Playfair Display', serif", italic: true },
-  inter:    { family: "'Inter', sans-serif", italic: false },
-  script:   { family: "'Brush Script MT', 'Segoe Script', cursive", italic: false },
-};
-
-// Logo officiel (PNG doré à fond transparent) — rendu identique sur les
-// quatre papiers, y compris le noir.
-function logoImg(size: number, baseUrl: string) {
-  return `<img src="${baseUrl}/logo.png" width="${size}" height="${Math.round(size * (715 / 720))}" style="display:block;" alt="N'OUBLIE JAMAIS"/>`;
-}
-
-function heartLine(accent: string, widthPct: number) {
-  return `<div style="display:flex;align-items:center;gap:5px;width:${widthPct}%;">
-    <div style="flex:1;height:0.5px;background:${accent};opacity:0.45;"></div>
-    <svg viewBox="0 0 16 16" fill="${accent}" width="8" height="8" style="opacity:0.7;flex-shrink:0;"><path d="M8 14l-1-0.9C3.5 10.2 1 8.1 1 5.5 1 3.4 2.7 2 4.5 2c1.2 0 2.4.6 3.5 1.7C9.1 2.6 10.3 2 11.5 2 13.3 2 15 3.4 15 5.5c0 2.6-2.5 4.7-6 8.6L8 14z"/></svg>
-    <div style="flex:1;height:0.5px;background:${accent};opacity:0.45;"></div>
-  </div>`;
+let logoDataUrl: string | null = null;
+function getLogoDataUrl() {
+  if (!logoDataUrl) {
+    const buffer = fs.readFileSync(path.join(process.cwd(), "public/logo.png"));
+    logoDataUrl = `data:image/png;base64,${buffer.toString("base64")}`;
+  }
+  return logoDataUrl;
 }
 
 export async function GET(
@@ -45,11 +31,6 @@ export async function GET(
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin || "http://localhost:3000";
   const listenUrl = `${baseUrl}/listen/${message.slug}`;
 
-  const paper = PAPERS[message.paper] ?? PAPERS.ivoire;
-  const font = FONTS[message.cardFont] ?? FONTS.playfair;
-  const nameFamily = font.family;
-  const nameItalic = message.cardFont === "inter" ? "normal" : "italic";
-
   const qrDataUrl = await QRCode.toDataURL(listenUrl, {
     width: 600,
     margin: 1,
@@ -57,132 +38,29 @@ export async function GET(
     errorCorrectionLevel: "H",
   });
 
-  // "Créé le" = vraie date de création de la commande (le champ `date` est un
-  // texte libre "Date ou occasion", il n'est pas convertible en date).
-  const dateFormatted = new Date(message.createdAt).toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  registerCardFonts();
 
-  const shimmer = paper.shimmer
-    ? `<div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0) 40%,rgba(255,255,255,0.22) 55%,rgba(255,255,255,0) 70%);pointer-events:none;z-index:2;"></div>`
-    : "";
+  const pdfBuffer = await renderToBuffer(
+    CardDocument({
+      data: {
+        slug: message.slug,
+        fromName: message.fromName,
+        toName: message.toName,
+        message: message.message,
+        accessCode: message.accessCode,
+        paper: message.paper,
+        cardFont: message.cardFont,
+        createdAt: message.createdAt,
+        logoDataUrl: getLogoDataUrl(),
+        qrDataUrl,
+      },
+    })
+  );
 
-  const cardBase = `position:relative;width:105mm;height:148mm;background:${paper.bg};display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:9mm 8mm;overflow:hidden;box-shadow:0 16px 48px rgba(28,20,16,0.16);`;
-  const inset = `<div style="position:absolute;inset:5mm;border:0.5px solid ${paper.accent};opacity:0.4;pointer-events:none;z-index:1;"></div>`;
-  const label = `font-size:9.5px;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;color:${paper.text};opacity:0.45;font-family:'Inter',sans-serif;`;
-
-  // ── RECTO ──
-  const recto = `<div style="${cardBase}">
-    ${inset}${shimmer}
-    <div style="z-index:3;margin-top:4px;">${logoImg(80, baseUrl)}</div>
-    <div style="text-align:center;z-index:3;">
-      <p style="font-size:14.5px;font-weight:900;letter-spacing:0.28em;text-transform:uppercase;color:${paper.text};font-family:'Inter',sans-serif;margin:0;">N'OUBLIE JAMAIS</p>
-      <div style="height:0.5px;background:${paper.accent};opacity:0.35;margin-top:5px;"></div>
-    </div>
-    <div style="z-index:3;width:72%;">${heartLine(paper.accent, 100)}</div>
-    <div style="text-align:center;z-index:3;">
-      <p style="font-size:13px;color:${paper.text};opacity:0.7;font-family:'Playfair Display',serif;line-height:1.5;margin:0;">Certains messages<br/>ne s'oublient pas.</p>
-      <p style="font-size:15.5px;font-family:${nameFamily};font-style:italic;color:${paper.accent};margin:5px 0 0;">Ils se portent.</p>
-    </div>
-    <div style="z-index:3;padding:7px;background:${paper.darkQr ? "rgba(255,255,255,0.94)" : "rgba(255,255,255,0.88)"};border-radius:6px;">
-      <img src="${qrDataUrl}" width="172" height="172" style="display:block;" alt="QR"/>
-    </div>
-    <div style="display:flex;align-items:center;gap:5px;z-index:3;">
-      <svg viewBox="0 0 24 24" width="13" height="13" fill="none"><rect x="5" y="2" width="14" height="20" rx="3" stroke="${paper.accent}" stroke-width="1.4"/><rect x="9" y="18" width="6" height="1.5" rx="0.75" fill="${paper.accent}"/></svg>
-      <p style="font-size:9.5px;color:${paper.text};opacity:0.55;font-family:'Inter',sans-serif;letter-spacing:0.04em;margin:0;">Scannez, puis saisissez le code au dos</p>
-    </div>
-    <div style="z-index:3;width:60%;padding-bottom:4px;">${heartLine(paper.accent, 100)}</div>
-  </div>`;
-
-  // ── VERSO ──
-  const nameStyle = `font-size:25px;font-family:${nameFamily};font-style:${nameItalic};color:${paper.accent};line-height:1.2;margin:0;`;
-  const verso = `<div style="${cardBase}">
-    ${inset}
-    <div style="z-index:3;width:65%;padding-top:4px;">${heartLine(paper.accent, 100)}</div>
-    <div style="text-align:center;z-index:3;">
-      <p style="${label}margin:0;">Message de</p>
-      <p style="${nameStyle}">${escapeHtml(message.fromName)}</p>
-    </div>
-    <div style="z-index:3;width:50%;">${heartLine(paper.accent, 100)}</div>
-    <div style="text-align:center;z-index:3;">
-      <p style="${label}margin:0;">Pour</p>
-      <p style="${nameStyle}">${escapeHtml(message.toName)}</p>
-    </div>
-    ${dateFormatted ? `<div style="text-align:center;z-index:3;">
-      <p style="${label}margin:0;">Créé le</p>
-      <p style="font-size:12px;font-family:'Playfair Display',serif;font-style:italic;color:${paper.text};opacity:0.7;margin:2px 0 0;">${escapeHtml(dateFormatted)}</p>
-    </div>` : ""}
-    ${message.accessCode ? `<div style="z-index:3;text-align:center;padding:7px 18px;border:1px solid ${paper.accent};border-radius:8px;opacity:0.95;">
-      <p style="${label}margin:0;">Code d'accès confidentiel</p>
-      <p style="font-size:24px;font-weight:900;letter-spacing:0.34em;color:${paper.accent};font-family:'Inter',sans-serif;margin:3px 0 0;">${escapeHtml(message.accessCode)}</p>
-    </div>` : ""}
-    <div style="z-index:3;">${logoImg(48, baseUrl)}</div>
-    <div style="text-align:center;z-index:3;padding:0 6px;">
-      ${message.message
-        ? `<p style="font-size:12px;font-family:${nameFamily};font-style:italic;color:${paper.text};opacity:0.75;line-height:1.6;white-space:pre-wrap;margin:0;">${escapeHtml(message.message)}</p>`
-        : ""}
-      <p style="font-size:14.5px;margin:7px 0 0;font-family:${nameFamily};font-style:italic;color:${paper.accent};">N'oublie jamais.</p>
-    </div>
-    <div style="z-index:3;padding-bottom:4px;">
-      <svg viewBox="0 0 16 16" fill="${paper.accent}" width="10" height="10" style="opacity:0.6;"><path d="M8 14l-1-0.9C3.5 10.2 1 8.1 1 5.5 1 3.4 2.7 2 4.5 2c1.2 0 2.4.6 3.5 1.7C9.1 2.6 10.3 2 11.5 2 13.3 2 15 3.4 15 5.5c0 2.6-2.5 4.7-6 8.6L8 14z"/></svg>
-    </div>
-  </div>`;
-
-  const html = `<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Carte N'OUBLIE JAMAIS — ${escapeHtml(message.fromName)} pour ${escapeHtml(message.toName)}</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,500&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-<style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:#DEDAD5; font-family:'Inter',sans-serif; display:flex; flex-direction:column; align-items:center; padding:24px 16px 40px; min-height:100vh; }
-  .toolbar { display:flex; align-items:center; gap:12px; margin-bottom:22px; }
-  .toolbar span { font-size:12px; color:#6B5040; }
-  .print-btn { padding:9px 22px; background:#B8861A; color:#fff; border:none; border-radius:22px; font-size:13px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; }
-  .back-link { padding:9px 18px; background:#fff; color:#6B5040; border:1.5px solid rgba(28,20,16,0.14); border-radius:22px; font-size:13px; font-weight:700; text-decoration:none; font-family:'Inter',sans-serif; }
-  .cards { display:flex; gap:22px; flex-wrap:wrap; justify-content:center; }
-  .card-wrap { display:flex; flex-direction:column; align-items:center; gap:8px; }
-  .card-label { font-size:9px; font-weight:800; letter-spacing:0.22em; text-transform:uppercase; color:#8A7258; }
-  @page { size: A4 landscape; margin: 8mm; }
-  @media print {
-    body { background:#fff; padding:0; }
-    .no-print { display:none !important; }
-    .cards { gap:10mm; }
-    .card-wrap { gap:0; }
-    .card-label { display:none; }
-  }
-</style>
-</head>
-<body>
-  <div class="toolbar no-print">
-    <a class="back-link" href="/admin">← Retour à la liste des commandes</a>
-    <span>Carte prête à imprimer — recto / verso, format A6</span>
-    <button class="print-btn" onclick="window.print()">Imprimer</button>
-  </div>
-  <div class="cards">
-    <div class="card-wrap"><span class="card-label no-print">Recto</span>${recto}</div>
-    <div class="card-wrap"><span class="card-label no-print">Verso</span>${verso}</div>
-  </div>
-</body>
-</html>`;
-
-  return new NextResponse(html, {
+  return new NextResponse(new Uint8Array(pdfBuffer), {
     headers: {
-      "Content-Type": "text/html; charset=utf-8",
-      "Content-Disposition": `inline; filename="carte-nj-${message.slug}.html"`,
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `inline; filename="carte-nj-${message.slug}.pdf"`,
     },
   });
-}
-
-function escapeHtml(str: string) {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
