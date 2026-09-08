@@ -329,9 +329,15 @@ export default async function AdminPage({
                           <a href={`/api/order-sheet/${m.slug}`} target="_blank" rel="noreferrer" className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] text-white transition-all active:scale-95" style={{ background: "var(--gold-dark)" }}>
                             Bon de commande
                           </a>
+                          <a href={`/api/order-sheet/${m.slug}?download=1`} className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] transition-all active:scale-95" style={{ background: "white", color: "var(--gold-dark)", border: "1.5px solid rgba(184,134,26,0.35)" }}>
+                            Télécharger le bon
+                          </a>
                           <Link href={`/api/pdf/${m.slug}`} target="_blank" className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] text-white transition-all active:scale-95" style={{ background: "var(--ink)" }}>
                             Imprimer la carte
                           </Link>
+                          <a href={`/api/pdf/${m.slug}?download=1`} className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] transition-all active:scale-95" style={{ background: "white", color: "var(--gold-dark)", border: "1.5px solid rgba(184,134,26,0.35)" }}>
+                            Télécharger la carte
+                          </a>
                           <a href={`/api/qr/${m.slug}?download=1`} className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] transition-all active:scale-95" style={{ background: "white", color: "var(--gold-dark)", border: "1.5px solid rgba(184,134,26,0.35)" }}>
                             QR code
                           </a>

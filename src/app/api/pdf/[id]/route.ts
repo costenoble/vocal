@@ -57,10 +57,12 @@ export async function GET(
     })
   );
 
+  const disposition = req.nextUrl.searchParams.get("download") === "1" ? "attachment" : "inline";
+
   return new NextResponse(new Uint8Array(pdfBuffer), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="carte-nj-${message.slug}.pdf"`,
+      "Content-Disposition": `${disposition}; filename="carte-nj-${message.slug}.pdf"`,
     },
   });
 }

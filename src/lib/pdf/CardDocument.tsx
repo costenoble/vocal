@@ -21,6 +21,11 @@ const mm = (n: number) => n * 2.834645669;
 const px = (n: number) => n * 0.75;
 const em = (fontSizePt: number, emValue: number) => fontSizePt * emValue;
 
+// Texte agrandi de 15% par rapport au design d'origine (retour client :
+// lisibilité à l'impression), sans toucher aux marges/tailles d'images.
+const TEXT_SCALE = 1.15;
+const fs = (n: number) => px(n) * TEXT_SCALE;
+
 const CARD_WIDTH = mm(105);
 const CARD_HEIGHT = mm(148);
 
@@ -94,9 +99,9 @@ export function CardDocument({ data }: { data: CardPdfData }) {
   });
 
   const labelStyle = {
-    fontSize: px(9.5),
+    fontSize: fs(9.5),
     fontWeight: 800,
-    letterSpacing: em(px(9.5), 0.22),
+    letterSpacing: em(fs(9.5), 0.22),
     textTransform: "uppercase" as const,
     color: paper.text,
     opacity: 0.45,
@@ -125,9 +130,9 @@ export function CardDocument({ data }: { data: CardPdfData }) {
           <View style={{ alignItems: "center" }}>
             <Text
               style={{
-                fontSize: px(14.5),
+                fontSize: fs(14.5),
                 fontWeight: 900,
-                letterSpacing: em(px(14.5), 0.28),
+                letterSpacing: em(fs(14.5), 0.28),
                 textTransform: "uppercase",
                 color: paper.text,
                 fontFamily: "Inter",
@@ -145,7 +150,7 @@ export function CardDocument({ data }: { data: CardPdfData }) {
           <View style={{ alignItems: "center" }}>
             <Text
               style={{
-                fontSize: px(13),
+                fontSize: fs(13),
                 color: paper.text,
                 opacity: 0.7,
                 fontFamily: "Playfair Display",
@@ -157,7 +162,7 @@ export function CardDocument({ data }: { data: CardPdfData }) {
             </Text>
             <Text
               style={{
-                fontSize: px(15.5),
+                fontSize: fs(15.5),
                 fontFamily: nameFamily,
                 fontStyle: "italic",
                 color: paper.accent,
@@ -186,11 +191,11 @@ export function CardDocument({ data }: { data: CardPdfData }) {
             </Svg>
             <Text
               style={{
-                fontSize: px(9.5),
+                fontSize: fs(9.5),
                 color: paper.text,
                 opacity: 0.55,
                 fontFamily: "Inter",
-                letterSpacing: em(px(9.5), 0.04),
+                letterSpacing: em(fs(9.5), 0.04),
               }}
             >
               Scannez, puis saisissez le code au dos
@@ -223,7 +228,7 @@ export function CardDocument({ data }: { data: CardPdfData }) {
 
           <View style={{ alignItems: "center" }}>
             <Text style={labelStyle}>Message de</Text>
-            <Text style={{ fontSize: px(25), fontFamily: nameFamily, fontStyle: nameItalic, color: paper.accent, lineHeight: 1.2 }}>
+            <Text style={{ fontSize: fs(25), fontFamily: nameFamily, fontStyle: nameItalic, color: paper.accent, lineHeight: 1.2 }}>
               {data.fromName}
             </Text>
           </View>
@@ -234,7 +239,7 @@ export function CardDocument({ data }: { data: CardPdfData }) {
 
           <View style={{ alignItems: "center" }}>
             <Text style={labelStyle}>Pour</Text>
-            <Text style={{ fontSize: px(25), fontFamily: nameFamily, fontStyle: nameItalic, color: paper.accent, lineHeight: 1.2 }}>
+            <Text style={{ fontSize: fs(25), fontFamily: nameFamily, fontStyle: nameItalic, color: paper.accent, lineHeight: 1.2 }}>
               {data.toName}
             </Text>
           </View>
@@ -244,7 +249,7 @@ export function CardDocument({ data }: { data: CardPdfData }) {
               <Text style={labelStyle}>Créé le</Text>
               <Text
                 style={{
-                  fontSize: px(12),
+                  fontSize: fs(12),
                   fontFamily: "Playfair Display",
                   fontStyle: "italic",
                   color: paper.text,
@@ -273,9 +278,9 @@ export function CardDocument({ data }: { data: CardPdfData }) {
               <Text style={labelStyle}>Code d&apos;accès confidentiel</Text>
               <Text
                 style={{
-                  fontSize: px(24),
+                  fontSize: fs(24),
                   fontWeight: 900,
-                  letterSpacing: em(px(24), 0.34),
+                  letterSpacing: em(fs(24), 0.34),
                   color: paper.accent,
                   fontFamily: "Inter",
                   marginTop: px(3),
@@ -293,7 +298,7 @@ export function CardDocument({ data }: { data: CardPdfData }) {
             {data.message ? (
               <Text
                 style={{
-                  fontSize: px(12),
+                  fontSize: fs(12),
                   fontFamily: nameFamily,
                   fontStyle: "italic",
                   color: paper.text,
@@ -307,7 +312,7 @@ export function CardDocument({ data }: { data: CardPdfData }) {
             ) : null}
             <Text
               style={{
-                fontSize: px(14.5),
+                fontSize: fs(14.5),
                 marginTop: px(7),
                 fontFamily: nameFamily,
                 fontStyle: "italic",

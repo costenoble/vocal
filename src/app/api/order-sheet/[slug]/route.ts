@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { renderToBuffer } from "@react-pdf/renderer";
 import { prisma } from "@/lib/prisma";
 import { isAdminSession } from "@/lib/admin-auth";
+import { registerCardFonts } from "@/lib/pdf/fonts";
+import { OrderSheetDocument } from "@/lib/pdf/OrderSheetDocument";
 
 export const dynamic = "force-dynamic";
 
@@ -9,8 +12,10 @@ function esc(s: string | null | undefined): string {
 }
 
 // Bon de commande imprimable (préparation / archivage). Réservé à l'admin.
+// ?download=1 renvoie un vrai PDF téléchargeable (utilisable hors-ligne dans
+// Epson Smart Panel) au lieu de la page HTML consultée dans l'admin.
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   if (!(await isAdminSession())) {
@@ -28,6 +33,43 @@ export async function GET(
   const created = new Date(m.createdAt).toLocaleString("fr-FR", {
     day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
   });
+
+  if (req.nextUrl.searchParams.get("download") === "1") {
+    registerCardFonts();
+    const pdfBuffer = await renderToBuffer(
+      OrderSheetDocument({
+        data: {
+          slug: m.slug,
+          createdFormatted: created,
+          paid: m.paid,
+          orderId: m.orderId,
+          productName: m.productName,
+          reference: reference || null,
+          productSize: m.productSize,
+          fromName: m.fromName,
+          toName: m.toName,
+          date: m.date,
+          message: m.message,
+          accessCode: m.accessCode,
+          shipName: m.shipName,
+          shipAddress: m.shipAddress,
+          shipComplement: m.shipComplement,
+          shipPostalCode: m.shipPostalCode,
+          shipCity: m.shipCity,
+          shipCountry: m.shipCountry,
+          buyerEmail: m.buyerEmail,
+          trackingNumber: m.trackingNumber,
+          trackingCarrier: m.trackingCarrier,
+        },
+      })
+    );
+    return new NextResponse(new Uint8Array(pdfBuffer), {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="bon-commande-${m.slug}.pdf"`,
+      },
+    });
+  }
 
   const row = (label: string, value: string) =>
     `<tr><td style="padding:8px 0;color:#7A6455;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;width:180px;vertical-align:top;">${label}</td>
