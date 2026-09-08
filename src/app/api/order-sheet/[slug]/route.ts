@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
+import QRCode from "qrcode";
 import { prisma } from "@/lib/prisma";
 import { isAdminSession } from "@/lib/admin-auth";
 import { registerCardFonts } from "@/lib/pdf/fonts";
-import { OrderSheetDocument } from "@/lib/pdf/OrderSheetDocument";
+import { getLogoDataUrl } from "@/lib/pdf/assets";
+import { FullOrderDocument } from "@/lib/pdf/FullOrderDocument";
 
 export const dynamic = "force-dynamic";
 
@@ -36,9 +38,32 @@ export async function GET(
 
   if (req.nextUrl.searchParams.get("download") === "1") {
     registerCardFonts();
+
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin || "http://localhost:3000";
+    const qrDataUrl = await QRCode.toDataURL(`${baseUrl}/listen/${m.slug}`, {
+      width: 600,
+      margin: 1,
+      color: { dark: "#1C1410", light: "#FFFFFF" },
+      errorCorrectionLevel: "H",
+    });
+
+    // PDF unique de 3 pages A6 (carte recto, carte verso, bon de commande) :
+    // une seule ouverture dans Epson Smart Panel pour tout imprimer.
     const pdfBuffer = await renderToBuffer(
-      OrderSheetDocument({
-        data: {
+      FullOrderDocument({
+        card: {
+          slug: m.slug,
+          fromName: m.fromName,
+          toName: m.toName,
+          message: m.message,
+          accessCode: m.accessCode,
+          paper: m.paper,
+          cardFont: m.cardFont,
+          createdAt: m.createdAt,
+          logoDataUrl: getLogoDataUrl(),
+          qrDataUrl,
+        },
+        order: {
           slug: m.slug,
           createdFormatted: created,
           paid: m.paid,
@@ -66,7 +91,7 @@ export async function GET(
     return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="bon-commande-${m.slug}.pdf"`,
+        "Content-Disposition": `attachment; filename="carte-et-bon-${m.slug}.pdf"`,
       },
     });
   }

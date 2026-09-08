@@ -1,20 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
-import fs from "node:fs";
-import path from "node:path";
 import { prisma } from "@/lib/prisma";
 import QRCode from "qrcode";
 import { registerCardFonts } from "@/lib/pdf/fonts";
 import { CardDocument } from "@/lib/pdf/CardDocument";
-
-let logoDataUrl: string | null = null;
-function getLogoDataUrl() {
-  if (!logoDataUrl) {
-    const buffer = fs.readFileSync(path.join(process.cwd(), "public/logo.png"));
-    logoDataUrl = `data:image/png;base64,${buffer.toString("base64")}`;
-  }
-  return logoDataUrl;
-}
+import { getLogoDataUrl } from "@/lib/pdf/assets";
 
 export async function GET(
   req: NextRequest,

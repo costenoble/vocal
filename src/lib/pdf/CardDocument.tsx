@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { Document, Page, View, Text, Image, Svg, Path, Rect } from "@react-pdf/renderer";
 
 // Mêmes tables que src/app/api/pdf/[id]/route.ts (design de la carte).
@@ -25,6 +26,11 @@ const em = (fontSizePt: number, emValue: number) => fontSizePt * emValue;
 // lisibilité à l'impression), sans toucher aux marges/tailles d'images.
 const TEXT_SCALE = 1.15;
 const fs = (n: number) => px(n) * TEXT_SCALE;
+
+// Logo agrandi de 15% (retour client : plus visible à l'impression), même
+// logique que TEXT_SCALE.
+const LOGO_SCALE = 1.15;
+const logoSize = (n: number) => px(n) * LOGO_SCALE;
 
 const CARD_WIDTH = mm(105);
 const CARD_HEIGHT = mm(148);
@@ -87,7 +93,9 @@ export type CardPdfData = {
   qrDataUrl: string;
 };
 
-export function CardDocument({ data }: { data: CardPdfData }) {
+// Pages recto + verso seules (sans wrapper <Document>), pour pouvoir les
+// combiner avec d'autres pages (ex. bon de commande) dans un même PDF.
+export function CardRectoVersoPages({ data }: { data: CardPdfData }) {
   const paper = PAPERS[data.paper] ?? PAPERS.ivoire;
   const nameFamily = FONT_FAMILY[data.cardFont] ?? FONT_FAMILY.playfair;
   const nameItalic = data.cardFont === "inter" ? "normal" : "italic";
@@ -109,7 +117,7 @@ export function CardDocument({ data }: { data: CardPdfData }) {
   };
 
   return (
-    <Document title={`Carte N'OUBLIE JAMAIS — ${data.fromName} pour ${data.toName}`}>
+    <Fragment>
       {/* RECTO */}
       <CardPage bg={paper.bg}>
         <InsetFrame color={paper.accent} />
@@ -125,7 +133,7 @@ export function CardDocument({ data }: { data: CardPdfData }) {
           }}
         >
           {/* eslint-disable-next-line jsx-a11y/alt-text -- Image de react-pdf : pas de prop alt (PDF statique). */}
-          <Image src={data.logoDataUrl} style={{ width: px(80), height: px(80 * (715 / 720)) }} />
+          <Image src={data.logoDataUrl} style={{ width: logoSize(80), height: logoSize(80 * (715 / 720)) }} />
 
           <View style={{ alignItems: "center" }}>
             <Text
@@ -292,7 +300,7 @@ export function CardDocument({ data }: { data: CardPdfData }) {
           ) : null}
 
           {/* eslint-disable-next-line jsx-a11y/alt-text -- Image de react-pdf : pas de prop alt (PDF statique). */}
-          <Image src={data.logoDataUrl} style={{ width: px(48), height: px(48 * (715 / 720)) }} />
+          <Image src={data.logoDataUrl} style={{ width: logoSize(48), height: logoSize(48 * (715 / 720)) }} />
 
           <View style={{ alignItems: "center", paddingHorizontal: px(6) }}>
             {data.message ? (
@@ -332,6 +340,14 @@ export function CardDocument({ data }: { data: CardPdfData }) {
           </Svg>
         </View>
       </CardPage>
+    </Fragment>
+  );
+}
+
+export function CardDocument({ data }: { data: CardPdfData }) {
+  return (
+    <Document title={`Carte N'OUBLIE JAMAIS — ${data.fromName} pour ${data.toName}`}>
+      <CardRectoVersoPages data={data} />
     </Document>
   );
 }
