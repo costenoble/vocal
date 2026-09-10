@@ -27,9 +27,9 @@ const em = (fontSizePt: number, emValue: number) => fontSizePt * emValue;
 const TEXT_SCALE = 1.15;
 const fs = (n: number) => px(n) * TEXT_SCALE;
 
-// Logo agrandi de 15% (retour client : plus visible à l'impression), même
-// logique que TEXT_SCALE.
-const LOGO_SCALE = 1.15;
+// Logo agrandi (retour client, deux fois : toujours trop discret à
+// l'impression même après un premier passage à 1.15 — on monte davantage).
+const LOGO_SCALE = 1.45;
 const logoSize = (n: number) => px(n) * LOGO_SCALE;
 
 const CARD_WIDTH = mm(105);
