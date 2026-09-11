@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
         productName: product?.name ?? null,
         productSize: productSize || null,
         shipName: shipping?.fullName || null,
+        shipPhone: shipping?.phone || null,
         shipAddress: shipping?.address || null,
         shipComplement: shipping?.complement || null,
         shipPostalCode: shipping?.postalCode || null,

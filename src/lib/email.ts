@@ -331,6 +331,7 @@ export async function sendNewOrderNotification(params: {
   productLabel: string;
   price: number;
   shipName?: string | null;
+  shipPhone?: string | null;
   shipAddress?: string | null;
   shipComplement?: string | null;
   shipPostalCode?: string | null;
@@ -340,7 +341,7 @@ export async function sendNewOrderNotification(params: {
 }) {
   const {
     fromName, toName, buyerEmail, productLabel, price,
-    shipName, shipAddress, shipComplement, shipPostalCode, shipCity, shipCountry, adminUrl,
+    shipName, shipPhone, shipAddress, shipComplement, shipPostalCode, shipCity, shipCountry, adminUrl,
   } = params;
 
   const to = process.env.ORDER_NOTIFICATION_EMAIL ?? process.env.CONTACT_EMAIL ?? "contact@oubliejamaisbijoux.fr";
@@ -367,7 +368,7 @@ export async function sendNewOrderNotification(params: {
       <div style="background:rgba(184,134,26,0.07);border-radius:12px;padding:16px 20px;margin:0 0 16px;border:1px solid rgba(184,134,26,0.15);">
         <p style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#7A6455;margin:0 0 6px;">Adresse de livraison</p>
         <p style="font-size:14px;color:#4A3728;line-height:1.7;margin:0;">
-          ${escapeHtml(shipName ?? "")}<br/>
+          ${escapeHtml(shipName ?? "")}${shipPhone ? ` · ${escapeHtml(shipPhone)}` : ""}<br/>
           ${escapeHtml(shipAddress ?? "")}${shipComplement ? `, ${escapeHtml(shipComplement)}` : ""}<br/>
           ${escapeHtml(shipPostalCode ?? "")} ${escapeHtml(shipCity ?? "")} · ${escapeHtml(shipCountry ?? "")}
         </p>

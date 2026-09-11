@@ -86,6 +86,7 @@ export async function POST(req: NextRequest) {
             productLabel: orderItems.map((m) => m.productName).filter(Boolean).join(" · "),
             price: total,
             shipName: first.shipName,
+            shipPhone: first.shipPhone,
             shipAddress: first.shipAddress,
             shipComplement: first.shipComplement,
             shipPostalCode: first.shipPostalCode,
@@ -120,6 +121,7 @@ export async function POST(req: NextRequest) {
           productName: purchasedProduct?.name ?? null,
           productSize: meta.productSize || null,
           shipName: meta.shipName || null,
+          shipPhone: meta.shipPhone || null,
           shipAddress: meta.shipAddress || null,
           shipComplement: meta.shipComplement || null,
           shipPostalCode: meta.shipPostalCode || null,
@@ -159,7 +161,11 @@ export async function POST(req: NextRequest) {
 
       // Notification au vendeur — nouvelle vente en ligne
       try {
-        const price = purchasedProduct?.price ?? getPlanById(meta.planId)?.price ?? 0;
+        // Montant réellement encaissé (inclut un éventuel supplément de
+        // livraison hors France), plutôt que le seul prix catalogue.
+        const price = session.amount_total != null
+          ? session.amount_total / 100
+          : purchasedProduct?.price ?? getPlanById(meta.planId)?.price ?? 0;
         await sendNewOrderNotification({
           fromName: meta.fromName,
           toName: meta.toName,
@@ -167,6 +173,7 @@ export async function POST(req: NextRequest) {
           productLabel: purchasedProduct?.name ?? meta.planId ?? "Commande",
           price,
           shipName: meta.shipName,
+          shipPhone: meta.shipPhone,
           shipAddress: meta.shipAddress,
           shipComplement: meta.shipComplement,
           shipPostalCode: meta.shipPostalCode,

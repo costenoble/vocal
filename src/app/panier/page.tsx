@@ -48,7 +48,7 @@ export default function CartPage() {
   const total = cartTotal(items);
 
   const [email, setEmail] = useState("");
-  const [ship, setShip] = useState({ fullName: "", address: "", complement: "", postalCode: "", city: "", country: "France" });
+  const [ship, setShip] = useState({ fullName: "", address: "", complement: "", postalCode: "", city: "", country: "France", phone: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -156,6 +156,10 @@ export default function CartPage() {
                 <div>
                   <label className={labelCls} style={{ color: "var(--ink-muted)" }}>Nom complet *</label>
                   <input value={ship.fullName} onChange={(e) => setField("fullName", e.target.value)} placeholder="Prénom Nom" className={inputCls} style={inputStyle} />
+                </div>
+                <div>
+                  <label className={labelCls} style={{ color: "var(--ink-muted)" }}>Téléphone</label>
+                  <input type="tel" value={ship.phone} onChange={(e) => setField("phone", e.target.value)} placeholder="06 12 34 56 78 (utile pour le livreur)" className={inputCls} style={inputStyle} />
                 </div>
                 <div>
                   <label className={labelCls} style={{ color: "var(--ink-muted)" }}>Adresse *</label>

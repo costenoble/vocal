@@ -68,6 +68,7 @@ export type OrderSheetPdfData = {
   message: string | null;
   accessCode: string | null;
   shipName: string | null;
+  shipPhone: string | null;
   shipAddress: string | null;
   shipComplement: string | null;
   shipPostalCode: string | null;
@@ -151,6 +152,7 @@ export function OrderSheetA6Pages({ data }: { data: OrderSheetPdfData }) {
           {hasShipping ? (
             <Text style={{ fontSize: px(11), color: INK, lineHeight: 1.5 }}>
               <Text style={{ fontWeight: 800 }}>{data.shipName}</Text>
+              {data.shipPhone ? ` · ${data.shipPhone}` : ""}
               {"\n"}
               {data.shipAddress}
               {data.shipComplement ? `, ${data.shipComplement}` : ""}

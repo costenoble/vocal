@@ -77,6 +77,7 @@ export async function GET(
           message: m.message,
           accessCode: m.accessCode,
           shipName: m.shipName,
+          shipPhone: m.shipPhone,
           shipAddress: m.shipAddress,
           shipComplement: m.shipComplement,
           shipPostalCode: m.shipPostalCode,
@@ -152,7 +153,7 @@ export async function GET(
         <h2>Livraison</h2>
         ${m.shipName || m.shipAddress
           ? `<p style="margin:0;font-size:15px;line-height:1.7;">
-              <strong>${esc(m.shipName)}</strong><br>
+              <strong>${esc(m.shipName)}</strong>${m.shipPhone ? " · " + esc(m.shipPhone) : ""}<br>
               ${esc(m.shipAddress)}${m.shipComplement ? ", " + esc(m.shipComplement) : ""}<br>
               ${esc(m.shipPostalCode)} ${esc(m.shipCity)} · ${esc(m.shipCountry)}
             </p>`

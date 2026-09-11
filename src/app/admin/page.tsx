@@ -315,7 +315,7 @@ export default async function AdminPage({
                               <circle cx="12" cy="10" r="3" stroke="var(--gold)" strokeWidth="1.6"/>
                             </svg>
                             <p className="text-[13px] leading-relaxed" style={{ color: "var(--ink)" }}>
-                              <strong>{m.shipName}</strong><br />
+                              <strong>{m.shipName}</strong>{m.shipPhone ? ` · ${m.shipPhone}` : ""}<br />
                               {m.shipAddress}{m.shipComplement ? `, ${m.shipComplement}` : ""}<br />
                               {m.shipPostalCode} {m.shipCity} · {m.shipCountry}
                             </p>

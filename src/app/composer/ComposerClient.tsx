@@ -19,6 +19,7 @@ interface Shipping {
   postalCode: string;
   city: string;
   country: string;
+  phone: string;
 }
 
 interface CardData {
@@ -634,7 +635,7 @@ function FontSelector({ selected, onChange, paperAccent = "var(--gold)" }: { sel
 // ── Main Composer ─────────────────────────────────────────────────────────────
 export default function ComposerClient() {
   const [step, setStep] = useState<WizardStep>(1);
-  const [card, setCard] = useState<CardData>({ fromName: "", toName: "", date: "", theme: "classique", paper: "ivoire", cardFont: "playfair", message: "", shipping: { fullName: "", address: "", complement: "", postalCode: "", city: "", country: "France" } });
+  const [card, setCard] = useState<CardData>({ fromName: "", toName: "", date: "", theme: "classique", paper: "ivoire", cardFont: "playfair", message: "", shipping: { fullName: "", address: "", complement: "", postalCode: "", city: "", country: "France", phone: "" } });
   const [recordState, setRecordState] = useState<RecordState>("idle");
   const [audioObjectUrl, setAudioObjectUrl] = useState("");
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState("");
@@ -1272,6 +1273,14 @@ export default function ComposerClient() {
                 />
               </Field>
 
+              <Field label="Téléphone du destinataire">
+                <Input
+                  value={card.shipping.phone}
+                  onChange={v => setShipping("phone", v)}
+                  placeholder="06 12 34 56 78 (utile pour le livreur)"
+                />
+              </Field>
+
               <Field label="Adresse *">
                 <Input
                   value={card.shipping.address}
@@ -1516,7 +1525,9 @@ export default function ComposerClient() {
                 </svg>
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--ink-muted)" }}>Livraison à</p>
-                  <p className="text-[13px] font-semibold" style={{ color: "var(--ink)" }}>{card.shipping.fullName}</p>
+                  <p className="text-[13px] font-semibold" style={{ color: "var(--ink)" }}>
+                    {card.shipping.fullName}{card.shipping.phone ? ` · ${card.shipping.phone}` : ""}
+                  </p>
                   <p className="text-[12px]" style={{ color: "var(--ink-muted)" }}>
                     {card.shipping.address}{card.shipping.complement ? `, ${card.shipping.complement}` : ""}<br />
                     {card.shipping.postalCode} {card.shipping.city} · {card.shipping.country}

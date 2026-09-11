@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { getPlanById } from "@/lib/plans";
 import { getProductBySlug } from "@/lib/products";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
+import { EUROPE_SHIPPING_SURCHARGE, needsShippingSurcharge } from "@/lib/shipping";
 import { nanoid, customAlphabet } from "nanoid";
 
 // 6-digit numeric access code (no ambiguous chars) printed on the card
@@ -60,26 +62,41 @@ export async function POST(req: NextRequest) {
     const slug = nanoid(8);
     const accessCode = genAccessCode();
 
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+      {
+        price_data: {
+          currency: "eur",
+          unit_amount: Math.round(unitPrice * 100),
+          product_data: {
+            name: lineName,
+            description: lineDesc,
+            // Stripe exige une URL publique https — pas d'image en local.
+            ...(origin.startsWith("https")
+              ? { images: [`${origin}/og-default.png`] }
+              : {}),
+          },
+        },
+        quantity: 1,
+      },
+    ];
+
+    // Le prix affiché inclut la livraison pour la France ; supplément pour
+    // les autres pays (montant à confirmer, voir src/lib/shipping.ts).
+    if (needsShippingSurcharge(shipping?.country)) {
+      lineItems.push({
+        price_data: {
+          currency: "eur",
+          unit_amount: Math.round(EUROPE_SHIPPING_SURCHARGE * 100),
+          product_data: { name: "Frais de livraison — hors France" },
+        },
+        quantity: 1,
+      });
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       customer_email: email || undefined,
-      line_items: [
-        {
-          price_data: {
-            currency: "eur",
-            unit_amount: Math.round(unitPrice * 100),
-            product_data: {
-              name: lineName,
-              description: lineDesc,
-              // Stripe exige une URL publique https — pas d'image en local.
-              ...(origin.startsWith("https")
-                ? { images: [`${origin}/og-default.png`] }
-                : {}),
-            },
-          },
-          quantity: 1,
-        },
-      ],
+      line_items: lineItems,
       metadata: {
         planId: plan?.id ?? "bracelet",
         productSlug: product?.slug ?? "",
@@ -95,6 +112,7 @@ export async function POST(req: NextRequest) {
         cardFont: cardFont ?? "playfair",
         message: (message ?? "").slice(0, 480),
         shipName: shipping?.fullName ?? "",
+        shipPhone: shipping?.phone ?? "",
         shipAddress: shipping?.address ?? "",
         shipComplement: shipping?.complement ?? "",
         shipPostalCode: shipping?.postalCode ?? "",

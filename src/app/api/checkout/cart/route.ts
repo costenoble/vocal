@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { getProductBySlug } from "@/lib/products";
 import { audioPublicPrefix } from "@/lib/storage";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
+import { EUROPE_SHIPPING_SURCHARGE, needsShippingSurcharge } from "@/lib/shipping";
 import { nanoid, customAlphabet } from "nanoid";
 
 export const dynamic = "force-dynamic";
@@ -102,6 +104,7 @@ export async function POST(req: NextRequest) {
         productName: product.name,
         productSize: it.productSize || null,
         shipName: shipping.fullName || null,
+        shipPhone: shipping.phone || null,
         shipAddress: shipping.address || null,
         shipComplement: shipping.complement || null,
         shipPostalCode: shipping.postalCode || null,
@@ -113,21 +116,36 @@ export async function POST(req: NextRequest) {
       })),
     });
 
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = resolved.map(({ product, it }) => ({
+      price_data: {
+        currency: "eur",
+        unit_amount: Math.round(product.price * 100),
+        product_data: {
+          name: product.name,
+          description: `${it.productSize ? `Taille ${it.productSize} · ` : ""}Pour ${it.toName}`,
+          ...(origin.startsWith("https") ? { images: [`${origin}/og-default.png`] } : {}),
+        },
+      },
+      quantity: 1,
+    }));
+
+    // Un seul supplément par commande (pas par article) pour les adresses
+    // hors France — montant à confirmer, voir src/lib/shipping.ts.
+    if (needsShippingSurcharge(shipping.country)) {
+      lineItems.push({
+        price_data: {
+          currency: "eur",
+          unit_amount: Math.round(EUROPE_SHIPPING_SURCHARGE * 100),
+          product_data: { name: "Frais de livraison — hors France" },
+        },
+        quantity: 1,
+      });
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       customer_email: email,
-      line_items: resolved.map(({ product, it }) => ({
-        price_data: {
-          currency: "eur",
-          unit_amount: Math.round(product.price * 100),
-          product_data: {
-            name: product.name,
-            description: `${it.productSize ? `Taille ${it.productSize} · ` : ""}Pour ${it.toName}`,
-            ...(origin.startsWith("https") ? { images: [`${origin}/og-default.png`] } : {}),
-          },
-        },
-        quantity: 1,
-      })),
+      line_items: lineItems,
       metadata: { orderId, kind: "cart" },
       success_url: `${origin}/success?order=${orderId}`,
       cancel_url: `${origin}/panier`,
