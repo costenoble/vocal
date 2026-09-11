@@ -48,15 +48,20 @@ export default function CartPage() {
   const total = cartTotal(items);
 
   const [email, setEmail] = useState("");
-  const [ship, setShip] = useState({ fullName: "", address: "", complement: "", postalCode: "", city: "", country: "France", phone: "" });
+  const [ship, setShip] = useState({ fullName: "", address: "", complement: "", postalCode: "", city: "", country: "France", countryOther: "", phone: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const setField = (k: keyof typeof ship, v: string) => setShip((s) => ({ ...s, [k]: v }));
 
   const shippingValid =
-    ship.fullName.trim() && ship.address.trim() && ship.postalCode.trim() && ship.city.trim() && ship.country.trim();
+    ship.fullName.trim() && ship.address.trim() && ship.postalCode.trim() && ship.city.trim() && ship.country.trim()
+    && (ship.country !== "Autre" || ship.countryOther.trim());
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+
+  // Pays réellement livré : le nom saisi si "Autre" est sélectionné, sinon
+  // l'option choisie — jamais le libellé générique "Autre" tel quel.
+  const resolvedShipping = { ...ship, country: ship.country === "Autre" ? ship.countryOther.trim() : ship.country };
 
   const pay = async () => {
     if (!emailValid) { setError("Veuillez saisir un email valide pour recevoir la confirmation."); return; }
@@ -69,7 +74,7 @@ export default function CartPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: email.trim(),
-          shipping: ship,
+          shipping: resolvedShipping,
           items: items.map((i) => ({
             productSlug: i.productSlug,
             productSize: i.productSize,
@@ -185,6 +190,12 @@ export default function CartPage() {
                     {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
+                {ship.country === "Autre" && (
+                  <div>
+                    <label className={labelCls} style={{ color: "var(--ink-muted)" }}>Précisez le pays *</label>
+                    <input value={ship.countryOther} onChange={(e) => setField("countryOther", e.target.value)} placeholder="Italie, Espagne…" className={inputCls} style={inputStyle} />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -192,7 +203,9 @@ export default function CartPage() {
             <div className="rounded-3xl p-6" style={{ background: "#FFFDF9", border: "2px solid var(--gold)" }}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[14px]" style={{ color: "var(--ink-muted)" }}>{items.length} article{items.length > 1 ? "s" : ""}</span>
-                <span className="text-[14px]" style={{ color: "var(--ink-muted)" }}>Livraison incluse</span>
+                <span className="text-[14px]" style={{ color: "var(--ink-muted)" }}>
+                  {ship.country === "France" ? "Livraison incluse" : "Livraison France incluse · frais internationaux à l'étape suivante"}
+                </span>
               </div>
               <div className="flex items-baseline justify-between mb-5">
                 <span className="text-[16px] font-bold" style={{ color: "var(--ink)" }}>Total</span>

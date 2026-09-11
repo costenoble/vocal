@@ -77,6 +77,13 @@ model Product {
   updatedAt   DateTime @updatedAt
 }
 
+// Réglages simples modifiables depuis l'admin (ex. supplément de
+// livraison hors France), sans passer par une mise à jour de code.
+model Setting {
+  key   String @id
+  value String
+}
+
 model AdminUser {
   id           String   @id @default(cuid())
   username     String   @unique

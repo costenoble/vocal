@@ -176,6 +176,13 @@ export default async function AdminPage({
               Produits
             </Link>
             <Link
+              href="/admin/settings"
+              className="px-4 py-2.5 rounded-xl font-bold text-[13px] transition-all active:scale-95"
+              style={{ background: "white", color: "var(--gold-dark)", border: "1.5px solid rgba(184,134,26,0.30)" }}
+            >
+              Réglages
+            </Link>
+            <Link
               href="/composer?mode=boutique"
               className="px-4 py-2.5 rounded-xl font-bold text-[13px] text-white transition-all active:scale-95"
               style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 4px 16px rgba(184,134,26,0.28)" }}

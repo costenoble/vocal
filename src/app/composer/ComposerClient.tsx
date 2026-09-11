@@ -19,6 +19,7 @@ interface Shipping {
   postalCode: string;
   city: string;
   country: string;
+  countryOther: string;
   phone: string;
 }
 
@@ -635,7 +636,7 @@ function FontSelector({ selected, onChange, paperAccent = "var(--gold)" }: { sel
 // ── Main Composer ─────────────────────────────────────────────────────────────
 export default function ComposerClient() {
   const [step, setStep] = useState<WizardStep>(1);
-  const [card, setCard] = useState<CardData>({ fromName: "", toName: "", date: "", theme: "classique", paper: "ivoire", cardFont: "playfair", message: "", shipping: { fullName: "", address: "", complement: "", postalCode: "", city: "", country: "France", phone: "" } });
+  const [card, setCard] = useState<CardData>({ fromName: "", toName: "", date: "", theme: "classique", paper: "ivoire", cardFont: "playfair", message: "", shipping: { fullName: "", address: "", complement: "", postalCode: "", city: "", country: "France", countryOther: "", phone: "" } });
   const [recordState, setRecordState] = useState<RecordState>("idle");
   const [audioObjectUrl, setAudioObjectUrl] = useState("");
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState("");
@@ -690,7 +691,10 @@ export default function ComposerClient() {
           message: card.message,
           productSlug: product?.slug,
           productSize,
-          shipping: card.shipping,
+          shipping: {
+            ...card.shipping,
+            country: card.shipping.country === "Autre" ? card.shipping.countryOther.trim() : card.shipping.country,
+          },
         }),
       });
       const json = await res.json();
@@ -823,7 +827,10 @@ export default function ComposerClient() {
           paper: card.paper,
           cardFont: card.cardFont,
           message: card.message,
-          shipping: card.shipping,
+          shipping: {
+            ...card.shipping,
+            country: card.shipping.country === "Autre" ? card.shipping.countryOther.trim() : card.shipping.country,
+          },
         }),
       });
       const json = await res.json();
@@ -866,8 +873,13 @@ export default function ComposerClient() {
   const setShipping = (field: keyof Shipping, value: string) =>
     setCard(c => ({ ...c, shipping: { ...c.shipping, [field]: value } }));
 
-  const { fullName, address, postalCode, city, country } = card.shipping;
-  const step5Valid = fullName.trim().length > 0 && address.trim().length > 0 && postalCode.trim().length > 0 && city.trim().length > 0 && country.trim().length > 0;
+  const { fullName, address, postalCode, city, country, countryOther } = card.shipping;
+  const step5Valid = fullName.trim().length > 0 && address.trim().length > 0 && postalCode.trim().length > 0 && city.trim().length > 0 && country.trim().length > 0
+    && (country !== "Autre" || countryOther.trim().length > 0);
+
+  // Pays réellement livré : le nom saisi si "Autre" est sélectionné, sinon
+  // l'option choisie — jamais le libellé générique "Autre" tel quel.
+  const resolvedCountry = country === "Autre" ? countryOther.trim() : country;
 
   const setCardField = (field: keyof CardData, value: string) =>
     setCard(c => ({ ...c, [field]: value }));
@@ -1332,6 +1344,16 @@ export default function ComposerClient() {
                 </select>
               </Field>
 
+              {card.shipping.country === "Autre" && (
+                <Field label="Précisez le pays *">
+                  <Input
+                    value={card.shipping.countryOther}
+                    onChange={v => setShipping("countryOther", v)}
+                    placeholder="Italie, Espagne…"
+                  />
+                </Field>
+              )}
+
               {/* Info délai */}
               <div className="rounded-2xl p-4 flex gap-3 items-center" style={{ background: "rgba(184,134,26,0.05)", border: "1px solid rgba(184,134,26,0.10)" }}>
                 <svg viewBox="0 0 24 24" width={16} height={16} fill="none" style={{ flexShrink: 0 }}>
@@ -1530,7 +1552,7 @@ export default function ComposerClient() {
                   </p>
                   <p className="text-[12px]" style={{ color: "var(--ink-muted)" }}>
                     {card.shipping.address}{card.shipping.complement ? `, ${card.shipping.complement}` : ""}<br />
-                    {card.shipping.postalCode} {card.shipping.city} · {card.shipping.country}
+                    {card.shipping.postalCode} {card.shipping.city} · {resolvedCountry}
                   </p>
                 </div>
               </div>

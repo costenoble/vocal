@@ -4,7 +4,7 @@ import { stripe } from "@/lib/stripe";
 import { getPlanById } from "@/lib/plans";
 import { getProductBySlug } from "@/lib/products";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
-import { EUROPE_SHIPPING_SURCHARGE, needsShippingSurcharge } from "@/lib/shipping";
+import { getShippingSurcharge, needsShippingSurcharge } from "@/lib/settings";
 import { nanoid, customAlphabet } from "nanoid";
 
 // 6-digit numeric access code (no ambiguous chars) printed on the card
@@ -81,16 +81,19 @@ export async function POST(req: NextRequest) {
     ];
 
     // Le prix affiché inclut la livraison pour la France ; supplément pour
-    // les autres pays (montant à confirmer, voir src/lib/shipping.ts).
+    // les autres pays, réglable depuis /admin/settings.
     if (needsShippingSurcharge(shipping?.country)) {
-      lineItems.push({
-        price_data: {
-          currency: "eur",
-          unit_amount: Math.round(EUROPE_SHIPPING_SURCHARGE * 100),
-          product_data: { name: "Frais de livraison — hors France" },
-        },
-        quantity: 1,
-      });
+      const surcharge = await getShippingSurcharge();
+      if (surcharge > 0) {
+        lineItems.push({
+          price_data: {
+            currency: "eur",
+            unit_amount: Math.round(surcharge * 100),
+            product_data: { name: "Frais de livraison — hors France" },
+          },
+          quantity: 1,
+        });
+      }
     }
 
     const session = await stripe.checkout.sessions.create({
