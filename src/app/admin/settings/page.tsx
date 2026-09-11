@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { isAdminSession } from "@/lib/admin-auth";
-import { getShippingSurcharge } from "@/lib/settings";
+import { getShippingSurcharges } from "@/lib/settings";
 import SettingsManager from "@/components/admin/SettingsManager";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +12,7 @@ export default async function AdminSettingsPage() {
     redirect("/admin");
   }
 
-  const shippingSurcharge = await getShippingSurcharge();
+  const shipping = await getShippingSurcharges();
 
   return (
     <div className="min-h-screen" style={{ background: "var(--cream)" }}>
@@ -34,7 +34,7 @@ export default async function AdminSettingsPage() {
           </Link>
         </div>
 
-        <SettingsManager initialShippingSurcharge={shippingSurcharge} />
+        <SettingsManager initialShipping={shipping} />
       </div>
     </div>
   );

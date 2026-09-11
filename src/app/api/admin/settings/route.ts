@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminSession } from "@/lib/admin-auth";
-import { getShippingSurcharge, setShippingSurcharge } from "@/lib/settings";
+import { getShippingSurcharges, setShippingSurcharges } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -8,8 +8,8 @@ export async function GET() {
   if (!(await isAdminSession())) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
-  const shippingSurcharge = await getShippingSurcharge();
-  return NextResponse.json({ shippingSurcharge });
+  const shipping = await getShippingSurcharges();
+  return NextResponse.json({ shipping });
 }
 
 export async function PATCH(req: NextRequest) {
@@ -18,11 +18,12 @@ export async function PATCH(req: NextRequest) {
   }
 
   const body = await req.json();
-  const amount = Number(body.shippingSurcharge);
-  if (!Number.isFinite(amount) || amount < 0) {
+  const europe = Number(body.europe);
+  const horsEurope = Number(body.horsEurope);
+  if (!Number.isFinite(europe) || europe < 0 || !Number.isFinite(horsEurope) || horsEurope < 0) {
     return NextResponse.json({ error: "Montant invalide" }, { status: 400 });
   }
 
-  await setShippingSurcharge(amount);
-  return NextResponse.json({ ok: true, shippingSurcharge: amount });
+  await setShippingSurcharges({ europe, horsEurope });
+  return NextResponse.json({ ok: true, shipping: { europe, horsEurope } });
 }

@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getProductBySlug } from "@/lib/products";
 import { audioPublicPrefix } from "@/lib/storage";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
-import { getShippingSurcharge, needsShippingSurcharge } from "@/lib/settings";
+import { getSurchargeForCountry } from "@/lib/settings";
 import { nanoid, customAlphabet } from "nanoid";
 
 export const dynamic = "force-dynamic";
@@ -129,20 +129,18 @@ export async function POST(req: NextRequest) {
       quantity: 1,
     }));
 
-    // Un seul supplément par commande (pas par article) pour les adresses
-    // hors France, réglable depuis /admin/settings.
-    if (needsShippingSurcharge(shipping.country)) {
-      const surcharge = await getShippingSurcharge();
-      if (surcharge > 0) {
-        lineItems.push({
-          price_data: {
-            currency: "eur",
-            unit_amount: Math.round(surcharge * 100),
-            product_data: { name: "Frais de livraison — hors France" },
-          },
-          quantity: 1,
-        });
-      }
+    // Un seul supplément par commande (pas par article), par palier
+    // (Europe / hors Europe), réglable depuis /admin/settings.
+    const surcharge = await getSurchargeForCountry(shipping.country);
+    if (surcharge > 0) {
+      lineItems.push({
+        price_data: {
+          currency: "eur",
+          unit_amount: Math.round(surcharge * 100),
+          product_data: { name: "Frais de livraison" },
+        },
+        quantity: 1,
+      });
     }
 
     const session = await stripe.checkout.sessions.create({

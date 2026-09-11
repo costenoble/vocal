@@ -2,14 +2,43 @@
 
 import { useState } from "react";
 
-export default function SettingsManager({ initialShippingSurcharge }: { initialShippingSurcharge: number }) {
-  const [value, setValue] = useState(String(initialShippingSurcharge));
+type Shipping = { europe: number; horsEurope: number };
+
+function AmountInput({
+  label, value, onChange,
+}: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <div>
+      <label className="text-[11px] font-bold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--ink-muted)" }}>
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          type="text"
+          inputMode="decimal"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="px-4 py-3 pr-9 rounded-xl text-[15px] font-bold outline-none w-32"
+          style={{ background: "#FFFDF9", border: "1.5px solid rgba(28,20,16,0.10)", color: "var(--ink)" }}
+        />
+        <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[14px] font-bold" style={{ color: "var(--ink-muted)" }}>€</span>
+      </div>
+    </div>
+  );
+}
+
+export default function SettingsManager({ initialShipping }: { initialShipping: Shipping }) {
+  const [europe, setEurope] = useState(String(initialShipping.europe));
+  const [horsEurope, setHorsEurope] = useState(String(initialShipping.horsEurope));
   const [saved, setSaved] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  const amount = Number(value.replace(",", "."));
-  const valid = Number.isFinite(amount) && amount >= 0;
+  const europeAmount = Number(europe.replace(",", "."));
+  const horsEuropeAmount = Number(horsEurope.replace(",", "."));
+  const valid = Number.isFinite(europeAmount) && europeAmount >= 0 && Number.isFinite(horsEuropeAmount) && horsEuropeAmount >= 0;
+
+  const change = (setter: (v: string) => void) => (v: string) => { setter(v); setSaved(false); };
 
   const save = async () => {
     if (!valid) { setError("Montant invalide."); return; }
@@ -19,7 +48,7 @@ export default function SettingsManager({ initialShippingSurcharge }: { initialS
       const res = await fetch("/api/admin/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shippingSurcharge: amount }),
+        body: JSON.stringify({ europe: europeAmount, horsEurope: horsEuropeAmount }),
       });
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
@@ -35,26 +64,17 @@ export default function SettingsManager({ initialShippingSurcharge }: { initialS
   return (
     <div className="rounded-3xl p-6" style={{ background: "white", border: "1px solid rgba(184,134,26,0.12)" }}>
       <h2 className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "var(--gold)" }}>
-        Supplément de livraison hors France
+        Frais de livraison
       </h2>
-      <p className="text-[13px] leading-relaxed mb-4" style={{ color: "var(--ink-muted)" }}>
-        Le prix affiché sur le site inclut la livraison pour la France uniquement. Ce montant est
-        ajouté automatiquement au paiement dès que l&rsquo;adresse de livraison est dans un autre pays
-        (Belgique, Suisse, Luxembourg, Canada, Autre). Mettez <strong>0</strong> pour désactiver.
+      <p className="text-[13px] leading-relaxed mb-5" style={{ color: "var(--ink-muted)" }}>
+        Le prix affiché sur le site inclut déjà la livraison pour la <strong>France</strong> (pas de
+        frais séparés). Pour les autres destinations, un supplément est ajouté automatiquement au
+        paiement, selon deux paliers. Mettez <strong>0</strong> pour désactiver un palier.
       </p>
 
-      <div className="flex items-center gap-3">
-        <div className="relative">
-          <input
-            type="text"
-            inputMode="decimal"
-            value={value}
-            onChange={(e) => { setValue(e.target.value); setSaved(false); }}
-            className="px-4 py-3 pr-9 rounded-xl text-[15px] font-bold outline-none w-32"
-            style={{ background: "#FFFDF9", border: "1.5px solid rgba(28,20,16,0.10)", color: "var(--ink)" }}
-          />
-          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[14px] font-bold" style={{ color: "var(--ink-muted)" }}>€</span>
-        </div>
+      <div className="flex flex-wrap items-end gap-4 mb-2">
+        <AmountInput label="Europe — Belgique, Suisse, Luxembourg" value={europe} onChange={change(setEurope)} />
+        <AmountInput label="Hors Europe — Canada, autres pays" value={horsEurope} onChange={change(setHorsEurope)} />
         <button
           onClick={save}
           disabled={!valid || saving || saved}
