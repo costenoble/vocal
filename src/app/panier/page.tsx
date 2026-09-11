@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -9,6 +9,7 @@ import Logo from "@/components/Logo";
 import BackButton from "@/components/BackButton";
 import { useCart, removeFromCart, cartTotal, type CartItem } from "@/lib/cart";
 import { formatPrice } from "@/lib/product-utils";
+import { getShippingZone } from "@/lib/shipping-zone";
 
 const COUNTRIES = ["France", "Belgique", "Suisse", "Luxembourg", "Canada", "Autre"];
 
@@ -51,6 +52,14 @@ export default function CartPage() {
   const [ship, setShip] = useState({ fullName: "", address: "", complement: "", postalCode: "", city: "", country: "France", countryOther: "", phone: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [rates, setRates] = useState({ france: 0, europe: 0, horsEurope: 0 });
+
+  useEffect(() => {
+    fetch("/api/shipping-rates")
+      .then((r) => r.json())
+      .then((json) => { if (json.shipping) setRates(json.shipping); })
+      .catch(() => {});
+  }, []);
 
   const setField = (k: keyof typeof ship, v: string) => setShip((s) => ({ ...s, [k]: v }));
 
@@ -62,6 +71,9 @@ export default function CartPage() {
   // Pays réellement livré : le nom saisi si "Autre" est sélectionné, sinon
   // l'option choisie — jamais le libellé générique "Autre" tel quel.
   const resolvedShipping = { ...ship, country: ship.country === "Autre" ? ship.countryOther.trim() : ship.country };
+  const shippingZone = getShippingZone(resolvedShipping.country);
+  const shippingFee = rates[shippingZone];
+  const grandTotal = total + shippingFee;
 
   const pay = async () => {
     if (!emailValid) { setError("Veuillez saisir un email valide pour recevoir la confirmation."); return; }
@@ -201,15 +213,19 @@ export default function CartPage() {
 
             {/* Total + paiement */}
             <div className="rounded-3xl p-6" style={{ background: "#FFFDF9", border: "2px solid var(--gold)" }}>
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[14px]" style={{ color: "var(--ink-muted)" }}>{items.length} article{items.length > 1 ? "s" : ""}</span>
-                <span className="text-[14px]" style={{ color: "var(--ink-muted)" }}>
-                  {ship.country === "France" ? "Livraison incluse" : "Livraison France incluse · frais internationaux à l'étape suivante"}
+                <span className="text-[14px]" style={{ color: "var(--ink)" }}>{formatPrice(total)}</span>
+              </div>
+              <div className="flex items-center justify-between mb-5">
+                <span className="text-[14px]" style={{ color: "var(--ink-muted)" }}>Frais de livraison</span>
+                <span className="text-[14px]" style={{ color: "var(--ink)" }}>
+                  {shippingFee > 0 ? formatPrice(shippingFee) : "Inclus"}
                 </span>
               </div>
-              <div className="flex items-baseline justify-between mb-5">
+              <div className="flex items-baseline justify-between mb-5 pt-3" style={{ borderTop: "1px solid rgba(184,134,26,0.18)" }}>
                 <span className="text-[16px] font-bold" style={{ color: "var(--ink)" }}>Total</span>
-                <span className="text-[32px] font-black" style={{ color: "var(--gold)" }}>{formatPrice(total)}</span>
+                <span className="text-[32px] font-black" style={{ color: "var(--gold)" }}>{formatPrice(grandTotal)}</span>
               </div>
 
               {error && <p className="text-[12px] font-semibold mb-3 text-center" style={{ color: "#C0392B" }}>{error}</p>}

@@ -8,6 +8,7 @@ import { THEMES, getTheme, type ThemeId } from "@/lib/themes";
 import type { Product } from "@/lib/products";
 import { addToCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/product-utils";
+import { getShippingZone } from "@/lib/shipping-zone";
 
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6;
 type RecordState = "idle" | "requesting" | "recording" | "uploading" | "done";
@@ -648,6 +649,14 @@ export default function ComposerClient() {
   const [product, setProduct] = useState<Product | null>(null);
   const [productSize, setProductSize] = useState("");
   const [boutiqueMode, setBoutiqueMode] = useState(false);
+  const [shippingRates, setShippingRates] = useState({ france: 0, europe: 0, horsEurope: 0 });
+
+  useEffect(() => {
+    fetch("/api/shipping-rates")
+      .then(r => r.json())
+      .then(json => { if (json.shipping) setShippingRates(json.shipping); })
+      .catch(() => {});
+  }, []);
 
   // Read the chosen bracelet + size from the boutique (?product=&size=)
   // and detect boutique mode (?mode=boutique) for in-store orders — the
@@ -880,6 +889,7 @@ export default function ComposerClient() {
   // Pays réellement livré : le nom saisi si "Autre" est sélectionné, sinon
   // l'option choisie — jamais le libellé générique "Autre" tel quel.
   const resolvedCountry = country === "Autre" ? countryOther.trim() : country;
+  const shippingFee = shippingRates[getShippingZone(resolvedCountry)];
 
   const setCardField = (field: keyof CardData, value: string) =>
     setCard(c => ({ ...c, [field]: value }));
@@ -1448,10 +1458,18 @@ export default function ComposerClient() {
                     ))}
                   </div>
 
+                  {/* Frais de livraison */}
+                  <div className="px-5 py-3 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(28,20,16,0.06)" }}>
+                    <span className="text-[12px]" style={{ color: "var(--ink-muted)" }}>Frais de livraison</span>
+                    <span className="text-[13px] font-semibold" style={{ color: "var(--ink)" }}>
+                      {shippingFee > 0 ? formatPrice(shippingFee) : "Inclus"}
+                    </span>
+                  </div>
+
                   {/* Total */}
                   <div className="px-5 py-4 flex items-center justify-between">
                     <span className="text-[13px] font-bold uppercase tracking-wider" style={{ color: "var(--ink)" }}>Total</span>
-                    <span className="text-[22px] font-black" style={{ color: "var(--ink)" }}>{formatPrice(product.price)}</span>
+                    <span className="text-[22px] font-black" style={{ color: "var(--ink)" }}>{formatPrice(product.price + shippingFee)}</span>
                   </div>
                 </div>
 
@@ -1466,7 +1484,7 @@ export default function ComposerClient() {
                         <span className="w-3.5 h-3.5 border-2 rounded-full animate-spin" style={{ borderColor: "rgba(255,255,255,0.3)", borderTopColor: "white" }} />
                         Redirection…
                       </span>
-                    : `Payer ${formatPrice(product.price)} · Commander`
+                    : `Payer ${formatPrice(product.price + shippingFee)} · Commander`
                   }
                 </button>
               </div>

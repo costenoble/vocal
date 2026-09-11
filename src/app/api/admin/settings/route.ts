@@ -18,12 +18,17 @@ export async function PATCH(req: NextRequest) {
   }
 
   const body = await req.json();
+  const france = Number(body.france);
   const europe = Number(body.europe);
   const horsEurope = Number(body.horsEurope);
-  if (!Number.isFinite(europe) || europe < 0 || !Number.isFinite(horsEurope) || horsEurope < 0) {
+  if (
+    !Number.isFinite(france) || france < 0 ||
+    !Number.isFinite(europe) || europe < 0 ||
+    !Number.isFinite(horsEurope) || horsEurope < 0
+  ) {
     return NextResponse.json({ error: "Montant invalide" }, { status: 400 });
   }
 
-  await setShippingSurcharges({ europe, horsEurope });
-  return NextResponse.json({ ok: true, shipping: { europe, horsEurope } });
+  await setShippingSurcharges({ france, europe, horsEurope });
+  return NextResponse.json({ ok: true, shipping: { france, europe, horsEurope } });
 }

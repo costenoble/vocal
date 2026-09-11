@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-type Shipping = { europe: number; horsEurope: number };
+type Shipping = { france: number; europe: number; horsEurope: number };
 
 function AmountInput({
   label, value, onChange,
@@ -28,15 +28,17 @@ function AmountInput({
 }
 
 export default function SettingsManager({ initialShipping }: { initialShipping: Shipping }) {
+  const [france, setFrance] = useState(String(initialShipping.france));
   const [europe, setEurope] = useState(String(initialShipping.europe));
   const [horsEurope, setHorsEurope] = useState(String(initialShipping.horsEurope));
   const [saved, setSaved] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  const franceAmount = Number(france.replace(",", "."));
   const europeAmount = Number(europe.replace(",", "."));
   const horsEuropeAmount = Number(horsEurope.replace(",", "."));
-  const valid = Number.isFinite(europeAmount) && europeAmount >= 0 && Number.isFinite(horsEuropeAmount) && horsEuropeAmount >= 0;
+  const valid = [franceAmount, europeAmount, horsEuropeAmount].every((n) => Number.isFinite(n) && n >= 0);
 
   const change = (setter: (v: string) => void) => (v: string) => { setter(v); setSaved(false); };
 
@@ -48,7 +50,7 @@ export default function SettingsManager({ initialShipping }: { initialShipping: 
       const res = await fetch("/api/admin/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ europe: europeAmount, horsEurope: horsEuropeAmount }),
+        body: JSON.stringify({ france: franceAmount, europe: europeAmount, horsEurope: horsEuropeAmount }),
       });
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
@@ -67,12 +69,12 @@ export default function SettingsManager({ initialShipping }: { initialShipping: 
         Frais de livraison
       </h2>
       <p className="text-[13px] leading-relaxed mb-5" style={{ color: "var(--ink-muted)" }}>
-        Le prix affiché sur le site inclut déjà la livraison pour la <strong>France</strong> (pas de
-        frais séparés). Pour les autres destinations, un supplément est ajouté automatiquement au
-        paiement, selon deux paliers. Mettez <strong>0</strong> pour désactiver un palier.
+        Montant ajouté automatiquement au prix de l&rsquo;article selon la destination de la commande,
+        affiché au client dès le panier. Mettez <strong>0</strong> pour désactiver un palier.
       </p>
 
       <div className="flex flex-wrap items-end gap-4 mb-2">
+        <AmountInput label="France" value={france} onChange={change(setFrance)} />
         <AmountInput label="Europe — Belgique, Suisse, Luxembourg" value={europe} onChange={change(setEurope)} />
         <AmountInput label="Hors Europe — Canada, autres pays" value={horsEurope} onChange={change(setHorsEurope)} />
         <button
