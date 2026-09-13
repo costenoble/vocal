@@ -4,24 +4,28 @@ import { useState } from "react";
 
 type Shipping = { france: number; europe: number; horsEurope: number };
 
-function AmountInput({
-  label, value, onChange,
-}: { label: string; value: string; onChange: (v: string) => void }) {
+function AmountRow({
+  title, caption, value, onChange,
+}: { title: string; caption: string; value: string; onChange: (v: string) => void }) {
   return (
-    <div>
-      <label className="text-[11px] font-bold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--ink-muted)" }}>
-        {label}
-      </label>
-      <div className="relative">
+    <div
+      className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3.5"
+      style={{ background: "#FFFDF9", border: "1.5px solid rgba(28,20,16,0.08)" }}
+    >
+      <div className="min-w-0">
+        <p className="text-[14px] font-bold" style={{ color: "var(--ink)" }}>{title}</p>
+        <p className="text-[12px] truncate" style={{ color: "var(--ink-muted)" }}>{caption}</p>
+      </div>
+      <div className="relative shrink-0">
         <input
           type="text"
           inputMode="decimal"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="px-4 py-3 pr-9 rounded-xl text-[15px] font-bold outline-none w-32"
-          style={{ background: "#FFFDF9", border: "1.5px solid rgba(28,20,16,0.10)", color: "var(--ink)" }}
+          className="px-3.5 py-2.5 pr-8 rounded-xl text-[15px] font-bold outline-none w-[92px] text-right"
+          style={{ background: "white", border: "1.5px solid rgba(28,20,16,0.12)", color: "var(--ink)" }}
         />
-        <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[14px] font-bold" style={{ color: "var(--ink-muted)" }}>€</span>
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[13px] font-bold" style={{ color: "var(--ink-muted)" }}>€</span>
       </div>
     </div>
   );
@@ -64,7 +68,7 @@ export default function SettingsManager({ initialShipping }: { initialShipping: 
   };
 
   return (
-    <div className="rounded-3xl p-6" style={{ background: "white", border: "1px solid rgba(184,134,26,0.12)" }}>
+    <div className="rounded-3xl p-5 sm:p-6" style={{ background: "white", border: "1px solid rgba(184,134,26,0.12)" }}>
       <h2 className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "var(--gold)" }}>
         Frais de livraison
       </h2>
@@ -73,22 +77,23 @@ export default function SettingsManager({ initialShipping }: { initialShipping: 
         affiché au client dès le panier. Mettez <strong>0</strong> pour désactiver un palier.
       </p>
 
-      <div className="flex flex-wrap items-end gap-4 mb-2">
-        <AmountInput label="France" value={france} onChange={change(setFrance)} />
-        <AmountInput label="Europe — Belgique, Suisse, Luxembourg" value={europe} onChange={change(setEurope)} />
-        <AmountInput label="Hors Europe — Canada, autres pays" value={horsEurope} onChange={change(setHorsEurope)} />
-        <button
-          onClick={save}
-          disabled={!valid || saving || saved}
-          className="px-5 py-3 rounded-xl font-bold text-[13px] text-white transition-all active:scale-95 disabled:opacity-40"
-          style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))" }}
-        >
-          {saving ? "Enregistrement…" : saved ? "Enregistré" : "Enregistrer"}
-        </button>
+      <div className="flex flex-col gap-2.5 mb-5">
+        <AmountRow title="France" caption="Livraison en France" value={france} onChange={change(setFrance)} />
+        <AmountRow title="Europe" caption="Belgique, Suisse, Luxembourg" value={europe} onChange={change(setEurope)} />
+        <AmountRow title="Hors Europe" caption="Canada et autres pays" value={horsEurope} onChange={change(setHorsEurope)} />
       </div>
 
-      {error && <p className="text-[12px] mt-2" style={{ color: "#C0392B" }}>{error}</p>}
-      {!error && !valid && <p className="text-[12px] mt-2" style={{ color: "#C0392B" }}>Montant invalide.</p>}
+      {error && <p className="text-[12px] mb-3" style={{ color: "#C0392B" }}>{error}</p>}
+      {!error && !valid && <p className="text-[12px] mb-3" style={{ color: "#C0392B" }}>Montant invalide.</p>}
+
+      <button
+        onClick={save}
+        disabled={!valid || saving || saved}
+        className="w-full py-3.5 rounded-xl font-bold text-[14px] text-white transition-all active:scale-[0.98] disabled:opacity-40"
+        style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))" }}
+      >
+        {saving ? "Enregistrement…" : saved ? "Enregistré" : "Enregistrer"}
+      </button>
     </div>
   );
 }

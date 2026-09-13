@@ -17,9 +17,9 @@ export default async function AdminSettingsPage() {
   return (
     <div className="min-h-screen" style={{ background: "var(--cream)" }}>
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-start gap-4 mb-8 flex-wrap">
           <Logo size={48} />
-          <div className="flex-1">
+          <div className="flex-1 min-w-40">
             <h1 className="text-xl font-black tracking-widest uppercase" style={{ color: "var(--ink)" }}>
               Réglages
             </h1>
