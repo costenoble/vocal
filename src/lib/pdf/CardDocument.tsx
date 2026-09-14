@@ -206,7 +206,7 @@ export function CardRectoVersoPages({ data }: { data: CardPdfData }) {
                 letterSpacing: em(fs(9.5), 0.04),
               }}
             >
-              Scannez, puis saisissez le code au dos
+              Scannez, puis saisissez votre code d&apos;accès confidentiel
             </Text>
           </View>
 
