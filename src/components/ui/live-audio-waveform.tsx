@@ -57,6 +57,7 @@ export function LiveAudioWaveform({
   const [progress, setProgress] = useState(0)
   const [elapsed, setElapsed] = useState(0)
   const [duration, setDuration] = useState(initialDuration ?? 0)
+  const [playError, setPlayError] = useState(false)
 
   /* ── Init Web Audio lazily on first play ── */
   const initAudio = useCallback(() => {
@@ -96,18 +97,33 @@ export function LiveAudioWaveform({
   /* ── Toggle play/pause ── */
   const toggle = useCallback(async () => {
     if (!audioRef.current || demo) return
-    initAudio()
-    if (ctxRef.current?.state === "suspended") await ctxRef.current.resume()
+    setPlayError(false)
 
     if (playing) {
       audioRef.current.pause()
       cancelAnimationFrame(rafRef.current)
       setBars(prev => prev.map(b => Math.max(0.05, b * 0.4)))
-    } else {
+      setPlaying(false)
+      return
+    }
+
+    try {
+      // Le visualiseur (Web Audio API) est optionnel : s'il échoue, on
+      // tente quand même la lecture native ci-dessous plutôt que de
+      // bloquer tout le lecteur.
+      initAudio()
+      if (ctxRef.current?.state === "suspended") await ctxRef.current.resume()
+    } catch {
+      // ignoré — la lecture se fait alors sans barres animées
+    }
+
+    try {
       await audioRef.current.play()
       tick()
+      setPlaying(true)
+    } catch {
+      setPlayError(true)
     }
-    setPlaying(p => !p)
   }, [playing, demo, initAudio, tick])
 
   /* ── Seek on progress bar click ── */
@@ -134,6 +150,7 @@ export function LiveAudioWaveform({
         <audio
           ref={audioRef}
           src={src}
+          crossOrigin="anonymous"
           onLoadedMetadata={() => {
             const d = audioRef.current?.duration ?? 0
             if (isFinite(d)) setDuration(d)
@@ -145,6 +162,7 @@ export function LiveAudioWaveform({
             setElapsed(0)
             setBars(IDLE_BARS)
           }}
+          onError={() => setPlayError(true)}
         />
       )}
 
@@ -248,6 +266,12 @@ export function LiveAudioWaveform({
           </span>
         </div>
       </div>
+
+      {playError && (
+        <p className="text-[12px] text-center" style={{ color: "#C0392B" }}>
+          La lecture a échoué sur cet appareil. Réessayez, ou changez de navigateur si le problème persiste.
+        </p>
+      )}
     </div>
   )
 }

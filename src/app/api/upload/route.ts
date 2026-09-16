@@ -3,6 +3,7 @@ import { uploadAudio } from "@/lib/storage";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 const MAX_SIZE = 15 * 1024 * 1024; // 15 MB ≈ largement assez pour 5 min d'audio
+const MIN_SIZE = 2000; // en dessous, l'enregistrement est quasi vide (micro coupé, etc.)
 const ALLOWED_TYPES = new Set([
   "audio/webm",
   "audio/mp4",
@@ -33,6 +34,9 @@ export async function POST(req: NextRequest) {
 
     if (file.size > MAX_SIZE) {
       return NextResponse.json({ error: "Fichier trop volumineux (max 15MB)" }, { status: 413 });
+    }
+    if (file.size < MIN_SIZE) {
+      return NextResponse.json({ error: "Enregistrement trop court ou vide" }, { status: 400 });
     }
 
     const baseType = (file.type || "").split(";")[0].trim().toLowerCase();

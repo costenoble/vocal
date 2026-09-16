@@ -761,6 +761,17 @@ export default function ComposerClient() {
       mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
       mr.onstop = async () => {
         const blob = new Blob(chunksRef.current, { type: mr.mimeType || "audio/webm" });
+
+        // Micro coupé aussitôt, permission retirée en cours d'enregistrement…
+        // un enregistrement quasi vide ne doit pas pouvoir être envoyé — la
+        // carte serait livrée avec un message muet, sans que personne ne s'en
+        // rende compte avant l'impression.
+        if (blob.size < 2000) {
+          setRecordError("L'enregistrement est trop court ou vide. Réessayez.");
+          setRecordState("idle");
+          return;
+        }
+
         const url = URL.createObjectURL(blob);
         blobUrlRef.current = url;
         setAudioObjectUrl(url);
@@ -770,9 +781,26 @@ export default function ComposerClient() {
           fd.append("audio", blob, "message.webm");
           const res = await fetch("/api/upload", { method: "POST", body: fd });
           const json = await res.json();
-          setUploadedAudioUrl(json.audioUrl ?? url);
+          // L'URL locale (blob:) ne sert qu'à la prévisualisation dans le
+          // composer — elle n'existe que dans cet onglet et ne doit jamais
+          // devenir l'audioUrl final d'une commande (le message serait
+          // muet pour tout le monde, y compris à la relecture).
+          if (!res.ok || !json.audioUrl) {
+            URL.revokeObjectURL(url);
+            blobUrlRef.current = "";
+            setAudioObjectUrl("");
+            setRecordError("L'envoi de l'enregistrement a échoué. Réessayez.");
+            setRecordState("idle");
+            return;
+          }
+          setUploadedAudioUrl(json.audioUrl);
         } catch {
-          setUploadedAudioUrl(url);
+          URL.revokeObjectURL(url);
+          blobUrlRef.current = "";
+          setAudioObjectUrl("");
+          setRecordError("L'envoi de l'enregistrement a échoué. Vérifiez votre connexion et réessayez.");
+          setRecordState("idle");
+          return;
         }
         setRecordState("done");
       };
@@ -1475,7 +1503,7 @@ export default function ComposerClient() {
 
                 <button
                   onClick={() => handleCheckout(product.slug)}
-                  disabled={checkoutLoading !== null}
+                  disabled={checkoutLoading !== null || !uploadedAudioUrl}
                   className="w-full mt-4 py-4 rounded-2xl font-bold text-[15px] text-white transition-all active:scale-[0.98] disabled:opacity-50"
                   style={{ background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", boxShadow: "0 6px 28px rgba(184,134,26,0.32)" }}
                 >
@@ -1531,7 +1559,7 @@ export default function ComposerClient() {
 
                     <button
                       onClick={() => handleCheckout(plan.id)}
-                      disabled={checkoutLoading !== null}
+                      disabled={checkoutLoading !== null || !uploadedAudioUrl}
                       className="w-full py-3.5 rounded-xl font-bold text-[14px] transition-all active:scale-95 disabled:opacity-50"
                       style={plan.highlight
                         ? { background: "linear-gradient(135deg, var(--gold-light), var(--gold-dark))", color: "white", boxShadow: "0 3px 16px rgba(184,134,26,0.28)" }
