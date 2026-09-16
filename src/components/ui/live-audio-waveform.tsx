@@ -14,6 +14,16 @@ function staticHeight(i: number): number {
 
 const IDLE_BARS = Array.from({ length: BAR_COUNT }, (_, i) => staticHeight(i))
 
+// Barres décoratives animées pendant la lecture — pas une vraie analyse du
+// signal audio (voir plus bas pourquoi : fiabilité de la lecture avant tout).
+function fakeBars(t: number): number[] {
+  return Array.from({ length: BAR_COUNT }, (_, i) => {
+    const x = Math.sin(i * 12.9898 + t * 6.283) * 43758.5453
+    const n = Math.abs(x - Math.floor(x))
+    return Math.max(0.08, Math.min(1, n * 0.8 + Math.sin(t * 3 + i * 0.5) * 0.15 + 0.15))
+  })
+}
+
 /* ── Types ── */
 interface LiveAudioWaveformProps {
   src?: string
@@ -46,11 +56,7 @@ export function LiveAudioWaveform({
   accentColor = "var(--gold)",
 }: LiveAudioWaveformProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
-  const ctxRef = useRef<AudioContext | null>(null)
-  const analyserRef = useRef<AnalyserNode | null>(null)
-  const dataRef = useRef<Uint8Array<ArrayBuffer> | null>(null)
   const rafRef = useRef<number>(0)
-  const connectedRef = useRef(false)
 
   const [bars, setBars] = useState<number[]>(IDLE_BARS)
   const [playing, setPlaying] = useState(false)
@@ -59,38 +65,21 @@ export function LiveAudioWaveform({
   const [duration, setDuration] = useState(initialDuration ?? 0)
   const [playError, setPlayError] = useState(false)
 
-  /* ── Init Web Audio lazily on first play ── */
-  const initAudio = useCallback(() => {
-    if (connectedRef.current || !audioRef.current) return
-    const ctx = new AudioContext()
-    const analyser = ctx.createAnalyser()
-    analyser.fftSize = 128          // 64 bins
-    analyser.smoothingTimeConstant = 0.82
-    const data = new Uint8Array(analyser.frequencyBinCount) as Uint8Array<ArrayBuffer>
-    const source = ctx.createMediaElementSource(audioRef.current)
-    source.connect(analyser)
-    analyser.connect(ctx.destination)
-    ctxRef.current = ctx
-    analyserRef.current = analyser
-    dataRef.current = data
-    connectedRef.current = true
-  }, [])
-
-  /* ── Animation loop ── */
+  // Lecture 100% native (pas de Web Audio API) : la carte doit être écoutable
+  // sur tous les appareils sans exception. Router l'audio dans un
+  // AudioContext/AnalyserNode pour animer les barres est une source connue
+  // de silence total (notamment Safari/iOS avec un fichier cross-origin),
+  // parfois sans aucune erreur visible — trop risqué pour ce qui est le cœur
+  // du produit. Les barres ci-dessous sont donc décoratives, pas une vraie
+  // analyse du signal.
   const tick = useCallback(() => {
-    if (!analyserRef.current || !dataRef.current || !audioRef.current) return
-    analyserRef.current.getByteFrequencyData(dataRef.current)
-    const binStep = dataRef.current.length / BAR_COUNT
-    const next = Array.from({ length: BAR_COUNT }, (_, i) => {
-      const raw = dataRef.current![Math.floor(i * binStep)] / 255
-      return Math.max(0.05, raw)
-    })
-    setBars(next)
     const audio = audioRef.current
+    if (!audio) return
     if (isFinite(audio.duration) && audio.duration > 0) {
       setElapsed(audio.currentTime)
       setProgress(audio.currentTime / audio.duration)
     }
+    setBars(fakeBars(audio.currentTime))
     rafRef.current = requestAnimationFrame(tick)
   }, [])
 
@@ -108,23 +97,13 @@ export function LiveAudioWaveform({
     }
 
     try {
-      // Le visualiseur (Web Audio API) est optionnel : s'il échoue, on
-      // tente quand même la lecture native ci-dessous plutôt que de
-      // bloquer tout le lecteur.
-      initAudio()
-      if (ctxRef.current?.state === "suspended") await ctxRef.current.resume()
-    } catch {
-      // ignoré — la lecture se fait alors sans barres animées
-    }
-
-    try {
       await audioRef.current.play()
       tick()
       setPlaying(true)
     } catch {
       setPlayError(true)
     }
-  }, [playing, demo, initAudio, tick])
+  }, [playing, demo, tick])
 
   /* ── Seek on progress bar click ── */
   const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -139,7 +118,6 @@ export function LiveAudioWaveform({
   /* ── Cleanup ── */
   useEffect(() => () => {
     cancelAnimationFrame(rafRef.current)
-    ctxRef.current?.close()
   }, [])
 
   const isDisabled = demo || !src
@@ -150,7 +128,6 @@ export function LiveAudioWaveform({
         <audio
           ref={audioRef}
           src={src}
-          crossOrigin="anonymous"
           onLoadedMetadata={() => {
             const d = audioRef.current?.duration ?? 0
             if (isFinite(d)) setDuration(d)
