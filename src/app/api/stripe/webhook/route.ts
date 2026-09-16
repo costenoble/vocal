@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { sendOrderConfirmation, sendNewOrderNotification, sendCartConfirmation } from "@/lib/email";
+import { notifyDiscordNewOrder } from "@/lib/discord";
 import { getProductBySlug, decrementStock } from "@/lib/products";
 import { getPlanById } from "@/lib/plans";
 import Stripe from "stripe";
@@ -76,9 +77,9 @@ export async function POST(req: NextRequest) {
           }
         }
         // Notification vendeur : une par commande, récapitulant le nombre d'articles.
+        const first = orderItems[0];
+        const total = (session.amount_total ?? 0) / 100;
         try {
-          const first = orderItems[0];
-          const total = (session.amount_total ?? 0) / 100;
           await sendNewOrderNotification({
             fromName: `${orderItems.length} article${orderItems.length > 1 ? "s" : ""}`,
             toName: orderItems.map((m) => m.toName).join(", "),
@@ -97,6 +98,15 @@ export async function POST(req: NextRequest) {
         } catch (err) {
           console.error("[webhook] Vendor notification (cart) failed", err);
         }
+        notifyDiscordNewOrder({
+          fromName: `${orderItems.length} article${orderItems.length > 1 ? "s" : ""}`,
+          toName: orderItems.map((m) => m.toName).join(", "),
+          productLabel: orderItems.map((m) => m.productName).filter(Boolean).join(" · "),
+          price: total,
+          shipCountry: first.shipCountry,
+          source: "Panier",
+          adminUrl: `${origin}/admin`,
+        });
       }
     } else if (meta.slug && meta.fromName && meta.toName && meta.audioUrl) {
       const purchasedProduct = meta.productSlug ? await getProductBySlug(meta.productSlug) : undefined;
@@ -159,13 +169,14 @@ export async function POST(req: NextRequest) {
         }
       }
 
+      // Montant réellement encaissé (inclut un éventuel supplément de
+      // livraison hors France), plutôt que le seul prix catalogue.
+      const price = session.amount_total != null
+        ? session.amount_total / 100
+        : purchasedProduct?.price ?? getPlanById(meta.planId)?.price ?? 0;
+
       // Notification au vendeur — nouvelle vente en ligne
       try {
-        // Montant réellement encaissé (inclut un éventuel supplément de
-        // livraison hors France), plutôt que le seul prix catalogue.
-        const price = session.amount_total != null
-          ? session.amount_total / 100
-          : purchasedProduct?.price ?? getPlanById(meta.planId)?.price ?? 0;
         await sendNewOrderNotification({
           fromName: meta.fromName,
           toName: meta.toName,
@@ -184,6 +195,15 @@ export async function POST(req: NextRequest) {
       } catch (err) {
         console.error("[webhook] Vendor notification failed", err);
       }
+      notifyDiscordNewOrder({
+        fromName: meta.fromName,
+        toName: meta.toName,
+        productLabel: purchasedProduct?.name ?? meta.planId ?? "Commande",
+        price,
+        shipCountry: meta.shipCountry,
+        source: "Composer",
+        adminUrl: `${origin}/admin`,
+      });
     } else if (session.id) {
       // Legacy flow — mark existing pre-created record as paid
       await prisma.message.updateMany({

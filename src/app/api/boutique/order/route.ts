@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getProductBySlug } from "@/lib/products";
 import { sendOrderConfirmation } from "@/lib/email";
+import { notifyDiscordNewOrder } from "@/lib/discord";
 import { isAdminSession } from "@/lib/admin-auth";
 import { nanoid, customAlphabet } from "nanoid";
 
@@ -56,9 +57,19 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    const origin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    notifyDiscordNewOrder({
+      fromName,
+      toName,
+      productLabel: product?.name ?? "Carte",
+      price: product?.price ?? 0,
+      shipCountry: shipping?.country,
+      source: "Boutique (caisse)",
+      adminUrl: `${origin}/admin`,
+    });
+
     // Optional confirmation email if the vendor entered the buyer's address
     if (buyerEmail) {
-      const origin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
       try {
         await sendOrderConfirmation({
           to: buyerEmail,
