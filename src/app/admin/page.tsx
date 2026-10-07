@@ -339,6 +339,11 @@ export default async function AdminPage({
                           <a href={`/api/order-sheet/${m.slug}?download=1`} className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] transition-all active:scale-95" style={{ background: "white", color: "var(--gold-dark)", border: "1.5px solid rgba(184,134,26,0.35)" }}>
                             Télécharger tout (A6)
                           </a>
+                          {hasShipping && (
+                            <a href={`/api/shipping-label/${m.slug}`} target="_blank" rel="noreferrer" className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] transition-all active:scale-95" style={{ background: "white", color: "var(--gold-dark)", border: "1.5px solid rgba(184,134,26,0.35)" }}>
+                              Étiquette (10×15)
+                            </a>
+                          )}
                           <Link href={`/api/pdf/${m.slug}`} target="_blank" className="px-3.5 py-2.5 rounded-xl font-bold text-[12px] text-white transition-all active:scale-95" style={{ background: "var(--ink)" }}>
                             Imprimer la carte
                           </Link>
