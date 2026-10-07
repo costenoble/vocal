@@ -59,6 +59,10 @@ const FAQS = [
     a: "Oui. Chaque message est protégé par un code d'accès personnel imprimé sur la carte. Sans ce code, personne ne peut écouter le message, même avec le lien.",
   },
   {
+    q: "Les messages vocaux sont-ils supprimés à un moment ?",
+    a: "Non, votre message reste hébergé de façon sécurisée tant que la carte est active, et n'est jamais consultable sans le code d'accès confidentiel. Vous pouvez à tout moment nous demander sa suppression définitive en nous contactant.",
+  },
+  {
     q: "Que contient le coffret livré ?",
     a: "Une enveloppe premium, le bracelet en pierre naturelle avec son médaillon N'OUBLIE JAMAIS, ses cartes élégantes et le QR code donnant accès au message vocal.",
   },
@@ -488,7 +492,7 @@ export default function LandingPage() {
               { t: "Deux cartes élégantes", d: "Pensées pour accompagner votre message avec soin.", icon: (<><rect x="4" y="6" width="14" height="12" rx="1.5" stroke="var(--gold)" strokeWidth="1.5"/><rect x="7" y="3" width="14" height="12" rx="1.5" stroke="var(--gold)" strokeWidth="1.2" opacity="0.5"/></>) },
               { t: "Un QR code personnel", d: "Donnant accès à une page privée dédiée à votre cadeau.", icon: (<><rect x="4" y="4" width="7" height="7" rx="1" stroke="var(--gold)" strokeWidth="1.5"/><rect x="13" y="4" width="7" height="7" rx="1" stroke="var(--gold)" strokeWidth="1.5"/><rect x="4" y="13" width="7" height="7" rx="1" stroke="var(--gold)" strokeWidth="1.5"/><path d="M13 13h3v3M20 13v7M16 20h4" stroke="var(--gold)" strokeWidth="1.5"/></>) },
               { t: "Un message vocal privé", d: "À écouter à tout moment, protégé par un code d'accès confidentiel.", icon: (<><rect x="9" y="2" width="6" height="12" rx="3" stroke="var(--gold)" strokeWidth="1.5"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round"/></>) },
-              { t: "Un souvenir durable", d: "Un cadeau pensé pour laisser une trace sincère, qui traverse le temps.", icon: (<path d="M12 21l-1.45-1.32C5.4 15 2 12 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2 1.1-1.2 2.8-2 4.5-2C19.6 3 22 5.4 22 8.5c0 3.5-3.4 6.5-8.55 11.18L12 21z" stroke="var(--gold)" strokeWidth="1.5" strokeLinejoin="round"/>) },
+              { t: "Un souvenir durable", d: "Un cadeau pensé pour laisser une trace sincère, avec un hébergement audio sécurisé garanti pendant plus de 20 ans pour traverser le temps.", icon: (<path d="M12 21l-1.45-1.32C5.4 15 2 12 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2 1.1-1.2 2.8-2 4.5-2C19.6 3 22 5.4 22 8.5c0 3.5-3.4 6.5-8.55 11.18L12 21z" stroke="var(--gold)" strokeWidth="1.5" strokeLinejoin="round"/>) },
             ].map((item, i) => (
               <motion.div
                 key={item.t}

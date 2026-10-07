@@ -39,8 +39,8 @@ export default function Confidentialite() {
       <p>Nous faisons appel aux sous-traitants suivants :</p>
       <ul>
         <li><strong>Stripe</strong> — traitement des paiements (politique : <a href="https://stripe.com/fr/privacy" target="_blank" rel="noopener noreferrer">stripe.com/fr/privacy</a>)</li>
-        <li><strong>Vercel</strong> — hébergement du site et stockage des fichiers audio</li>
-        <li><strong>Neon</strong> — base de données</li>
+        <li><strong>Hostinger</strong> — hébergement du site</li>
+        <li><strong>Supabase</strong> — base de données et stockage des fichiers audio</li>
         <li><strong>Resend</strong> — envoi des emails transactionnels</li>
       </ul>
 

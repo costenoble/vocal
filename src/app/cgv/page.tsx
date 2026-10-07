@@ -63,6 +63,9 @@ export default function CGV() {
       <p>
         Le Client est seul responsable du contenu du message vocal enregistré. Le Vendeur décline toute responsabilité quant aux contenus illicites, diffamatoires ou portant atteinte à des droits tiers. Le Vendeur se réserve le droit de supprimer tout contenu jugé inapproprié.
       </p>
+      <p>
+        Il appartient au Client de vérifier la compatibilité des matériaux composant le bijou avec sa situation personnelle, notamment en cas d&rsquo;allergie ou de sensibilité cutanée connue, avant tout port prolongé. Le Client s&rsquo;engage à respecter les consignes de sécurité et d&rsquo;entretien communiquées avec le produit, et à conserver le bijou hors de portée des jeunes enfants.
+      </p>
 
       <h2>9. Données personnelles</h2>
       <p>

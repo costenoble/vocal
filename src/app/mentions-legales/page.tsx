@@ -22,18 +22,15 @@ export default function MentionsLegales() {
       <h2>Hébergement</h2>
       <p>
         Le site est hébergé par :<br />
-        <strong>Vercel Inc.</strong><br />
-        440 N Barranca Ave #4133, Covina, CA 91723, États-Unis<br />
-        <a href="https://vercel.com" target="_blank" rel="noopener noreferrer">vercel.com</a>
+        <strong>Hostinger International Ltd.</strong><br />
+        61 Lordou Vironos Street, 6023 Larnaca, Chypre<br />
+        <a href="https://www.hostinger.fr" target="_blank" rel="noopener noreferrer">hostinger.fr</a>
       </p>
       <p>
-        La base de données est hébergée par :<br />
-        <strong>Neon Technologies Inc.</strong><br />
-        <a href="https://neon.tech" target="_blank" rel="noopener noreferrer">neon.tech</a>
-      </p>
-      <p>
-        Les fichiers audio sont stockés par :<br />
-        <strong>Vercel Inc.</strong> via Vercel Blob Storage
+        La base de données et les fichiers audio sont hébergés par :<br />
+        <strong>Supabase Inc.</strong><br />
+        970 Toa Payoh North #07-04, Singapour 318992<br />
+        <a href="https://supabase.com" target="_blank" rel="noopener noreferrer">supabase.com</a>
       </p>
 
       <h2>Propriété intellectuelle</h2>

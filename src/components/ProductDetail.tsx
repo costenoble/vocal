@@ -28,6 +28,7 @@ export default function ProductDetail({ product }: { product: Product }) {
   // Galerie : photo de couverture + photos supplémentaires (dédupliquées).
   const gallery = [product.imageUrl, ...product.images].filter((u, i, arr) => u && arr.indexOf(u) === i);
   const [mainImage, setMainImage] = useState<string>(gallery[0] ?? "");
+  const [safetyOpen, setSafetyOpen] = useState(false);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
@@ -216,6 +217,32 @@ export default function ProductDetail({ product }: { product: Product }) {
             </div>
           </>
         )}
+
+        {/* Sécurité & entretien — discret, replié par défaut */}
+        <div className="h-px w-full" style={{ background: "rgba(184,134,26,0.15)" }} />
+        <div>
+          <button
+            onClick={() => setSafetyOpen((v) => !v)}
+            className="w-full flex items-center justify-between gap-2 text-left"
+          >
+            <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "var(--ink-muted)" }}>
+              Sécurité &amp; entretien
+            </span>
+            <svg
+              viewBox="0 0 16 16" fill="none" width={12} height={12}
+              style={{ flexShrink: 0, transform: safetyOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s ease" }}
+            >
+              <path d="M3 5.5l5 5 5-5" stroke="var(--ink-muted)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          {safetyOpen && (
+            <div className="flex flex-col gap-2.5 mt-3 text-[11.5px] leading-relaxed" style={{ color: "var(--ink-muted)" }}>
+              <p><strong style={{ color: "var(--ink)" }}>Sécurité.</strong> Ce bijou contient de petites perles susceptibles d&rsquo;être ingérées. Ne convient pas aux enfants de moins de 3 ans. À laisser hors de portée des enfants en bas âge et des animaux.</p>
+              <p><strong style={{ color: "var(--ink)" }}>Lithothérapie.</strong> Les propriétés des pierres sont données à titre indicatif et ne remplacent en aucun cas un traitement médical ou un diagnostic professionnel.</p>
+              <p><strong style={{ color: "var(--ink)" }}>Entretien.</strong> Évitez le contact prolongé avec l&rsquo;eau, les parfums et les cosmétiques afin de préserver le fil polyester, les pierres naturelles et l&rsquo;éclat des éléments métalliques.</p>
+            </div>
+          )}
+        </div>
       </motion.div>
     </div>
   );
