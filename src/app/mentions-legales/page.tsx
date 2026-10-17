@@ -12,7 +12,9 @@ export default function MentionsLegales() {
         Entrepreneur individuel, exerçant sous le nom commercial <strong>N&rsquo;OUBLIE JAMAIS.NJ</strong><br />
         Établissement : 25 Boulevard des Dames, 13002 Marseille<br />
         RCS Marseille : 131 361 214<br />
-        TVA non applicable, article 293 B du Code général des impôts (franchise en base de TVA)<br />
+        SIRET : 131 361 214 00011<br />
+        Code APE/NAF : 47.91B (vente à distance sur catalogue spécialisé)<br />
+        N° TVA intracommunautaire : FR08 131361214<br />
         Email : <a href="mailto:contact@oubliejamaisbijoux.fr">contact@oubliejamaisbijoux.fr</a>
       </p>
       <p>
