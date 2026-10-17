@@ -4,15 +4,15 @@ export const metadata = { title: "Politique de Confidentialité" };
 
 export default function Confidentialite() {
   return (
-    <LegalLayout title="Politique de Confidentialité" updated="25 juin 2026">
+    <LegalLayout title="Politique de Confidentialité" updated="17 octobre 2026">
       <p>
         La protection de vos données personnelles est une priorité pour <strong>N&rsquo;OUBLIE JAMAIS</strong>. Cette politique décrit les données collectées, leur utilisation et vos droits conformément au Règlement Général sur la Protection des Données (RGPD).
       </p>
 
       <h2>1. Responsable du traitement</h2>
       <p>
-        <strong>[Nom de la société]</strong><br />
-        [Adresse]<br />
+        <strong>Rabah Dahchar</strong> — N&rsquo;OUBLIE JAMAIS.NJ<br />
+        25 Boulevard des Dames, 13002 Marseille<br />
         Email : <a href="mailto:contact@oubliejamaisbijoux.fr">contact@oubliejamaisbijoux.fr</a>
       </p>
 
