@@ -72,6 +72,7 @@ export async function POST(req: NextRequest) {
       price,
       imageUrl: String(body.imageUrl ?? "").trim(),
       images,
+      envelopeImageUrl: String(body.envelopeImageUrl ?? "").trim(),
       sizes,
       details,
       stock: Number.isFinite(stock as number) ? stock : null,

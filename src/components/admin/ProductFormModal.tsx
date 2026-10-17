@@ -39,12 +39,15 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
   const [active, setActive] = useState(true);
   const [imageUrl, setImageUrl] = useState("");
   const [images, setImages] = useState<string[]>([]);
+  const [envelopeImageUrl, setEnvelopeImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [uploadingEnvelope, setUploadingEnvelope] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+  const envelopeInputRef = useRef<HTMLInputElement>(null);
 
   // Recharge le formulaire à chaque ouverture / changement de produit édité.
   useEffect(() => {
@@ -61,6 +64,7 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
     setActive(product?.active ?? true);
     setImageUrl(product?.imageUrl ?? "");
     setImages(product?.images ?? []);
+    setEnvelopeImageUrl(product?.envelopeImageUrl ?? "");
     setError("");
   }, [open, product]);
 
@@ -110,6 +114,20 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
 
   const removeGalleryImage = (url: string) => setImages((prev) => prev.filter((u) => u !== url));
 
+  // Photo rectangulaire de l'enveloppe — distincte de la photo carrée du
+  // bijou, pour qu'elle s'affiche entière sans être recadrée en carré.
+  const uploadEnvelopeImage = async (file: File) => {
+    setUploadingEnvelope(true);
+    setError("");
+    try {
+      setEnvelopeImageUrl(await doUpload(file));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Échec de l'upload");
+    } finally {
+      setUploadingEnvelope(false);
+    }
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -129,6 +147,7 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
       price: priceNum,
       imageUrl,
       images,
+      envelopeImageUrl,
       stock: stock.trim() === "" ? null : Math.max(0, Math.floor(Number(stock))),
       sizes: sizesText.split(",").map((s) => s.trim()).filter(Boolean),
       details: detailsText.split("\n").map((s) => s.trim()).filter(Boolean),
@@ -262,6 +281,43 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
                   </div>
                   <p className="text-[10px]" style={{ color: "var(--ink-muted)" }}>Jusqu&rsquo;à 8 photos · vue portée, gros plan, détails…</p>
                   <input ref={galleryInputRef} type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={(e) => { if (e.target.files?.length) uploadGalleryImages(e.target.files); e.target.value = ""; }} />
+                </div>
+
+                {/* Photo de l'enveloppe — rectangulaire, affichée entière (non recadrée) sur la fiche produit */}
+                <div className="flex flex-col gap-1.5">
+                  <label className={labelCls} style={{ color: "var(--ink-muted)" }}>Photo de l&rsquo;enveloppe</label>
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-28 h-20 rounded-xl overflow-hidden shrink-0" style={{ background: "var(--cream)", border: "1px solid rgba(184,134,26,0.2)" }}>
+                      {envelopeImageUrl ? (
+                        <Image src={envelopeImageUrl} alt="" fill className="object-contain" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke="var(--gold)" strokeWidth="1.4" opacity={0.4}>
+                            <rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 7l10 7 10-7" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => envelopeInputRef.current?.click()}
+                        disabled={uploadingEnvelope}
+                        className="px-3.5 py-2 rounded-lg text-[12px] font-semibold transition-all active:scale-95 disabled:opacity-50"
+                        style={{ background: "var(--cream)", color: "var(--gold-dark)", border: "1px solid rgba(184,134,26,0.3)" }}
+                      >
+                        {uploadingEnvelope ? "Envoi…" : envelopeImageUrl ? "Changer la photo" : "Choisir une photo"}
+                      </button>
+                      <p className="text-[10px]" style={{ color: "var(--ink-muted)" }}>Affichée en rectangle, jamais recadrée en carré · optionnel</p>
+                    </div>
+                    <input
+                      ref={envelopeInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadEnvelopeImage(f); }}
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">

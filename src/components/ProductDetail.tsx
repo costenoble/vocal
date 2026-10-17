@@ -75,6 +75,14 @@ export default function ProductDetail({ product }: { product: Product }) {
             ))}
           </div>
         )}
+
+        {/* Photo de l'enveloppe — rectangulaire, affichée entière (pas de
+            recadrage carré comme pour les photos du bijou). */}
+        {product.envelopeImageUrl && (
+          <div className="relative w-full rounded-2xl overflow-hidden" style={{ aspectRatio: "16 / 10", background: "#F5EED5" }}>
+            <Image src={product.envelopeImageUrl} alt={`Enveloppe — ${product.name}`} fill className="object-contain" />
+          </div>
+        )}
       </motion.div>
 
       {/* Details */}
@@ -104,7 +112,7 @@ export default function ProductDetail({ product }: { product: Product }) {
           <span className="text-[42px] font-black" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
             {formatPrice(product.price)}
           </span>
-          <span className="text-[13px]" style={{ color: "var(--ink-muted)" }}>TTC · Livraison incluse</span>
+          <span className="text-[13px]" style={{ color: "var(--ink-muted)" }}>TTC</span>
         </div>
 
         {/* La référence produit est réservée à l'admin (préparation) — non
