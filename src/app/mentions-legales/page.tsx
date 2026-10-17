@@ -4,19 +4,19 @@ export const metadata = { title: "Mentions Légales" };
 
 export default function MentionsLegales() {
   return (
-    <LegalLayout title="Mentions Légales" updated="25 juin 2026">
+    <LegalLayout title="Mentions Légales" updated="17 octobre 2026">
       <h2>Éditeur du site</h2>
       <p>
-        Le site <strong>noubliez-jamais.fr</strong> est édité par :<br />
-        <strong>[Nom de la société ou du porteur de projet]</strong><br />
-        [Forme juridique] au capital de [montant] €<br />
-        Siège social : [Adresse complète]<br />
-        SIRET : [Numéro SIRET]<br />
-        N° TVA intracommunautaire : [Numéro TVA]<br />
-        Email : <a href="mailto:contact@noubliez-jamais.fr">contact@noubliez-jamais.fr</a>
+        Le site <strong>oubliejamaisbijoux.fr</strong> est édité par :<br />
+        <strong>Rabah DAHCHAR</strong><br />
+        Entrepreneur individuel, exerçant sous le nom commercial <strong>N&rsquo;OUBLIE JAMAIS.NJ</strong><br />
+        Établissement : 25 Boulevard des Dames, 13002 Marseille<br />
+        RCS Marseille : 131 361 214<br />
+        TVA non applicable, article 293 B du Code général des impôts (franchise en base de TVA)<br />
+        Email : <a href="mailto:contact@oubliejamaisbijoux.fr">contact@oubliejamaisbijoux.fr</a>
       </p>
       <p>
-        Directeur de la publication : <strong>[Nom du responsable]</strong>
+        Directeur de la publication : <strong>Rabah Dahchar</strong>
       </p>
 
       <h2>Hébergement</h2>

@@ -13,7 +13,7 @@ export default function Confidentialite() {
       <p>
         <strong>[Nom de la société]</strong><br />
         [Adresse]<br />
-        Email : <a href="mailto:contact@noubliez-jamais.fr">contact@noubliez-jamais.fr</a>
+        Email : <a href="mailto:contact@oubliejamaisbijoux.fr">contact@oubliejamaisbijoux.fr</a>
       </p>
 
       <h2>2. Données collectées</h2>
@@ -59,7 +59,7 @@ export default function Confidentialite() {
         <li><strong>Droit à la portabilité</strong> — recevoir vos données dans un format lisible</li>
       </ul>
       <p>
-        Pour exercer ces droits, contactez-nous à : <a href="mailto:contact@noubliez-jamais.fr">contact@noubliez-jamais.fr</a>
+        Pour exercer ces droits, contactez-nous à : <a href="mailto:contact@oubliejamaisbijoux.fr">contact@oubliejamaisbijoux.fr</a>
       </p>
       <p>
         Vous pouvez également adresser une réclamation à la <strong>CNIL</strong> : <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer">cnil.fr</a>

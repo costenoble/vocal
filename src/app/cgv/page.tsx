@@ -7,7 +7,7 @@ export default function CGV() {
     <LegalLayout title="Conditions Générales de Vente" updated="25 juin 2026">
       <h2>1. Objet</h2>
       <p>
-        Les présentes Conditions Générales de Vente (CGV) régissent les relations contractuelles entre <strong>N&rsquo;OUBLIE JAMAIS</strong> (ci-après « le Vendeur ») et toute personne physique ou morale souhaitant procéder à un achat via le site <strong>noubliez-jamais.fr</strong> (ci-après « le Client »).
+        Les présentes Conditions Générales de Vente (CGV) régissent les relations contractuelles entre <strong>N&rsquo;OUBLIE JAMAIS</strong> (ci-après « le Vendeur ») et toute personne physique ou morale souhaitant procéder à un achat via le site <strong>oubliejamaisbijoux.fr</strong> (ci-après « le Client »).
       </p>
       <p>
         Tout achat sur le site implique l&rsquo;acceptation pleine et entière des présentes CGV.
@@ -74,7 +74,7 @@ export default function CGV() {
 
       <h2>10. Litiges</h2>
       <p>
-        En cas de litige, le Client peut contacter le service client à l&rsquo;adresse <strong>contact@noubliez-jamais.fr</strong>. En cas d&rsquo;échec de la résolution amiable, les tribunaux français seront seuls compétents.
+        En cas de litige, le Client peut contacter le service client à l&rsquo;adresse <strong>contact@oubliejamaisbijoux.fr</strong>. En cas d&rsquo;échec de la résolution amiable, les tribunaux français seront seuls compétents.
       </p>
     </LegalLayout>
   );

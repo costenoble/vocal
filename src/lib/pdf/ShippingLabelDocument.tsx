@@ -14,7 +14,7 @@ const MUTED = "#7A6455";
 // Adresse d'expédition fixe — N'OUBLIE JAMAIS.
 const SENDER = {
   name: "N'OUBLIE JAMAIS.NJ",
-  address: "2 Boulevard des Dames",
+  address: "25 Boulevard des Dames",
   cityLine: "13002 Marseille",
 };
 
