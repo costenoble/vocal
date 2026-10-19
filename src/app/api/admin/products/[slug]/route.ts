@@ -31,7 +31,6 @@ export async function PATCH(
   }
   if (typeof body.imageUrl === "string") data.imageUrl = body.imageUrl.trim();
   if (typeof body.envelopeImageUrl === "string") data.envelopeImageUrl = body.envelopeImageUrl.trim();
-  if (Array.isArray(body.showcaseImages)) data.showcaseImages = body.showcaseImages.map((s: unknown) => String(s).trim()).filter(Boolean).slice(0, 6);
   if (typeof body.reference === "string") data.reference = body.reference.trim().slice(0, 60);
   if (Array.isArray(body.images)) data.images = body.images.map((s: unknown) => String(s).trim()).filter(Boolean).slice(0, 8);
   if (Array.isArray(body.sizes)) data.sizes = body.sizes.map((s: unknown) => String(s).trim()).filter(Boolean).slice(0, 20);

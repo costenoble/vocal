@@ -11,7 +11,6 @@ export interface Product {
   imageUrl: string;
   images: string[];
   envelopeImageUrl: string;
-  showcaseImages: string[];
   sizes: string[];
   details: string[];
   stock: number | null; // null = stock non suivi (illimité)
@@ -21,13 +20,12 @@ export interface Product {
 
 function toProduct(p: {
   slug: string; name: string; reference: string; category: string; tagline: string;
-  description: string; price: number; imageUrl: string; images: string[]; envelopeImageUrl: string; showcaseImages: string[]; sizes: string[];
+  description: string; price: number; imageUrl: string; images: string[]; envelopeImageUrl: string; sizes: string[];
   details: string[]; stock: number | null; active: boolean; sortOrder: number;
 }): Product {
   return {
     slug: p.slug, name: p.name, reference: p.reference, category: p.category, tagline: p.tagline,
     description: p.description, price: p.price, imageUrl: p.imageUrl, images: p.images, envelopeImageUrl: p.envelopeImageUrl,
-    showcaseImages: p.showcaseImages,
     sizes: p.sizes, details: p.details, stock: p.stock, active: p.active, sortOrder: p.sortOrder,
   };
 }

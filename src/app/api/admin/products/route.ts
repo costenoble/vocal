@@ -73,9 +73,6 @@ export async function POST(req: NextRequest) {
       imageUrl: String(body.imageUrl ?? "").trim(),
       images,
       envelopeImageUrl: String(body.envelopeImageUrl ?? "").trim(),
-      showcaseImages: Array.isArray(body.showcaseImages)
-        ? body.showcaseImages.map((s: unknown) => String(s).trim()).filter(Boolean).slice(0, 6)
-        : [],
       sizes,
       details,
       stock: Number.isFinite(stock as number) ? stock : null,

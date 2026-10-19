@@ -69,7 +69,6 @@ model Product {
   imageUrl    String   @default("")
   images      String[] @default([])
   envelopeImageUrl String @default("")
-  showcaseImages   String[] @default([])
   sizes       String[] @default([])
   details     String[] @default([])
   stock       Int?

@@ -40,17 +40,14 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
   const [imageUrl, setImageUrl] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [envelopeImageUrl, setEnvelopeImageUrl] = useState("");
-  const [showcaseImages, setShowcaseImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [uploadingEnvelope, setUploadingEnvelope] = useState(false);
-  const [uploadingShowcase, setUploadingShowcase] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const envelopeInputRef = useRef<HTMLInputElement>(null);
-  const showcaseInputRef = useRef<HTMLInputElement>(null);
 
   // Recharge le formulaire à chaque ouverture / changement de produit édité.
   useEffect(() => {
@@ -68,7 +65,6 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
     setImageUrl(product?.imageUrl ?? "");
     setImages(product?.images ?? []);
     setEnvelopeImageUrl(product?.envelopeImageUrl ?? "");
-    setShowcaseImages(product?.showcaseImages ?? []);
     setError("");
   }, [open, product]);
 
@@ -132,24 +128,6 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
     }
   };
 
-  // Photos de présentation du coffret (boîte ouverte/fermée…) — affichées
-  // entières comme la photo d'enveloppe, plusieurs possibles.
-  const uploadShowcaseImages = async (files: FileList) => {
-    setUploadingShowcase(true);
-    setError("");
-    try {
-      const urls: string[] = [];
-      for (const f of Array.from(files).slice(0, 6)) urls.push(await doUpload(f));
-      setShowcaseImages((prev) => [...prev, ...urls].slice(0, 6));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Échec de l'upload");
-    } finally {
-      setUploadingShowcase(false);
-    }
-  };
-
-  const removeShowcaseImage = (url: string) => setShowcaseImages((prev) => prev.filter((u) => u !== url));
-
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -170,7 +148,6 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
       imageUrl,
       images,
       envelopeImageUrl,
-      showcaseImages,
       stock: stock.trim() === "" ? null : Math.max(0, Math.floor(Number(stock))),
       sizes: sizesText.split(",").map((s) => s.trim()).filter(Boolean),
       details: detailsText.split("\n").map((s) => s.trim()).filter(Boolean),
@@ -341,32 +318,6 @@ export default function ProductFormModal({ open, product, onClose, onSaved }: Pr
                       onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadEnvelopeImage(f); }}
                     />
                   </div>
-                </div>
-
-                {/* Photos de présentation du coffret (boîte ouverte/fermée…) — affichées entières, section dédiée sur la fiche produit */}
-                <div className="flex flex-col gap-1.5">
-                  <label className={labelCls} style={{ color: "var(--ink-muted)" }}>Photos du coffret (présentation)</label>
-                  <div className="flex flex-wrap gap-2 items-center">
-                    {showcaseImages.map((url) => (
-                      <div key={url} className="relative w-20 h-20 rounded-lg overflow-hidden" style={{ background: "var(--cream)", border: "1px solid rgba(184,134,26,0.2)" }}>
-                        <Image src={url} alt="" fill className="object-contain" />
-                        <button type="button" onClick={() => removeShowcaseImage(url)} aria-label="Retirer" className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "rgba(28,20,16,0.7)" }}>
-                          <svg viewBox="0 0 16 16" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" width={9} height={9}><path d="M3 3l10 10M13 3L3 13" /></svg>
-                        </button>
-                      </div>
-                    ))}
-                    {showcaseImages.length < 6 && (
-                      <button type="button" onClick={() => showcaseInputRef.current?.click()} disabled={uploadingShowcase} className="w-20 h-20 rounded-lg flex items-center justify-center transition-all active:scale-95 disabled:opacity-50" style={{ background: "var(--cream)", border: "1.5px dashed rgba(184,134,26,0.4)" }}>
-                        {uploadingShowcase ? (
-                          <span className="text-[9px]" style={{ color: "var(--gold-dark)" }}>Envoi…</span>
-                        ) : (
-                          <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold-dark)" strokeWidth="1.6" strokeLinecap="round" width={18} height={18}><path d="M12 5v14M5 12h14" /></svg>
-                        )}
-                      </button>
-                    )}
-                  </div>
-                  <p className="text-[10px]" style={{ color: "var(--ink-muted)" }}>Jusqu&rsquo;à 6 photos, affichées entières (coffret ouvert, fermé…) dans une section dédiée « Ce que vous recevez ».</p>
-                  <input ref={showcaseInputRef} type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={(e) => { if (e.target.files?.length) uploadShowcaseImages(e.target.files); e.target.value = ""; }} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">

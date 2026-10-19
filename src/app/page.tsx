@@ -7,6 +7,7 @@ import SiteHeader from "@/components/SiteHeader";
 import StorySketch from "@/components/StorySketch";
 import ContactModal from "@/components/ContactModal";
 import Link from "next/link";
+import Image from "next/image";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -517,6 +518,28 @@ export default function LandingPage() {
           <p className="text-center text-[11px] mt-8" style={{ color: "var(--ink-muted)", opacity: 0.7 }}>
             Bracelet ou collier · À porter chaque jour, ou à conserver pour toujours.
           </p>
+
+          {/* Photos réelles du coffret — fermé puis ouvert, pour que le visiteur
+              visualise concrètement ce qu'il recevra avant de personnaliser sa carte. */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8">
+            {[
+              { src: "/coffret/enveloppe-fermee.jpg", alt: "Enveloppe N'OUBLIE JAMAIS fermée, scellée d'un sceau doré" },
+              { src: "/coffret/coffret-ouvert-1.jpg", alt: "Coffret ouvert : bracelet, carte personnalisée et carte à QR code" },
+              { src: "/coffret/coffret-ouvert-2.png", alt: "Coffret ouvert avec un autre bracelet, carte personnalisée et QR code" },
+            ].map((photo, i) => (
+              <motion.div
+                key={photo.src}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-30px" }}
+                transition={{ delay: i * 0.08, duration: 0.4, ease: EASE }}
+                className="relative w-full rounded-2xl overflow-hidden"
+                style={{ aspectRatio: "4 / 3", background: "var(--cream)", border: "1px solid rgba(184,134,26,0.12)" }}
+              >
+                <Image src={photo.src} alt={photo.alt} fill className="object-cover" />
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
