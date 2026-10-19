@@ -252,6 +252,33 @@ export default function ProductDetail({ product }: { product: Product }) {
           )}
         </div>
       </motion.div>
+
+      {/* Présentation du coffret propre à ce produit — optionnelle, n'apparaît
+          que si des photos ont été ajoutées pour ce produit précis dans
+          l'admin. La présentation générale vit sur la page d'accueil. */}
+      {product.showcaseImages.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="md:col-span-2 flex flex-col gap-4 mt-4"
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1" style={{ background: "rgba(184,134,26,0.15)" }} />
+            <p className="text-[12px] font-bold uppercase tracking-wider shrink-0" style={{ color: "var(--ink)" }}>
+              Ce que vous recevez
+            </p>
+            <div className="h-px flex-1" style={{ background: "rgba(184,134,26,0.15)" }} />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {product.showcaseImages.map((url) => (
+              <div key={url} className="relative w-full rounded-2xl overflow-hidden" style={{ aspectRatio: "4 / 3", background: "#F5EED5" }}>
+                <Image src={url} alt={`Contenu du coffret — ${product.name}`} fill className="object-contain" />
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }
