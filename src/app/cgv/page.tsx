@@ -4,7 +4,7 @@ export const metadata = { title: "Conditions Générales de Vente" };
 
 export default function CGV() {
   return (
-    <LegalLayout title="Conditions Générales de Vente" updated="25 juin 2026">
+    <LegalLayout title="Conditions Générales de Vente" updated="22 octobre 2026">
       <h2>1. Objet</h2>
       <p>
         Les présentes Conditions Générales de Vente (CGV) régissent les relations contractuelles entre <strong>N&rsquo;OUBLIE JAMAIS</strong> (ci-après « le Vendeur ») et toute personne physique ou morale souhaitant procéder à un achat via le site <strong>oubliejamaisbijoux.fr</strong> (ci-après « le Client »).
@@ -29,8 +29,7 @@ export default function CGV() {
         Les prix sont indiqués en euros toutes taxes comprises (TTC). Le Vendeur se réserve le droit de modifier ses prix à tout moment. Les produits sont facturés sur la base des tarifs en vigueur au moment de la validation de la commande.
       </p>
       <ul>
-        <li><strong>La Carte</strong> : 14,90 € TTC — 1 carte vocale, lien actif à vie</li>
-        <li><strong>Le Coffret</strong> : 34,90 € TTC — 5 cartes vocales, liens actifs à vie</li>
+        <li><strong>Ensemble cadeau N&rsquo;OUBLIE JAMAIS</strong> : 54 € TTC — un bracelet, une enveloppe et des cartes personnalisées avec QR code donnant accès au message vocal</li>
       </ul>
 
       <h2>4. Paiement</h2>
