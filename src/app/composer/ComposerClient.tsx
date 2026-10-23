@@ -40,6 +40,7 @@ const PAPERS = [
   { id: "nacre",  name: "Blanc nacré",   desc: "Élégance lumineuse",   bg: "#F9F8F3", text: "#1C1410", accent: "#8B6510", shimmer: true  },
   { id: "lin",    name: "Lin naturel",   desc: "Chaleur organique",    bg: "#DFD0B4", text: "#2A1B0E", accent: "#6B4C1E", shimmer: false },
   { id: "noir",   name: "Noir velouté",  desc: "Luxe absolu",          bg: "#18120C", text: "#F0E8D8", accent: "#D4A832", shimmer: false },
+  { id: "vert",   name: "Vert sérénité", desc: "Harmonie naturelle",   bg: "#EFF5EC", text: "#162620", accent: "#3D6B4A", shimmer: false },
 ] as const;
 
 const CARD_FONTS = [
@@ -587,7 +588,7 @@ function PaperSelector({ selected, onChange }: { selected: string; onChange: (id
   return (
     <div>
       <p className="text-[10px] font-bold tracking-[0.14em] uppercase mb-2.5" style={{ color: "var(--ink-muted)" }}>Papier</p>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-5 gap-2">
         {PAPERS.map((p) => {
           const active = selected === p.id;
           return (

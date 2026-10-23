@@ -7,6 +7,7 @@ const PAPERS: Record<string, { bg: string; text: string; accent: string; darkQr:
   nacre: { bg: "#F9F8F3", text: "#1C1410", accent: "#8B6510", darkQr: false },
   lin: { bg: "#DFD0B4", text: "#2A1B0E", accent: "#6B4C1E", darkQr: false },
   noir: { bg: "#18120C", text: "#F0E8D8", accent: "#D4A832", darkQr: true },
+  vert: { bg: "#EFF5EC", text: "#162620", accent: "#3D6B4A", darkQr: false },
 };
 
 const FONT_FAMILY: Record<string, string> = {
