@@ -257,7 +257,7 @@ export function CardRectoVersoPages({ data }: { data: CardPdfData }) {
               <Text style={labelStyle}>Créé le</Text>
               <Text
                 style={{
-                  fontSize: fs(12),
+                  fontSize: fs(16),
                   fontFamily: "Playfair Display",
                   fontStyle: "italic",
                   color: paper.text,
@@ -306,7 +306,7 @@ export function CardRectoVersoPages({ data }: { data: CardPdfData }) {
             {data.message ? (
               <Text
                 style={{
-                  fontSize: fs(12),
+                  fontSize: fs(16),
                   fontFamily: nameFamily,
                   fontStyle: "italic",
                   color: paper.text,
