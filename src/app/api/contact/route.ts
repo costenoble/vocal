@@ -31,7 +31,9 @@ export async function POST(req: NextRequest) {
     });
 
     // Notification email — best effort, le message est déjà en base.
-    sendContactNotification({ name, email, subject, message }).catch((err) =>
+    // Awaited (sans bloquer le succès sur une erreur d'envoi) pour éviter
+    // que la réponse HTTP ne coupe l'envoi en cours de route.
+    await sendContactNotification({ name, email, subject, message }).catch((err) =>
       console.error("[contact] email failed", err)
     );
 
