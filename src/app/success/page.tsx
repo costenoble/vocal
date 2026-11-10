@@ -174,6 +174,10 @@ function SuccessContent() {
               </div>
             )}
 
+            <p className="text-[11px] leading-relaxed" style={{ color: "rgba(28,20,16,0.4)" }}>
+              Vous ne recevez pas nos emails ? Pensez à vérifier vos courriers indésirables (spams).
+            </p>
+
             <Link href="/" className="text-[12px] font-semibold" style={{ color: "var(--ink-muted)", opacity: 0.5 }}>
               ← Retour à l&apos;accueil
             </Link>
