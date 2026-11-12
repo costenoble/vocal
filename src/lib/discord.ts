@@ -44,3 +44,44 @@ export async function notifyDiscordNewOrder(params: {
     console.error("[discord]", err);
   }
 }
+
+// Notification Discord à chaque message reçu via le formulaire de contact.
+export async function notifyDiscordNewContact(params: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  adminUrl: string;
+}): Promise<void> {
+  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+  if (!webhookUrl) return;
+
+  const { name, email, subject, message, adminUrl } = params;
+
+  try {
+    const res = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        embeds: [
+          {
+            title: "✉️ Nouveau message de contact",
+            color: 0xb8861a,
+            fields: [
+              { name: "De", value: `${name} (${email})` },
+              { name: "Sujet", value: subject },
+              { name: "Message", value: message.length > 500 ? `${message.slice(0, 500)}…` : message },
+            ],
+            url: adminUrl,
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      }),
+    });
+    if (!res.ok) {
+      console.error("[discord] Webhook a répondu", res.status, await res.text().catch(() => ""));
+    }
+  } catch (err) {
+    console.error("[discord]", err);
+  }
+}

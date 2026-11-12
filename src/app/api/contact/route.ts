@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendContactNotification } from "@/lib/email";
+import { notifyDiscordNewContact } from "@/lib/discord";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -36,6 +37,9 @@ export async function POST(req: NextRequest) {
     await sendContactNotification({ name, email, subject, message }).catch((err) =>
       console.error("[contact] email failed", err)
     );
+
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin || "https://oubliejamaisbijoux.fr";
+    notifyDiscordNewContact({ name, email, subject, message, adminUrl: `${baseUrl}/admin` });
 
     return NextResponse.json({ ok: true });
   } catch (err) {
