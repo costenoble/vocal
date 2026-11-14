@@ -114,10 +114,11 @@ export default async function AdminPage({
   const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const paidMessages = messages.filter((m) => m.paid);
+  const paidMessages = messages.filter((m) => m.paid && !m.archivedAt);
   const toShipList = paidMessages.filter((m) => !m.shippedAt);
   const shippedList = paidMessages.filter((m) => m.shippedAt);
-  const unpaidList = messages.filter((m) => !m.paid);
+  const unpaidList = messages.filter((m) => !m.paid && !m.archivedAt);
+  const archivedList = messages.filter((m) => m.archivedAt);
 
   // Horodatages des commandes payées → cloche de notification.
   const paidTimestamps = paidMessages
@@ -401,6 +402,32 @@ export default async function AdminPage({
             )}
           </div>
         </div>
+
+        {/* ═══ Archivées ═══ */}
+        {archivedList.length > 0 && (
+          <div className="rounded-2xl overflow-hidden mb-6" style={{ border: "1px solid rgba(184,134,26,0.12)", boxShadow: "0 2px 12px rgba(184,134,26,0.06)" }}>
+            <div className="px-5 py-3" style={{ background: "white", borderBottom: "1px solid rgba(184,134,26,0.10)" }}>
+              <div className="flex items-center gap-2.5">
+                <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--ink-muted)" }}>Archivées</h2>
+                <span className="text-[11px] font-bold" style={{ color: "var(--ink-muted)" }}>{archivedList.length}</span>
+              </div>
+              <p className="text-[11px] mt-1" style={{ color: "var(--ink-muted)" }}>
+                Masquées de la liste pour alléger l&rsquo;affichage — le message vocal et la carte restent actifs pour le client.
+              </p>
+            </div>
+            <div className="divide-y" style={{ background: "white", borderColor: "rgba(184,134,26,0.08)" }}>
+              {archivedList.map((m) => (
+                <div key={m.id} className="px-5 py-3 flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate" style={{ color: "var(--ink)" }}>{m.fromName} → {m.toName}</p>
+                    <p className="text-[11px] mt-0.5" style={{ color: "var(--ink-muted)" }}>Archivée le {fmtDateTime(m.archivedAt!)}</p>
+                  </div>
+                  <Link href={`/listen/${m.slug}`} target="_blank" className="text-[11px] font-semibold shrink-0" style={{ color: "var(--gold)" }}>Écouter →</Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* ═══ En attente de paiement ═══ */}
         {unpaidList.length > 0 && (

@@ -5,35 +5,31 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-const CONFIRM_WORD = "SUPPRIMER";
 
-// Bouton de suppression d'une commande (page admin). Suppression définitive
-// et irréversible (message vocal + QR code), donc confirmation par saisie
-// d'un mot-clé plutôt qu'un simple window.confirm() — trop facile à valider
-// par réflexe (retour client : suppression accidentelle d'une carte en
-// voulant juste "faire de la place" dans la liste).
+// Bouton d'archivage d'une commande (page admin). N'efface plus rien : la
+// commande disparaît juste de la liste principale, le message vocal et le
+// QR code du client continuent de fonctionner (retour client : une carte
+// avait été supprimée par erreur en voulant juste désencombrer la liste).
 export default function DeleteOrderButton({ slug, label }: { slug: string; label: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [confirmText, setConfirmText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
   const close = () => {
     if (busy) return;
     setOpen(false);
-    setConfirmText("");
     setError("");
   };
 
-  const remove = async () => {
+  const archive = async () => {
     setBusy(true);
     setError("");
     try {
       const res = await fetch(`/api/admin/orders/${slug}`, { method: "DELETE" });
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
-        setError(json.error || "La suppression a échoué.");
+        setError(json.error || "L'archivage a échoué.");
         return;
       }
       setOpen(false);
@@ -47,13 +43,13 @@ export default function DeleteOrderButton({ slug, label }: { slug: string; label
     <>
       <button
         onClick={() => setOpen(true)}
-        aria-label={`Supprimer la carte ${label}`}
+        aria-label={`Archiver la carte ${label}`}
         className="w-7 h-7 rounded-lg flex items-center justify-center transition-all active:scale-90"
-        style={{ background: "rgba(192,57,43,0.08)", border: "1px solid rgba(192,57,43,0.18)" }}
-        title="Supprimer"
+        style={{ background: "rgba(28,20,16,0.05)", border: "1px solid rgba(28,20,16,0.12)" }}
+        title="Archiver"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="#C0392B" strokeWidth="1.7" strokeLinecap="round" width={13} height={13}>
-          <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" width={13} height={13}>
+          <rect x="3" y="4" width="18" height="4" rx="1" /><path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M10 13h4" />
         </svg>
       </button>
 
@@ -76,34 +72,22 @@ export default function DeleteOrderButton({ slug, label }: { slug: string; label
               initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }}
               transition={{ duration: 0.35, ease: EASE }}
             >
-              <div style={{ height: 4, background: "linear-gradient(to right, #C0392B, #E08070, #C0392B)" }} />
+              <div style={{ height: 4, background: "linear-gradient(to right, var(--gold-dark), var(--gold-light), var(--gold-dark))" }} />
 
               <div className="px-6 py-7">
                 <h2 className="text-[17px] font-black leading-tight mb-2" style={{ color: "var(--ink)", fontFamily: "var(--font-playfair)" }}>
-                  Supprimer définitivement ?
+                  Archiver cette carte ?
                 </h2>
                 <p className="text-[13px] leading-relaxed mb-1" style={{ color: "var(--ink-muted)" }}>
-                  La carte <strong style={{ color: "var(--ink)" }}>{label}</strong> sera supprimée.
+                  La carte <strong style={{ color: "var(--ink)" }}>{label}</strong> sera retirée de cette liste.
                 </p>
-                <p className="text-[13px] leading-relaxed mb-5" style={{ color: "#C0392B" }}>
-                  Le message vocal et le QR code ne fonctionneront plus. Cette action est irréversible.
+                <p className="text-[13px] leading-relaxed mb-5" style={{ color: "var(--ink-muted)" }}>
+                  Le message vocal et le QR code du client continueront de fonctionner normalement — rien n&rsquo;est supprimé.
                 </p>
 
-                <label className="text-[11px] font-bold tracking-[0.1em] uppercase" style={{ color: "var(--ink-muted)" }}>
-                  Tapez {CONFIRM_WORD} pour confirmer
-                </label>
-                <input
-                  autoFocus
-                  value={confirmText}
-                  onChange={(e) => setConfirmText(e.target.value)}
-                  placeholder={CONFIRM_WORD}
-                  className="w-full mt-2 px-4 py-3 rounded-xl text-[14px] outline-none"
-                  style={{ border: "1.5px solid rgba(192,57,43,0.25)", color: "var(--ink)" }}
-                />
+                {error && <p className="text-[12px] mb-3" style={{ color: "#C0392B" }}>{error}</p>}
 
-                {error && <p className="text-[12px] mt-2" style={{ color: "#C0392B" }}>{error}</p>}
-
-                <div className="flex gap-3 mt-6">
+                <div className="flex gap-3">
                   <button
                     onClick={close}
                     disabled={busy}
@@ -113,12 +97,12 @@ export default function DeleteOrderButton({ slug, label }: { slug: string; label
                     Annuler
                   </button>
                   <button
-                    onClick={remove}
-                    disabled={busy || confirmText.trim().toUpperCase() !== CONFIRM_WORD}
+                    onClick={archive}
+                    disabled={busy}
                     className="flex-1 py-3 rounded-xl font-bold text-[13px] text-white transition-all active:scale-95 disabled:opacity-40"
-                    style={{ background: "#C0392B" }}
+                    style={{ background: "var(--ink)" }}
                   >
-                    {busy ? "Suppression…" : "Supprimer"}
+                    {busy ? "Archivage…" : "Archiver"}
                   </button>
                 </div>
               </div>

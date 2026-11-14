@@ -46,6 +46,7 @@ model Message {
   orderId         String?
   trackingNumber  String?
   trackingCarrier String?
+  archivedAt      DateTime?
 }
 
 model ContactMessage {

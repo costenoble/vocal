@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { deleteAudio } from "@/lib/storage";
 import { isAdminSession } from "@/lib/admin-auth";
 import { sendShippingNotification } from "@/lib/email";
 
@@ -59,8 +58,10 @@ export async function PATCH(
   return NextResponse.json({ ok: true, emailSent });
 }
 
-// Suppression d'une commande depuis l'admin : l'enregistrement ET ses
-// fichiers audio (message + éventuelle réponse) sont effacés.
+// Archivage d'une commande depuis l'admin : elle disparaît de la liste
+// principale, mais l'enregistrement et les fichiers audio sont conservés —
+// la carte du client (page d'écoute + PDF) continue de fonctionner. On ne
+// supprime plus jamais réellement un message vocal depuis cette action.
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -70,18 +71,15 @@ export async function DELETE(
   }
 
   const { slug } = await params;
-  const message = await prisma.message.findUnique({
-    where: { slug },
-    select: { audioUrl: true, replyAudioUrl: true },
-  });
 
-  if (!message) {
+  try {
+    await prisma.message.update({
+      where: { slug },
+      data: { archivedAt: new Date() },
+    });
+  } catch {
     return NextResponse.json({ error: "Commande introuvable" }, { status: 404 });
   }
-
-  await deleteAudio(message.audioUrl);
-  if (message.replyAudioUrl) await deleteAudio(message.replyAudioUrl);
-  await prisma.message.delete({ where: { slug } });
 
   return NextResponse.json({ ok: true });
 }
